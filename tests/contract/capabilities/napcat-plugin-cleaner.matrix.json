@@ -1,0 +1,136 @@
+{
+  "schema_version": "1",
+  "adapter_scope": {
+    "adapter_id": "napcat-plugin-cleaner",
+    "adapter_version": "1.0.0",
+    "napcat_version": "4.18.33",
+    "qq_client_version": "3.2.32-52194",
+    "verification_state": "unverified",
+    "verified_at": null,
+    "account_binding": "unknown",
+    "plugin_enabled_in_static_config": true,
+    "runtime_loaded": "unverified",
+    "evidence_refs": [
+      "docs/capabilities/P0-02.md#evidence-plugin-package",
+      "docs/capabilities/P0-02.md#evidence-plugin-source",
+      "docs/capabilities/P0-02.md#evidence-local-config",
+      "docs/capabilities/P0-02.md#evidence-napcat-router"
+    ]
+  },
+  "actions": [
+    {
+      "action": "search_groups",
+      "status": "unverified",
+      "effect": "read",
+      "input_schema": "PluginSearchRequest",
+      "output_schema": "PluginSearchResponse",
+      "pagination": { "kind": "none", "cursor_input": false, "cursor_output": false, "source": "plugin source" },
+      "external_effect": "No write effect intended; results are candidates, not membership facts.",
+      "reference_id": { "returned": false, "stable": false, "schema": null },
+      "read_back": { "supported": false, "method": null },
+      "outcomes": { "timeout": "SEARCH_TIMEOUT error; request cancellation is not established", "unknown": "live transport outcome unverified", "rejected": "failure JSON may carry an error code; provider semantics unverified", "no_effect": "not authoritatively distinguished" },
+      "timeout_ms": 10000,
+      "retry": { "plugin_internal": "none found in inspected source", "adapter_retry": "unverified", "policy": "only bounded read retry after adapter-level classification" },
+      "writer_surface": "No write action in this endpoint; process-wide writer inventory remains incomplete.",
+      "evidence_refs": ["plugin-source:searchGroups", "plugin-source:search-route", "plugin-package:1.0.0", "napcat-router:registration-id"]
+    },
+    {
+      "action": "request_join",
+      "status": "unverified",
+      "effect": "write",
+      "input_schema": "PluginJoinRequest",
+      "output_schema": "PluginJoinResponse",
+      "pagination": { "kind": "none", "cursor_input": false, "cursor_output": false, "source": "not applicable" },
+      "external_effect": "Submits an outbound group join request. Submission result does not prove approval or membership.",
+      "reference_id": { "returned": false, "stable": false, "schema": null },
+      "read_back": { "supported": false, "method": null },
+      "outcomes": { "timeout": "JOIN_TIMEOUT after dispatch is unknown; underlying Promise is not cancelled", "unknown": "void result is defaulted to result=1 and raw echo; neither is an authoritative request reference", "rejected": "error/result code returned, but rejection-versus-no-effect mapping is unverified", "no_effect": "not authoritatively distinguished after dispatch" },
+      "timeout_ms": 15000,
+      "retry": { "plugin_internal": "none found in inspected source; capability probes joinGroup then reqToJoinGroup but calls only one branch", "adapter_retry": "unverified", "policy": "never automatically replay an ambiguous dispatch" },
+      "writer_surface": "Direct write path through in-process NapCat GroupService; other writers are not exhaustively enumerated.",
+      "evidence_refs": ["plugin-source:requestJoin", "plugin-source:join-route", "plugin-package:1.0.0", "napcat-router:registration-id"]
+    },
+    {
+      "action": "observe_membership",
+      "status": "unsupported",
+      "effect": "read",
+      "input_schema": "MembershipParams",
+      "output_schema": "ObservationQueryResult",
+      "pagination": { "kind": "unknown", "cursor_input": false, "cursor_output": false, "source": "no endpoint in inspected cleaner source" },
+      "external_effect": "Read-only observation would be expected; no cleaner endpoint exists.",
+      "reference_id": { "returned": false, "stable": false, "schema": null },
+      "read_back": { "supported": false, "method": null },
+      "outcomes": { "timeout": "unknown", "unknown": "fail closed", "rejected": "not applicable", "no_effect": "not applicable" },
+      "timeout_ms": null,
+      "retry": { "plugin_internal": "not applicable", "adapter_retry": "not applicable", "policy": "not callable" },
+      "writer_surface": "No cleaner write path for this action.",
+      "evidence_refs": ["plugin-source:plugin_init-routes", "napcat-onebot-snapshot:membership-action-search"]
+    },
+    {
+      "action": "observe_join_request",
+      "status": "unsupported",
+      "effect": "read",
+      "input_schema": "JoinObservationParams",
+      "output_schema": "ObservationQueryResult",
+      "pagination": { "kind": "unknown", "cursor_input": false, "cursor_output": false, "source": "no endpoint in inspected cleaner source" },
+      "external_effect": "Read-only request status observation would be expected; no cleaner query endpoint exists.",
+      "reference_id": { "returned": false, "stable": false, "schema": null },
+      "read_back": { "supported": false, "method": null },
+      "outcomes": { "timeout": "unknown", "unknown": "fail closed", "rejected": "not applicable", "no_effect": "not applicable" },
+      "timeout_ms": null,
+      "retry": { "plugin_internal": "not applicable", "adapter_retry": "not applicable", "policy": "not callable" },
+      "writer_surface": "No cleaner write path for this action.",
+      "evidence_refs": ["plugin-source:plugin_init-routes", "napcat-onebot-snapshot:SetGroupAddRequest"]
+    },
+    {
+      "action": "cancel_join_request",
+      "status": "unsupported",
+      "effect": "write",
+      "input_schema": "JoinObservationParams",
+      "output_schema": "Operation",
+      "pagination": { "kind": "none", "cursor_input": false, "cursor_output": false, "source": "not applicable" },
+      "external_effect": "Would cancel an outbound pending request. Cleaner has no such route; OneBot set_group_add_request handles inbound requests/invitations and is not this action.",
+      "reference_id": { "returned": false, "stable": false, "schema": null },
+      "read_back": { "supported": false, "method": null },
+      "outcomes": { "timeout": "unknown", "unknown": "fail closed", "rejected": "not applicable", "no_effect": "not applicable" },
+      "timeout_ms": null,
+      "retry": { "plugin_internal": "not applicable", "adapter_retry": "not applicable", "policy": "not callable" },
+      "writer_surface": "No cleaner cancellation endpoint; inbound request handling is a separate write capability.",
+      "evidence_refs": ["plugin-source:plugin_init-routes", "napcat-onebot-snapshot:SetGroupAddRequest"]
+    },
+    {
+      "action": "send_text",
+      "status": "unsupported",
+      "effect": "write",
+      "input_schema": "SendTextParams",
+      "output_schema": "Observation",
+      "pagination": { "kind": "none", "cursor_input": false, "cursor_output": false, "source": "not applicable" },
+      "external_effect": "Would send a QQ message. Cleaner has no send route.",
+      "reference_id": { "returned": false, "stable": false, "schema": null },
+      "read_back": { "supported": false, "method": null },
+      "outcomes": { "timeout": "unknown", "unknown": "fail closed", "rejected": "not applicable", "no_effect": "not applicable" },
+      "timeout_ms": null,
+      "retry": { "plugin_internal": "not applicable", "adapter_retry": "not applicable", "policy": "not callable" },
+      "writer_surface": "No cleaner write path for this action; other send paths are not exhaustively enumerated.",
+      "evidence_refs": ["plugin-source:plugin_init-routes", "static-runtime-config:onebot-client"]
+    }
+  ],
+  "related_but_not_equivalent": [
+    {
+      "action": "set_group_add_request",
+      "status": "unverified",
+      "effect": "write",
+      "input_schema": "NapCat OneBot GroupActions.SetGroupAddRequest.PayloadSchema",
+      "output_schema": "null",
+      "semantics": "Handles an existing inbound join request or invitation by flag; not observe_join_request and not cancellation of an outbound join request.",
+      "evidence_refs": ["napcat-onebot-snapshot:SetGroupAddRequest"]
+    }
+  ],
+  "safety_invariants": {
+    "unknown_capability_supported": false,
+    "write_timeout_default": "unknown",
+    "unknown_dispatch_automatic_retry": false,
+    "membership_not_joined_proves_no_pending_request": false,
+    "fake_adapter_proves_live_capability": false
+  }
+}

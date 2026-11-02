@@ -1,0 +1,47 @@
+{
+  "name": "bba-character-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Offline-bound per-account Koishi ChatLuna Character runtime with a trusted-trigger, one-shot text-only send gate at the adapter boundary.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "prebuild": "node tools/patch-chatluna.cjs",
+    "pretest": "npm run build",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "capacity:character": "node --import tsx tools/local-l1-character-capacity.ts"
+  },
+  "dependencies": {
+    "@koishijs/client": "5.30.11",
+    "@koishijs/plugin-console": "5.30.11",
+    "@koishijs/plugin-database-memory": "3.7.0",
+    "@minatojs/driver-memory": "3.7.0",
+    "koishi": "4.18.11",
+    "koishi-plugin-adapter-onebot": "6.9.5",
+    "koishi-plugin-chatluna": "1.4.4",
+    "koishi-plugin-chatluna-character": "0.0.235",
+    "koishi-plugin-chatluna-storage-service": "1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

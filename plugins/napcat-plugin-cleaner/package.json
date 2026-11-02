@@ -1,0 +1,15 @@
+{
+  "name": "napcat-plugin-cleaner",
+  "plugin": "DXC 搜索/加群 API",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "type": "module",
+  "description": "为 DXC 补回按关键字搜索群与主动申请加群的进程内能力（NapCat v4.18.29 已移除 nc_search_group/nc_join_group action）",
+  "author": "DXC",
+  "napcat": {
+    "tags": [
+      "工具"
+    ],
+    "minVersion": "4.18.0"
+  }
+}

@@ -1,0 +1,22 @@
+extends:
+  - recommended
+
+rules:
+  # The service is deliberately local-only: no servers are declared in P0-01.
+  no-empty-servers: off
+  security-defined: off
+
+  # Contract strictness that must fail the pipeline, not merely warn.
+  no-unresolved-refs: error
+  no-ambiguous-paths: error
+  no-identical-paths: error
+  no-invalid-media-type-examples: error
+  operation-operationId: error
+  operation-operationId-unique: error
+  operation-operationId-url-safe: error
+  operation-4xx-response: off
+  operation-parameters-unique: error
+  path-parameters-defined: error
+  path-declaration-must-exist: error
+  response-contains-header: off
+  info-license: off

@@ -1,0 +1,72 @@
+{
+  "OperatorRuntimeEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/OperatorRuntime" },
+      "meta": { "$ref": "#/RuntimeMeta" }
+    }
+  },
+  "RuntimeMeta": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["request_id", "server_time"],
+    "properties": {
+      "request_id": { "$ref": "common.json#/Id" },
+      "server_time": { "$ref": "common.json#/UTCDateTime" }
+    }
+  },
+  "OperatorRuntime": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "environment", "development_operations", "worker", "flags", "model", "limits"],
+    "properties": {
+      "schema_version": { "type": "integer", "minimum": 1 },
+      "environment": { "type": "string", "enum": ["unconfigured", "development", "fixture", "production"] },
+      "development_operations": { "type": "boolean" },
+      "worker": {
+        "type": "object", "additionalProperties": false,
+        "required": ["enabled", "id", "poll_ms", "batch", "transport"],
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "id": { "type": "string", "maxLength": 128 },
+          "poll_ms": { "type": "integer", "minimum": 0, "maximum": 86400000 },
+          "batch": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "transport": { "type": "string", "enum": ["fixture", "off"] }
+        }
+      },
+      "flags": {
+        "type": "object", "additionalProperties": false,
+        "required": ["proposal_execution", "login", "model"],
+        "properties": { "proposal_execution": { "type": "boolean" }, "login": { "type": "boolean" }, "model": { "type": "boolean" } }
+      },
+      "model": {
+        "type": "object", "additionalProperties": false,
+        "required": ["configured", "enabled", "provider_id", "model_id", "prompt_version", "last_request", "max_concurrency", "timeout_seconds"],
+        "properties": {
+          "configured": { "type": "boolean" }, "enabled": { "type": "boolean" },
+          "provider_id": { "type": "string", "maxLength": 128 }, "model_id": { "type": "string", "maxLength": 128 },
+          "prompt_version": { "type": "string", "maxLength": 128 },
+          "last_request": {
+            "type": "object", "nullable": true, "additionalProperties": false,
+            "required": ["id", "state", "code", "created_at"],
+            "properties": {
+              "id": { "$ref": "common.json#/Id" },
+              "state": { "type": "string", "enum": ["succeeded", "unknown", "failed"] },
+              "code": { "type": "string", "maxLength": 128 },
+              "created_at": { "$ref": "common.json#/UTCDateTime" }
+            }
+          },
+          "max_concurrency": { "type": "integer", "minimum": 0, "maximum": 32 },
+          "timeout_seconds": { "type": "integer", "minimum": 0, "maximum": 120 }
+        }
+      },
+      "limits": {
+        "type": "object", "additionalProperties": false,
+        "required": ["max_candidates", "max_total_external_attempts"],
+        "properties": { "max_candidates": { "type": "integer", "minimum": 1, "maximum": 100000 }, "max_total_external_attempts": { "type": "integer", "minimum": 1, "maximum": 1000000 } }
+      }
+    }
+  }
+}

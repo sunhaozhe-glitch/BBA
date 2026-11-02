@@ -1,0 +1,615 @@
+[
+  {
+    "schema_ref": "common.json#/Id",
+    "valid": true,
+    "value": "task_example",
+    "description": "Opaque server identifier at the lower boundary of the allowed shape."
+  },
+  {
+    "schema_ref": "common.json#/Id",
+    "valid": false,
+    "value": 42,
+    "description": "Identifiers are strings, never numbers."
+  },
+  {
+    "schema_ref": "common.json#/QQId",
+    "valid": true,
+    "value": "123456789",
+    "description": "QQ group/account ID as a decimal string."
+  },
+  {
+    "schema_ref": "common.json#/QQId",
+    "valid": false,
+    "value": "0123456789",
+    "description": "Leading zero is rejected by the canonical QQ ID pattern."
+  },
+  {
+    "schema_ref": "common.json#/DecimalSequence",
+    "valid": true,
+    "value": "7",
+    "description": "Positive owner epoch/fence/sequence encoded as a decimal string."
+  },
+  {
+    "schema_ref": "common.json#/DecimalSequence",
+    "valid": false,
+    "value": "0",
+    "description": "Owner epochs, fences and sequences are strictly positive; zero is rejected."
+  },
+  {
+    "schema_ref": "common.json#/Digest",
+    "valid": true,
+    "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "description": "Lowercase 64-character SHA-256 digest."
+  },
+  {
+    "schema_ref": "common.json#/Digest",
+    "valid": false,
+    "value": "0123456789ABCDEF0123456789abcdef0123456789abcdef0123456789abcdef",
+    "description": "Uppercase hexadecimal is not the lowercase wire digest."
+  },
+  {
+    "schema_ref": "common.json#/UTCDateTime",
+    "valid": true,
+    "value": "2026-10-24T12:00:00Z",
+    "description": "RFC3339 UTC timestamp with mandatory Z suffix."
+  },
+  {
+    "schema_ref": "common.json#/UTCDateTime",
+    "valid": false,
+    "value": "2026-10-24T12:00:00+08:00",
+    "description": "A local offset is rejected; the contract stores and transmits UTC with Z."
+  },
+  {
+    "schema_ref": "common.json#/RequestMeta",
+    "valid": true,
+    "value": {
+      "request_id": "req_example",
+      "next_cursor": null,
+      "has_more": false
+    },
+    "description": "Non-list response metadata still carries an explicit null cursor and has_more false."
+  },
+  {
+    "schema_ref": "common.json#/RequestMeta",
+    "valid": false,
+    "value": {
+      "request_id": "req_example",
+      "next_cursor": null
+    },
+    "description": "has_more is required even when there is no next page."
+  },
+  {
+    "schema_ref": "common.json#/Error",
+    "valid": true,
+    "value": {
+      "code": "TASK_VERSION_CONFLICT",
+      "message": "Task version changed; reload before retrying.",
+      "retryable": false,
+      "retry_after_ms": null,
+      "details": {
+        "expected_version": 3,
+        "current_version": 4
+      }
+    },
+    "description": "Version conflict with bounded safe details. retryable=false means the same request must not be blindly retried."
+  },
+  {
+    "schema_ref": "common.json#/Error",
+    "valid": true,
+    "value": {
+      "code": "FEATURE_DISABLED",
+      "message": "This contract endpoint is disabled in the current implementation stage.",
+      "retryable": false,
+      "retry_after_ms": null,
+      "details": {
+        "stage": "P0-17"
+      }
+    },
+    "description": "Disabled later-stage endpoint error. FEATURE_DISABLED is a valid extensible error code."
+  },
+  {
+    "schema_ref": "common.json#/Error",
+    "valid": false,
+    "value": {
+      "code": "TASK_VERSION_CONFLICT",
+      "message": "Task version changed.",
+      "retryable": "false",
+      "retry_after_ms": null,
+      "details": {}
+    },
+    "description": "retryable must be a boolean, not the string \"false\"."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "OPERATION_PAYLOAD_CONFLICT",
+        "message": "The operation ID already exists with a different payload digest.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {
+          "operation_id": "op_example"
+        }
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Error response envelope; there is no data field and no fabricated success."
+  },
+  {
+    "schema_ref": "common.json#/Account",
+    "valid": true,
+    "value": {
+      "id": "acc_unverified",
+      "workspace_id": "ws_example",
+      "platform": "qq",
+      "self_id": null,
+      "runtime_id": "runtime_unverified",
+      "owner_epoch": "1",
+      "connection_state": "unknown",
+      "login_state": "unknown",
+      "control_state": "paused",
+      "risk_state": "unknown",
+      "capabilities": [],
+      "heartbeat_at": null,
+      "version": 1
+    },
+    "description": "An unverified account has no inferred QQ self ID."
+  },
+  {
+    "schema_ref": "common.json#/Account",
+    "valid": false,
+    "value": {
+      "id": "acc_unverified",
+      "workspace_id": "ws_example",
+      "platform": "qq",
+      "self_id": 12345,
+      "runtime_id": "runtime_unverified",
+      "owner_epoch": "1",
+      "connection_state": "unknown",
+      "login_state": "unknown",
+      "control_state": "paused",
+      "risk_state": "unknown",
+      "capabilities": [],
+      "heartbeat_at": null,
+      "version": 1
+    },
+    "description": "QQ self IDs remain strings when present."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": false,
+    "value": {
+      "error": {
+        "code": "VALIDATION_FAILED",
+        "message": "Invalid request.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      }
+    },
+    "description": "Error envelopes require meta; it may not be omitted."
+  },
+  {
+    "schema_ref": "common.json#/Target",
+    "valid": true,
+    "value": {
+      "platform": "qq",
+      "kind": "group",
+      "external_id": "123456789"
+    },
+    "description": "Normalized QQ group target using the decimal external ID."
+  },
+  {
+    "schema_ref": "common.json#/Target",
+    "valid": false,
+    "value": {
+      "platform": "qq",
+      "kind": "channel",
+      "external_id": "123456789"
+    },
+    "description": "Unsupported target kind; arbitrary target types are rejected."
+  },
+  {
+    "schema_ref": "common.json#/Pagination",
+    "valid": true,
+    "value": {
+      "cursor": null,
+      "limit": 50
+    },
+    "description": "First page uses an explicit null cursor and the default limit."
+  },
+  {
+    "schema_ref": "common.json#/Pagination",
+    "valid": false,
+    "value": {
+      "cursor": null,
+      "limit": 0
+    },
+    "description": "limit must be within 1..100."
+  },
+  {
+    "schema_ref": "common.json#/Receipt",
+    "valid": true,
+    "value": {
+      "id": "rcpt_example",
+      "resource_id": "task_example",
+      "action": "reconcile",
+      "accepted_at": "2026-10-24T12:00:00Z",
+      "expected_version": 4,
+      "state": "accepted"
+    },
+    "description": "202 receipt means accepted for asynchronous processing only."
+  },
+  {
+    "schema_ref": "common.json#/Receipt",
+    "valid": false,
+    "value": {
+      "id": "rcpt_example",
+      "resource_id": "task_example",
+      "action": "reconcile",
+      "accepted_at": "2026-10-24T12:00:00Z",
+      "expected_version": 4,
+      "state": "completed"
+    },
+    "description": "A receipt state has exactly one value: accepted. It cannot claim external completion."
+  },
+  {
+    "schema_ref": "common.json#/Account",
+    "valid": true,
+    "value": {
+      "id": "acc_qq1",
+      "workspace_id": "ws_local",
+      "platform": "qq",
+      "self_id": "10001",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "connection_state": "online",
+      "login_state": "logged_in",
+      "control_state": "active",
+      "risk_state": "clear",
+      "capabilities": [],
+      "heartbeat_at": "2026-10-24T12:00:00Z",
+      "version": 1
+    },
+    "description": "Account projection with separately tracked connection, login, control and risk dimensions."
+  },
+  {
+    "schema_ref": "common.json#/Account",
+    "valid": false,
+    "value": {
+      "id": "acc_qq1",
+      "workspace_id": "ws_local",
+      "platform": "qq",
+      "self_id": "10001",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": 7,
+      "connection_state": "online",
+      "login_state": "logged_in",
+      "control_state": "active",
+      "risk_state": "clear",
+      "capabilities": [],
+      "heartbeat_at": "2026-10-24T12:00:00Z",
+      "version": 1
+    },
+    "description": "owner_epoch is a decimal string, never a JavaScript number."
+  },
+  {
+    "schema_ref": "common.json#/AccountPage",
+    "valid": true,
+    "value": {
+      "items": []
+    },
+    "description": "An empty account page is valid; cursor metadata belongs to the envelope."
+  },
+  {
+    "schema_ref": "common.json#/AccountPage",
+    "valid": false,
+    "value": {
+      "items": [],
+      "next_cursor": null
+    },
+    "description": "Page objects do not carry cursors; the cursor lives in envelope meta only."
+  },
+  {
+    "schema_ref": "common.json#/CapabilityAction",
+    "valid": true,
+    "value": {
+      "supported": false,
+      "effect": "none",
+      "pagination": "none",
+      "fresh_read": false,
+      "idempotency": "none"
+    },
+    "description": "Unsupported action declared explicitly. Unknown capabilities fail closed."
+  },
+  {
+    "schema_ref": "common.json#/CapabilityAction",
+    "valid": false,
+    "value": {
+      "supported": true,
+      "effect": "read",
+      "pagination": "offset",
+      "fresh_read": true,
+      "idempotency": "none"
+    },
+    "description": "Pagination is a closed union of none or cursor; offset paging is not supported."
+  },
+  {
+    "schema_ref": "common.json#/Capability",
+    "valid": true,
+    "value": {
+      "account_id": "acc_qq1",
+      "adapter_id": "local_group_plugin",
+      "adapter_version": "fixture-unverified",
+      "verification_state": "unverified",
+      "verified_at": null,
+      "evidence_ref": null,
+      "actions": {
+        "search_groups": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "request_join": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "observe_membership": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "observe_join_request": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "cancel_join_request": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "send_text": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" }
+      }
+    },
+    "description": "Fixture capability is explicitly unverified with every fixed action unsupported; it makes no claim about the installed plugin."
+  },
+  {
+    "schema_ref": "common.json#/Capability",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "adapter_id": "local_group_plugin",
+      "adapter_version": "fixture-unverified",
+      "verification_state": "trusted",
+      "verified_at": null,
+      "evidence_ref": null,
+      "actions": {
+        "search_groups": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "request_join": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "observe_membership": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "observe_join_request": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "cancel_join_request": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" },
+        "send_text": { "supported": false, "effect": "none", "pagination": "none", "fresh_read": false, "idempotency": "none" }
+      }
+    },
+    "description": "verification_state is a closed unverified/verified union."
+  },
+  {
+    "schema_ref": "common.json#/CapabilityPage",
+    "valid": true,
+    "value": {
+      "items": []
+    },
+    "description": "Empty capability page; no unverified capability is promoted to supported by the list itself."
+  },
+  {
+    "schema_ref": "common.json#/CapabilityPage",
+    "valid": false,
+    "value": {
+      "items": [],
+      "has_more": false
+    },
+    "description": "has_more belongs to envelope meta, not the page object."
+  },
+  {
+    "schema_ref": "common.json#/AccountControlRequest",
+    "valid": true,
+    "value": {
+      "action": "pause",
+      "expected_version": 4,
+      "reason": "Manual account check"
+    },
+    "description": "Account pause request with optimistic version and explicit reason."
+  },
+  {
+    "schema_ref": "common.json#/AccountControlRequest",
+    "valid": false,
+    "value": {
+      "action": "delete",
+      "expected_version": 4,
+      "reason": "Manual account check"
+    },
+    "description": "Only pause and resume are account controls."
+  },
+  {
+    "schema_ref": "common.json#/TaskControlRequest",
+    "valid": true,
+    "value": {
+      "action": "pause",
+      "expected_version": 4,
+      "reason": "Pause before operator review"
+    },
+    "description": "Task pause request; expected_version prevents overwriting a newer decision."
+  },
+  {
+    "schema_ref": "common.json#/TaskControlRequest",
+    "valid": false,
+    "value": {
+      "action": "pause",
+      "expected_version": 0,
+      "reason": "Pause before operator review"
+    },
+    "description": "expected_version must be positive."
+  },
+  {
+    "schema_ref": "common.json#/VersionRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 4
+    },
+    "description": "Minimal optimistic concurrency request."
+  },
+  {
+    "schema_ref": "common.json#/VersionRequest",
+    "valid": false,
+    "value": {
+      "expected_version": "4"
+    },
+    "description": "expected_version is an integer, never a string."
+  },
+  {
+    "schema_ref": "common.json#/ReconcileRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 4,
+      "reason": "Resolve unknown external outcome"
+    },
+    "description": "Read-only reconcile request; it never repeats the original write."
+  },
+  {
+    "schema_ref": "common.json#/ReconcileRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 4,
+      "reason": 123
+    },
+    "description": "reason must be a non-empty string."
+  },
+  {
+    "schema_ref": "common.json#/HeartbeatRequest",
+    "valid": true,
+    "value": {
+      "workspace_id": "ws_local",
+      "runtime_id": "runtime_qq1",
+      "account_id": "acc_qq1",
+      "owner_epoch": "7",
+      "sequence": "101",
+      "connection_state": "online",
+      "login_state": "logged_in",
+      "heartbeat_at": "2026-10-24T12:00:00Z",
+      "capabilities": []
+    },
+    "description": "Runtime heartbeat with monotonic decimal epoch and sequence."
+  },
+  {
+    "schema_ref": "common.json#/HeartbeatRequest",
+    "valid": false,
+    "value": {
+      "workspace_id": "ws_local",
+      "runtime_id": "runtime_qq1",
+      "account_id": "acc_qq1",
+      "owner_epoch": "7",
+      "sequence": 101,
+      "connection_state": "online",
+      "login_state": "logged_in",
+      "heartbeat_at": "2026-10-24T12:00:00Z",
+      "capabilities": []
+    },
+    "description": "sequence is a decimal string and is rejected as a JSON number."
+  },
+  {
+    "schema_ref": "common.json#/HeartbeatReceipt",
+    "valid": true,
+    "value": {
+      "runtime_id": "runtime_qq1",
+      "account_id": "acc_qq1",
+      "owner_epoch": "7",
+      "sequence": "101",
+      "accepted_at": "2026-10-24T12:00:01Z",
+      "account_version": 1,
+      "control_state": "active",
+      "next_action_at": null
+    },
+    "description": "Heartbeat acceptance receipt with an explicit null next_action_at."
+  },
+  {
+    "schema_ref": "common.json#/HeartbeatReceipt",
+    "valid": false,
+    "value": {
+      "runtime_id": "runtime_qq1",
+      "account_id": "acc_qq1",
+      "owner_epoch": "7",
+      "sequence": "101",
+      "accepted_at": "2026-10-24T12:00:01Z",
+      "account_version": 1,
+      "control_state": "deleted",
+      "next_action_at": null
+    },
+    "description": "control_state is a closed active/paused/blocked union."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentityStatus",
+    "valid": true,
+    "value": "unverified",
+    "description": "New bindings start unverified; only authenticated runtime read-back may promote identity."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentityStatus",
+    "valid": false,
+    "value": "active",
+    "description": "Identity status is a closed unverified/verified/stale/drift union."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentitySource",
+    "valid": true,
+    "value": "napcat_get_login_info",
+    "description": "Only authenticated read-only OneBot self-info is an identity source."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentitySource",
+    "valid": false,
+    "value": "config_label",
+    "description": "Static labels and endpoint configuration are not identity evidence."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentity",
+    "valid": true,
+    "value": {
+      "account_id": "acc_qq1",
+      "qq_self_id": null,
+      "runtime_id": "runtime_qq1",
+      "adapter_id": "adapter_qq1",
+      "adapter_instance_id": "adapter_instance_qq1",
+      "napcat_instance_id": "napcat_qq1",
+      "character_runtime_id": "character_runtime_qq1",
+      "character_db_id": "character_db_qq1",
+      "character_cache_namespace": "character_cache_qq1",
+      "capability_profile_id": "profile_qq1",
+      "status": "unverified",
+      "identity_verified_at": null,
+      "identity_source": null,
+      "runtime_generation": 1
+    },
+    "description": "Complete account/runtime/adapter/Character binding with no inferred QQ identity."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentity",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "qq_self_id": "10001",
+      "runtime_id": "runtime_qq1",
+      "adapter_id": "adapter_qq1",
+      "adapter_instance_id": "adapter_instance_qq1",
+      "napcat_instance_id": "napcat_qq1",
+      "character_runtime_id": "character_runtime_qq1",
+      "character_db_id": "character_db_qq1",
+      "character_cache_namespace": "character_cache_qq1",
+      "capability_profile_id": "profile_qq1",
+      "status": "verified",
+      "identity_verified_at": null,
+      "identity_source": null,
+      "runtime_generation": 1
+    },
+    "description": "A verified identity requires timestamp and read-back source; this fixture must remain invalid."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentityPage",
+    "valid": true,
+    "value": { "items": [] },
+    "description": "Empty identity registry page."
+  },
+  {
+    "schema_ref": "common.json#/AccountIdentityPage",
+    "valid": false,
+    "value": { "items": [], "next_cursor": null },
+    "description": "Identity page carries no cursor outside envelope metadata."
+  }
+]

@@ -1,0 +1,331 @@
+{
+  "LoginSessionState": {
+    "type": "string",
+    "enum": [
+      "CREATED",
+      "QR_READY",
+      "SCANNED",
+      "AUTHENTICATING",
+      "ONLINE",
+      "EXPIRED",
+      "CANCELLED",
+      "FAILED"
+    ]
+  },
+  "LoginSessionFailureReason": {
+    "type": "string",
+    "enum": [
+      "PROVIDER_ERROR",
+      "QR_EXPIRED",
+      "TIMEOUT",
+      "IDENTITY_MISMATCH",
+      "IDENTITY_ALREADY_BOUND"
+    ],
+    "nullable": true
+  },
+  "LoginSessionNextAction": {
+    "type": "string",
+    "enum": [
+      "request_qr",
+      "poll",
+      "cancel",
+      "none",
+      "retry"
+    ]
+  },
+  "LoginProviderMode": {
+    "type": "string",
+    "enum": [
+      "fixture",
+      "napcat",
+      "disabled"
+    ]
+  },
+  "LoginStatus": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "provider",
+      "fixture",
+      "live",
+      "session_ttl_seconds",
+      "qr_ttl_seconds",
+      "identity_readback"
+    ],
+    "properties": {
+      "provider": {
+        "$ref": "#/LoginProviderMode"
+      },
+      "fixture": {
+        "type": "boolean"
+      },
+      "live": {
+        "type": "boolean"
+      },
+      "session_ttl_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3600
+      },
+      "qr_ttl_seconds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 600
+      },
+      "identity_readback": {
+        "type": "string",
+        "enum": [
+          "onebot_get_login_info",
+          "fixture",
+          "none"
+        ]
+      }
+    }
+  },
+  "LoginStatusEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/LoginStatus"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  },
+  "LoginGenerationRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "expected_generation"
+    ],
+    "properties": {
+      "expected_generation": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      }
+    }
+  },
+  "LoginSessionIdentity": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "self_id",
+      "nickname",
+      "verified_at",
+      "binding_checked"
+    ],
+    "properties": {
+      "self_id": {
+        "type": "string",
+        "pattern": "^[1-9][0-9]*$"
+      },
+      "nickname": {
+        "type": "string",
+        "maxLength": 128
+      },
+      "verified_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "binding_checked": {
+        "type": "boolean"
+      }
+    }
+  },
+  "LoginSessionProjection": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "projected",
+      "account_login_state",
+      "account_connection_state",
+      "identity_status"
+    ],
+    "properties": {
+      "projected": {
+        "type": "boolean"
+      },
+      "account_login_state": {
+        "type": "string",
+        "enum": [
+          "logged_in",
+          "logged_out",
+          "challenge_required",
+          "unknown"
+        ]
+      },
+      "account_connection_state": {
+        "type": "string",
+        "enum": [
+          "online",
+          "offline",
+          "degraded",
+          "unknown"
+        ]
+      },
+      "identity_status": {
+        "type": "string",
+        "enum": [
+          "unverified",
+          "verified",
+          "stale",
+          "drift"
+        ]
+      }
+    }
+  },
+  "LoginSession": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "workspace_id",
+      "account_id",
+      "adapter_instance_id",
+      "runtime_id",
+      "provider",
+      "state",
+      "generation",
+      "version",
+      "expired",
+      "qr_available",
+      "next_action",
+      "expires_at",
+      "created_at",
+      "updated_at"
+    ],
+    "properties": {
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "workspace_id": {
+        "$ref": "common.json#/Id"
+      },
+      "account_id": {
+        "$ref": "common.json#/Id"
+      },
+      "adapter_instance_id": {
+        "$ref": "common.json#/Id"
+      },
+      "runtime_id": {
+        "$ref": "common.json#/Id"
+      },
+      "provider": {
+        "$ref": "#/LoginProviderMode"
+      },
+      "state": {
+        "$ref": "#/LoginSessionState"
+      },
+      "generation": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "expired": {
+        "type": "boolean"
+      },
+      "qr_available": {
+        "type": "boolean"
+      },
+      "qr_png_data_url": {
+        "type": "string",
+        "nullable": true,
+        "maxLength": 524288,
+        "description": "Short-lived QR image for display only. Never persisted by the browser, never a provider credential."
+      },
+      "qr_expires_at": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "next_action": {
+        "$ref": "#/LoginSessionNextAction"
+      },
+      "failure_reason": {
+        "$ref": "#/LoginSessionFailureReason"
+      },
+      "identity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["self_id", "nickname", "verified_at", "binding_checked"],
+        "properties": {
+          "self_id": {"type": "string", "pattern": "^[1-9][0-9]*$"},
+          "nickname": {"type": "string", "maxLength": 128},
+          "verified_at": {"$ref": "common.json#/UTCDateTime"},
+          "binding_checked": {"type": "boolean"}
+        },
+        "nullable": true
+      },
+      "projection": {
+        "$ref": "#/LoginSessionProjection"
+      },
+      "expires_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "created_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "updated_at": {
+        "$ref": "common.json#/UTCDateTime"
+      }
+    }
+  },
+  "LoginSessionPage": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "items"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "$ref": "#/LoginSession"
+        }
+      }
+    }
+  },
+  "LoginSessionEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/LoginSession"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  },
+  "LoginSessionPageEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/LoginSessionPage"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  }
+}

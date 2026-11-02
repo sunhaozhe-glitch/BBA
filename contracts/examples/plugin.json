@@ -1,0 +1,507 @@
+[
+  {
+    "schema_ref": "plugin.json#/PluginSearchRequest",
+    "valid": true,
+    "value": {
+      "keyword": "AI",
+      "count": 20
+    },
+    "description": "Bounded plugin search request. Canonical registration path is /api/Plugin/ext/napcat-plugin-cleaner/search-group."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginSearchRequest",
+    "valid": false,
+    "value": {
+      "keyword": "AI",
+      "count": 51
+    },
+    "description": "The plugin search count is bounded to 1..50."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginGroup",
+    "valid": true,
+    "value": {
+      "group_id": 123456789,
+      "group_name": "Example group",
+      "member_count": 42
+    },
+    "description": "Actual plugin wire group ID is numeric int64; core converts it to a decimal QQId string."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginGroup",
+    "valid": false,
+    "value": {
+      "group_id": 0,
+      "group_name": "Example group",
+      "member_count": 42
+    },
+    "description": "Plugin group IDs must be positive; the local plugin filters group_id <= 0."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginSearchResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "groups": [
+        { "group_id": 123456789, "group_name": "Example group", "member_count": 42 }
+      ]
+    },
+    "description": "Successful search response with no cursor. Groups are candidates, not results."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginSearchResponse",
+    "valid": true,
+    "value": {
+      "ok": false,
+      "error": "search failed",
+      "code": "SEARCH_FAILED"
+    },
+    "description": "Failure body is an adapter error, never candidate evidence."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginSearchResponse",
+    "valid": false,
+    "value": {
+      "ok": true
+    },
+    "description": "Successful search responses must include the groups array."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinRequest",
+    "valid": true,
+    "value": {
+      "group_id": 123456789,
+      "confirm": "1",
+      "reason": "Operator-approved application text.",
+      "answer": "group-answer"
+    },
+    "description": "Canonical join path. reason is the native richMsg application text and answer is the required native applyMsg answer; confirm is the string \"1\"."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinRequest",
+    "valid": false,
+    "value": {
+      "group_id": 123456789,
+      "confirm": 1,
+      "reason": "Operator-approved application text."
+    },
+    "description": "confirm is the string \"1\", not numeric 1; the plugin wire shape is fixed."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinRequest",
+    "valid": false,
+    "value": {
+      "group_id": 123456789,
+      "confirm": "1",
+      "reason": "Operator-approved application text.",
+      "path": "/api/Plugin/ext/dxc-join-api/join-group"
+    },
+    "description": "The legacy dxc-join-api path is not an accepted wire field or route; request objects reject unknown fields."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": { "result": "ok" }
+    },
+    "description": "Canonical /api/Plugin/ext/napcat-plugin-cleaner/join-group response. result 1 can mean submitted/pending and is never confirmed membership success; void/absent result stays ambiguous/unknown."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": false,
+      "error": "join failed",
+      "code": "JOIN_FAILED",
+      "result": 0
+    },
+    "description": "Failure response with an optional result code; it is not a success claim."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true
+    },
+    "description": "A success response without a result code is rejected/ambiguous; it must never be converted into confirmed success."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": null
+    },
+    "description": "Void native diagnostics are raw null (never a fabricated object or default code). result 1 is still only a plugin code, not membership confirmation."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": 1
+    },
+    "description": "A finite non-negative safe integer native return is a valid bounded raw diagnostic as well as the result code."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": "{\"result\":1,\"p00\":\"v\",\"p01\":\"v\"}"
+    },
+    "description": "An oversized/special native object degrades to a bounded string instead of passing the full native object through."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": {
+        "result": 1,
+        "p00": "v",
+        "p01": "v",
+        "p02": "v",
+        "p03": "v",
+        "p04": "v",
+        "p05": "v",
+        "p06": "v",
+        "p07": "v",
+        "p08": "v",
+        "p09": "v",
+        "p10": "v",
+        "p11": "v",
+        "p12": "v",
+        "p13": "v",
+        "p14": "v",
+        "p15": "v",
+        "p16": "v",
+        "p17": "v",
+        "p18": "v",
+        "p19": "v",
+        "p20": "v",
+        "p21": "v",
+        "p22": "v",
+        "p23": "v",
+        "p24": "v",
+        "p25": "v",
+        "p26": "v",
+        "p27": "v",
+        "p28": "v",
+        "p29": "v",
+        "p30": "v",
+        "p31": "v",
+        "p32": "v",
+        "p33": "v",
+        "p34": "v",
+        "p35": "v",
+        "p36": "v",
+        "p37": "v",
+        "p38": "v",
+        "p39": "v",
+        "p40": "v",
+        "p41": "v",
+        "p42": "v",
+        "p43": "v",
+        "p44": "v",
+        "p45": "v",
+        "p46": "v",
+        "p47": "v",
+        "p48": "v",
+        "p49": "v",
+        "p50": "v",
+        "p51": "v",
+        "p52": "v",
+        "p53": "v",
+        "p54": "v",
+        "p55": "v",
+        "p56": "v",
+        "p57": "v",
+        "p58": "v",
+        "p59": "v",
+        "p60": "v",
+        "p61": "v",
+        "p62": "v"
+      }
+    },
+    "description": "A plain raw object at the 64-property boundary is valid and keeps its shape."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": false,
+      "error": "native join returned no result",
+      "code": "UNKNOWN_RESULT",
+      "raw": null
+    },
+    "description": "Failure/unknown response with raw null still satisfies PluginJoinResponse and never claims a result code."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 9007199254740991,
+      "raw": null
+    },
+    "description": "Largest JavaScript-safe integer result code is accepted."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": true,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "request_ref": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+      "raw": null
+    },
+    "description": "request_ref at exactly 256 Unicode characters is accepted."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": {
+        "result": 1,
+        "p00": "v",
+        "p01": "v",
+        "p02": "v",
+        "p03": "v",
+        "p04": "v",
+        "p05": "v",
+        "p06": "v",
+        "p07": "v",
+        "p08": "v",
+        "p09": "v",
+        "p10": "v",
+        "p11": "v",
+        "p12": "v",
+        "p13": "v",
+        "p14": "v",
+        "p15": "v",
+        "p16": "v",
+        "p17": "v",
+        "p18": "v",
+        "p19": "v",
+        "p20": "v",
+        "p21": "v",
+        "p22": "v",
+        "p23": "v",
+        "p24": "v",
+        "p25": "v",
+        "p26": "v",
+        "p27": "v",
+        "p28": "v",
+        "p29": "v",
+        "p30": "v",
+        "p31": "v",
+        "p32": "v",
+        "p33": "v",
+        "p34": "v",
+        "p35": "v",
+        "p36": "v",
+        "p37": "v",
+        "p38": "v",
+        "p39": "v",
+        "p40": "v",
+        "p41": "v",
+        "p42": "v",
+        "p43": "v",
+        "p44": "v",
+        "p45": "v",
+        "p46": "v",
+        "p47": "v",
+        "p48": "v",
+        "p49": "v",
+        "p50": "v",
+        "p51": "v",
+        "p52": "v",
+        "p53": "v",
+        "p54": "v",
+        "p55": "v",
+        "p56": "v",
+        "p57": "v",
+        "p58": "v",
+        "p59": "v",
+        "p60": "v",
+        "p61": "v",
+        "p62": "v",
+        "p63": "v"
+      }
+    },
+    "description": "A raw object with 65 properties exceeds maxProperties 64; it must degrade or be rejected, never pass through."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": {
+        "result": 1,
+        "p00": "v",
+        "p01": "v",
+        "p02": "v",
+        "p03": "v",
+        "p04": "v",
+        "p05": "v",
+        "p06": "v",
+        "p07": "v",
+        "p08": "v",
+        "p09": "v",
+        "p10": "v",
+        "p11": "v",
+        "p12": "v",
+        "p13": "v",
+        "p14": "v",
+        "p15": "v",
+        "p16": "v",
+        "p17": "v",
+        "p18": "v",
+        "p19": "v",
+        "p20": "v",
+        "p21": "v",
+        "p22": "v",
+        "p23": "v",
+        "p24": "v",
+        "p25": "v",
+        "p26": "v",
+        "p27": "v",
+        "p28": "v",
+        "p29": "v",
+        "p30": "v",
+        "p31": "v",
+        "p32": "v",
+        "p33": "v",
+        "p34": "v",
+        "p35": "v",
+        "p36": "v",
+        "p37": "v",
+        "p38": "v",
+        "p39": "v",
+        "p40": "v",
+        "p41": "v",
+        "p42": "v",
+        "p43": "v",
+        "p44": "v",
+        "p45": "v",
+        "p46": "v",
+        "p47": "v",
+        "p48": "v",
+        "p49": "v",
+        "p50": "v",
+        "p51": "v",
+        "p52": "v",
+        "p53": "v",
+        "p54": "v",
+        "p55": "v",
+        "p56": "v",
+        "p57": "v",
+        "p58": "v",
+        "p59": "v",
+        "p60": "v",
+        "p61": "v",
+        "p62": "v",
+        "p63": "v",
+        "p64": "v"
+      }
+    },
+    "description": "The 66-property object from the route regression is not a valid raw echo; it must degrade to a bounded string."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": 1.9
+    },
+    "description": "raw 1.9 is not a finite non-negative integer, string, null, or plain bounded object."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": -1
+    },
+    "description": "raw -1 is a negative integer and is not an allowed raw shape."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "raw": [
+        1,
+        2,
+        3
+      ]
+    },
+    "description": "Arrays are not an allowed raw shape; they must degrade to a bounded string instead."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1.9,
+      "raw": null
+    },
+    "description": "A non-integral result 1.9 is not a plugin result code and must fail closed."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": -1,
+      "raw": null
+    },
+    "description": "A negative result -1 is not a plugin result code and must fail closed."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 9007199254740992,
+      "raw": null
+    },
+    "description": "A result above Number.MAX_SAFE_INTEGER is not a safe integer code."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": true,
+      "result": 1,
+      "request_ref": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+      "raw": null
+    },
+    "description": "request_ref longer than 256 Unicode characters must be omitted entirely, not truncated to another reference."
+  },
+  {
+    "schema_ref": "plugin.json#/PluginJoinResponse",
+    "valid": false,
+    "value": {
+      "ok": false,
+      "error": "native join failed",
+      "code": "JOIN_FAILED",
+      "request_ref": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+      "raw": null
+    },
+    "description": "Overlong request_ref is rejected on the failure branch too; it must be omitted rather than truncated."
+  }
+]

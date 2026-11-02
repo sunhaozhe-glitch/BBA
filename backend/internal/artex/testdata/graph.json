@@ -1,0 +1,36 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "fact",
+      "payload": "{\"summary\":\"任务根节点：目标 example.internal\",\"confidence\":\"observed\"}",
+      "priority": 0,
+      "state": "origin",
+      "origin": "task",
+      "ts": "2026-10-20T09:00:00Z"
+    },
+    {
+      "id": "2",
+      "type": "intent",
+      "payload": "{\"summary\":\"枚举 example.internal 的 web 端点\"}",
+      "priority": 5,
+      "state": "running",
+      "origin": "planner",
+      "ts": "2026-10-20T09:01:00Z"
+    },
+    {
+      "id": "3",
+      "type": "goal",
+      "payload": "{\"text\":\"摸清 example.internal 的暴露面\"}",
+      "priority": 0,
+      "state": "open",
+      "origin": "user",
+      "ts": "2026-10-20T09:00:30Z"
+    }
+  ],
+  "edges": [
+    { "src": "1", "dst": "2", "rel": "spawns" },
+    { "src": "3", "dst": "2", "rel": "spawns" },
+    { "src": "2", "dst": "1", "rel": "derived_from" }
+  ]
+}

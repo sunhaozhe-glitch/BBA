@@ -1,0 +1,17 @@
+const m1e = p.Object({
+  group_id: p.String({ description: "群号" }),
+  is_dismiss: p.Optional(p.Union([p.Boolean(), p.String()], { description: "是否解散" }))
+}), g1e = p.Null({ description: "操作结果" });
+class y1e extends ue {
+  actionName = re.SetGroupLeave;
+  payloadSchema = m1e;
+  returnSchema = g1e;
+  actionSummary = "退出群组";
+  actionDescription = "退出或解散指定群聊";
+  actionTags = ["群组接口"];
+  payloadExample = it.SetGroupLeave.payload;
+  returnExample = it.SetGroupLeave.response;
+  async _handle(e) {
+    return await this.core.apis.GroupApi.quitGroup(e.group_id.toString()), null;
+  }
+}

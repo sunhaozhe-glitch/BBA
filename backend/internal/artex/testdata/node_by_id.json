@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "17",
+      "type": "fact",
+      "payload": "{\"summary\":\"41 号端口探测的汇总观察\"}",
+      "priority": 0,
+      "state": "confirmed",
+      "origin": "worker",
+      "ts": "2026-10-20T10:00:00Z"
+    },
+    {
+      "id": "41",
+      "type": "fact",
+      "payload": "{\"summary\":\"10.0.0.5:41 端口关闭\",\"confidence\":\"observed\"}",
+      "priority": 0,
+      "state": "dismissed",
+      "origin": "worker",
+      "ts": "2026-10-20T10:01:00Z"
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "size": 200,
+  "edges": [
+    { "src": "16", "dst": "41", "rel": "yields" }
+  ],
+  "refs": {
+    "16": {
+      "id": "16",
+      "type": "intent",
+      "payload": "{\"summary\":\"探测 10.0.0.5 的非常规端口\"}",
+      "priority": 2,
+      "state": "done",
+      "origin": "planner",
+      "ts": "2026-10-20T09:59:00Z"
+    }
+  },
+  "assets": {}
+}

@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.contract.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "build/ts-smoke",
+    "rootDir": ".",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "koishi/contracts/types.gen.ts",
+    "build/ts-fixtures.gen.ts"
+  ]
+}

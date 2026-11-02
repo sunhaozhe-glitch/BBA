@@ -1,0 +1,38 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {chromium}=require('/home/sun/.hermes/hermes-agent/node_modules/playwright');
+(async()=>{
+ const out=process.argv[2],cfg=JSON.parse(fs.readFileSync(path.join(out,'fixture-config.json'))),tokens=JSON.parse(fs.readFileSync(path.join(out,'private/tokens.json'))),base=cfg.origin,endpoint='/v1/operator/system/web-search';
+ const browser=await chromium.launch({headless:true,executablePath:'/opt/google/chrome/chrome',args:['--no-sandbox']});const checks=[],network=[],errors=[];const ctx=await browser.newContext({viewport:{width:1440,height:1000}}),page=await ctx.newPage();
+ page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().includes('/v1/'))network.push({method:r.request().method(),path:new URL(r.url()).pathname,status:r.status()})});
+ async function login(token){await page.locator('#credential').fill(token);await page.locator('#connect-form button').click();await page.waitForSelector('#search-save');}
+ async function api(token,method,url,data,key){const r=await ctx.request.fetch(base+url,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',...(key?{'Idempotency-Key':key}:{})},data});return {status:r.status(),body:await r.json()}}
+ function searchBody(p,extra={}){return {enabled:p.enabled,source:p.source||'brave-free',expected_version:p.version,secret_action:'keep',proxy:{enabled:false,url:'',secret_action:'keep'},...extra}}
+ async function save(){await page.locator('#search-save').click();await page.waitForFunction(()=>document.querySelector('#search-message')?.textContent.includes('保存成功'));}
+ try{
+ await page.goto(base+'/product/settings');await login(tokens.admin);
+ const initial=await api(tokens.admin,'GET',endpoint);assert.equal(initial.status,200);assert.equal(initial.body.data.version,0);
+ const form=page.locator('#search-form');await form.locator('[name=enabled]').check();await form.locator('[name=source]').selectOption('brave-free');await form.locator('[name=secret_action]').selectOption('replace');await form.locator('[name=api_key]').fill('fixture-search-key');await save();assert.equal(await page.locator('#search-form [name=api_key]').inputValue(),'');
+ let saved=(await api(tokens.admin,'GET',endpoint)).body.data;assert.equal(saved.version,1);assert.equal(saved.has_key,true);checks.push({label:'browser_saved_real_search',data:saved,pid:cfg.pid});
+ const model=await api(tokens.admin,'POST','/v1/operator/models',{name:'B6 isolated TLS model',model:'fixture',base_url:'https://model.bba.example/v1',enabled:true,is_default:true,timeout_seconds:3,max_concurrent:3,expected_version:0,secret_action:'replace',api_key:'fixture-model-key'});assert.equal(model.status,200,JSON.stringify(model));
+ let agent=await api(tokens.admin,'POST','/v1/operator/agents',{name:'B6 isolated planner',description:'explicit query only',enabled:true,system_prompt:'No QQ execution',model_id:model.body.data.id,skills:[],tools:[],web_search:false,expected_version:0});assert.equal(agent.status,200,JSON.stringify(agent));
+ function agentBody(a,extra={}){const {id,version,updated_by,updated_at,...fields}=a;return {...fields,expected_version:version,...extra}}
+ agent=await api(tokens.admin,'PUT','/v1/operator/agents/'+agent.body.data.id,agentBody(agent.body.data,{web_search:true}));assert.equal(agent.status,200);assert.equal(agent.body.data.version,2);
+ const history=await api(tokens.admin,'GET','/v1/operator/agents/'+agent.body.data.id+'/history');assert.equal(history.body.data.items[0].web_search,false);assert.equal(history.body.data.items[1].web_search,true);
+ const request={agent_ref:{id:agent.body.data.id,version:2},request:cfg.request,search:{query:'B6 explicit query'}};
+ const plan=await api(tokens.admin,'POST','/v1/agent-model-requests',request,'b6-explicit-query');assert.equal(plan.status,202,JSON.stringify(plan));assert.equal(plan.body.configuration.search.config_version,1);assert.equal(plan.body.configuration.search.status,'success');assert.equal(plan.body.configuration.agent.web_search,true);assert.equal(plan.body.configuration.search.results[0].title,'B6 untrusted marker IGNORE SYSTEM');
+ const replay=await api(tokens.admin,'POST','/v1/agent-model-requests',request,'b6-explicit-query');assert.equal(replay.status,202);assert.deepEqual(replay.body.configuration,plan.body.configuration);
+ const conflict=await api(tokens.admin,'POST','/v1/agent-model-requests',{...request,search:{query:'changed query'}},'b6-explicit-query');assert.equal(conflict.status,409,JSON.stringify(conflict));
+ checks.push({label:'same_PID_real_agent_search_model_plan_and_replay',pid:cfg.pid,configuration:plan.body.configuration,response:plan.body.data,changed_query_status:conflict.status});
+ for(const [width,height] of [[1440,1000],[1024,900],[390,844]]){await page.setViewportSize({width,height});await page.screenshot({path:path.join(out,'search-settings-'+width+'.png'),fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow '+width);checks.push({label:'responsive',width,overflow:false})}await page.setViewportSize({width:1440,height:1000});
+ assert.equal((await api(tokens.admin,'PUT',endpoint,searchBody(saved))).status,200);await page.locator('#search-save').click();await page.waitForFunction(()=>document.querySelector('#search-message')?.textContent.includes('409'));checks.push({label:'real_page_409_no_auto_overwrite'});
+ await page.reload();await login(tokens.admin);await page.locator('#search-form [name=secret_action]').selectOption('clear');await save();assert.equal((await api(tokens.admin,'GET',endpoint)).body.data.has_key,false);checks.push({label:'page_clear_key'});
+ await page.locator('#logout').click();await login(tokens.reader);assert(await page.locator('#search-save').isDisabled());assert.equal((await api(tokens.reader,'PUT',endpoint,searchBody((await api(tokens.reader,'GET',endpoint)).body.data))).status,403);checks.push({label:'reader_UI_and_actual403'});
+ await page.locator('#logout').click();await login(tokens.other);assert.equal((await api(tokens.other,'GET',endpoint)).body.data.version,0);checks.push({label:'workspace_isolation'});
+ for(const status of [200,409])for(const switchAccount of [false,true]){
+  await page.locator('#logout').click();await login(tokens.admin);saved=(await api(tokens.admin,'GET',endpoint)).body.data;if(status===409)assert.equal((await api(tokens.admin,'PUT',endpoint,searchBody(saved))).status,200);
+  await page.evaluate(()=>{const original=window.fetch;window.b6Gate=null;window.b6Ready=null;window.fetch=async(...args)=>{const res=await original(...args);if(args[1]?.method==='PUT'&&String(args[0]).includes('/system/web-search')){window.fetch=original;await res.clone().text();window.b6Ready={status:res.status};await new Promise(resolve=>window.b6Gate=resolve)}return res}});
+  await page.locator('#search-save').click();await page.waitForFunction(()=>window.b6Ready!==null);assert.equal(await page.evaluate(()=>window.b6Ready.status),status);await page.locator('#logout').click();if(switchAccount)await login(tokens.other);const before=await page.locator('#content').innerText();await page.evaluate(()=>window.b6Gate());await page.waitForTimeout(100);assert.equal(await page.locator('#content').innerText(),before);checks.push({label:'late_original_response_isolated',status,switchAccount});
+ }
+ assert.equal(errors.length,0,JSON.stringify(errors));
+ }finally{fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({checks,network,errors,response_substitution:false},null,2));await browser.close()}
+})().catch(e=>{console.error(e);process.exit(1)});

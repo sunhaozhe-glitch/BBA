@@ -1,0 +1,676 @@
+{
+  "GraphSyncProviderStatus": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "provider",
+      "configured",
+      "wired",
+      "writes_allowed"
+    ],
+    "properties": {
+      "provider": {
+        "type": "string",
+        "enum": [
+          "artex"
+        ]
+      },
+      "configured": {
+        "type": "boolean",
+        "description": "A provider was wired into the handler at all."
+      },
+      "wired": {
+        "type": "boolean",
+        "description": "The provider has both base URL and token; false is never displayed as connected."
+      },
+      "writes_allowed": {
+        "type": "boolean",
+        "description": "External ARTEX goal writes were explicitly enabled for this deployment."
+      }
+    }
+  },
+  "GraphSyncError": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "code",
+      "message",
+      "at"
+    ],
+    "properties": {
+      "code": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "Stable graph-sync error code, e.g. GRAPH_SYNC_PROVIDER_UNAVAILABLE."
+      },
+      "message": {
+        "type": "string",
+        "maxLength": 512
+      },
+      "at": {
+        "$ref": "common.json#/UTCDateTime"
+      }
+    }
+  },
+  "GraphSyncCheckpoint": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "source",
+      "scope_key",
+      "offset",
+      "updated_at"
+    ],
+    "properties": {
+      "source": {
+        "type": "string",
+        "enum": [
+          "core.outbox",
+          "group_summary"
+        ]
+      },
+      "scope_key": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "offset": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Highest consumed core.task_event.seq or Summary version for this scope."
+      },
+      "updated_at": {
+        "$ref": "common.json#/UTCDateTime"
+      }
+    }
+  },
+  "GraphSyncGraphStatus": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "graph_kind",
+      "bound",
+      "external_root",
+      "sync_state",
+      "task_version",
+      "scope_revision",
+      "graph_revision",
+      "last_sync_at",
+      "sync_lag_seconds",
+      "anchors",
+      "external_nodes",
+      "pending_outbox",
+      "needs_reconcile_outbox",
+      "failed_outbox",
+      "last_error",
+      "checkpoints"
+    ],
+    "properties": {
+      "graph_kind": {
+        "type": "string",
+        "enum": [
+          "fact",
+          "goal"
+        ]
+      },
+      "bound": {
+        "type": "boolean"
+      },
+      "external_root": {
+        "type": "string",
+        "nullable": true,
+        "maxLength": 128
+      },
+      "sync_state": {
+        "type": "string",
+        "enum": [
+          "unbound",
+          "not_configured",
+          "pending",
+          "synced",
+          "failed",
+          "needs_reconcile"
+        ]
+      },
+      "task_version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "scope_revision": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "graph_revision": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Revision of the accepted external read model; a planning snapshot binds it."
+      },
+      "last_sync_at": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "sync_lag_seconds": {
+        "type": "integer",
+        "minimum": 0,
+        "nullable": true
+      },
+      "anchors": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "external_nodes": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "pending_outbox": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "needs_reconcile_outbox": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "failed_outbox": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "last_error": {
+        "type": "object",
+        "nullable": true,
+        "additionalProperties": false,
+        "required": ["code", "message", "at"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1, "maxLength": 64},
+          "message": {"type": "string", "maxLength": 512},
+          "at": {"$ref": "common.json#/UTCDateTime"}
+        }
+      },
+      "checkpoints": {
+        "type": "array",
+        "maxItems": 128,
+        "items": {
+          "$ref": "#/GraphSyncCheckpoint"
+        }
+      }
+    }
+  },
+  "GraphSyncStatus": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "workspace_id",
+      "task_id",
+      "generated_at",
+      "provider",
+      "graphs"
+    ],
+    "properties": {
+      "workspace_id": {
+        "$ref": "common.json#/Id"
+      },
+      "task_id": {
+        "$ref": "common.json#/Id"
+      },
+      "generated_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "provider": {
+        "$ref": "#/GraphSyncProviderStatus"
+      },
+      "graphs": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "$ref": "#/GraphSyncGraphStatus"
+        }
+      }
+    }
+  },
+  "GraphSyncStatusEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/GraphSyncStatus"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  },
+  "GraphRootRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "external_root"
+    ],
+    "properties": {
+      "external_root": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "ARTEX task id. The ARTEX alias \"active\" is rejected because it would follow whatever task ARTEX currently runs."
+      }
+    }
+  },
+  "GraphPlanSummaryRef": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "account_id",
+      "group_id",
+      "summary_id",
+      "summary_version",
+      "manifest_sha256"
+    ],
+    "properties": {
+      "account_id": {
+        "$ref": "common.json#/Id"
+      },
+      "group_id": {
+        "$ref": "common.json#/QQId"
+      },
+      "summary_id": {
+        "$ref": "common.json#/Digest"
+      },
+      "summary_version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "manifest_sha256": {
+        "$ref": "common.json#/Digest"
+      }
+    }
+  },
+  "GraphPlanCandidate": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "candidate_id",
+      "external_node_id",
+      "target_external_id",
+      "text",
+      "provenance",
+      "evidence_refs"
+    ],
+    "properties": {
+      "candidate_id": {
+        "$ref": "common.json#/Id"
+      },
+      "external_node_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "target_external_id": {
+        "$ref": "common.json#/QQId"
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "provenance": {
+        "type": "string",
+        "enum": [
+          "inference"
+        ],
+        "description": "External text is inference, never a trusted fact."
+      },
+      "evidence_refs": {
+        "type": "array",
+        "maxItems": 3,
+        "items": {
+          "$ref": "common.json#/Id"
+        }
+      }
+    }
+  },
+  "GraphPlanningSnapshot": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "snapshot_id",
+      "workspace_id",
+      "task_id",
+      "graph_kind",
+      "provider",
+      "graph_revision",
+      "task_version",
+      "scope_revision",
+      "authorization_revision",
+      "model_version",
+      "template_version",
+      "summary_refs",
+      "anchor_ids",
+      "candidates",
+      "round",
+      "max_rounds",
+      "created_at",
+      "expires_at",
+      "digest",
+      "state"
+    ],
+    "properties": {
+      "snapshot_id": {
+        "$ref": "common.json#/Id"
+      },
+      "workspace_id": {
+        "$ref": "common.json#/Id"
+      },
+      "task_id": {
+        "$ref": "common.json#/Id"
+      },
+      "graph_kind": {
+        "type": "string",
+        "enum": [
+          "fact"
+        ]
+      },
+      "provider": {
+        "type": "string",
+        "enum": [
+          "artex"
+        ]
+      },
+      "graph_revision": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "task_version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "scope_revision": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "authorization_revision": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "model_version": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "template_version": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "summary_refs": {
+        "type": "array",
+        "maxItems": 64,
+        "items": {
+          "$ref": "#/GraphPlanSummaryRef"
+        }
+      },
+      "anchor_ids": {
+        "type": "array",
+        "maxItems": 256,
+        "items": {
+          "$ref": "common.json#/Id"
+        }
+      },
+      "candidates": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "$ref": "#/GraphPlanCandidate"
+        }
+      },
+      "round": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "max_rounds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100
+      },
+      "created_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "expires_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "digest": {
+        "$ref": "common.json#/Digest"
+      },
+      "state": {
+        "type": "string",
+        "enum": [
+          "open",
+          "consumed",
+          "stale",
+          "expired"
+        ]
+      }
+    }
+  },
+  "GraphPlanningSnapshotEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/GraphPlanningSnapshot"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  },
+  "GraphPlanningSnapshotList": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "items"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "$ref": "#/GraphPlanningSnapshot"
+        }
+      }
+    }
+  },
+  "GraphPlanningSnapshotListEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/GraphPlanningSnapshotList"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  },
+  "GraphSyncReconcileRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "outcome",
+      "external_node_id"
+    ],
+    "properties": {
+      "outcome": {
+        "type": "string",
+        "enum": [
+          "applied",
+          "not_applied"
+        ]
+      },
+      "external_node_id": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "Required when outcome is applied for a goal.create; verified against the provider goal list before anything is recorded."
+      }
+    }
+  },
+  "GraphSyncOutboxItem": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "workspace_id",
+      "task_id",
+      "id",
+      "graph_kind",
+      "operation",
+      "idempotency_key",
+      "payload",
+      "payload_digest",
+      "scope",
+      "sequence",
+      "state",
+      "attempts",
+      "max_attempts",
+      "external_node_id",
+      "last_error_code",
+      "last_error",
+      "next_attempt_at",
+      "created_at",
+      "updated_at"
+    ],
+    "properties": {
+      "workspace_id": {
+        "$ref": "common.json#/Id"
+      },
+      "task_id": {
+        "$ref": "common.json#/Id"
+      },
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "graph_kind": {
+        "type": "string",
+        "enum": [
+          "fact",
+          "goal"
+        ]
+      },
+      "operation": {
+        "type": "string",
+        "enum": [
+          "graph.pull",
+          "goal.create",
+          "goal.update",
+          "goal.delete"
+        ]
+      },
+      "idempotency_key": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {"type": "string", "maxLength": 128},
+          "external_root": {"type": "string", "maxLength": 128},
+          "last_event_seq": {"type": "integer", "minimum": 0},
+          "account_id": {"type": "string", "maxLength": 128},
+          "group_id": {"type": "string", "maxLength": 128},
+          "summary_id": {"type": "string", "maxLength": 128},
+          "summary_version": {"type": "integer", "minimum": 1},
+          "goal_key": {"type": "string", "maxLength": 200},
+          "text": {"type": "string", "maxLength": 10000},
+          "goal_count": {"type": "integer", "minimum": 0},
+          "trusted_results": {"type": "integer", "minimum": 0}
+        },
+        "description": "Operation payload; digest binds the reviewed body."
+      },
+      "payload_digest": {
+        "$ref": "common.json#/Digest"
+      },
+      "scope": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "sequence": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "state": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "sending",
+          "sent",
+          "failed",
+          "needs_reconcile",
+          "canceled"
+        ]
+      },
+      "attempts": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "max_attempts": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      },
+      "external_node_id": {
+        "type": "string",
+        "nullable": true,
+        "maxLength": 64
+      },
+      "last_error_code": {
+        "type": "string",
+        "nullable": true,
+        "maxLength": 64
+      },
+      "last_error": {
+        "type": "string",
+        "nullable": true,
+        "maxLength": 512
+      },
+      "next_attempt_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "created_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "updated_at": {
+        "$ref": "common.json#/UTCDateTime"
+      }
+    }
+  },
+  "GraphSyncOutboxItemEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/GraphSyncOutboxItem"
+      },
+      "meta": {
+        "$ref": "common.json#/RequestMeta"
+      }
+    }
+  }
+}
