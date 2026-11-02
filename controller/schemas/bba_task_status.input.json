@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    }
+  },
+  "required": [
+    "task_id"
+  ],
+  "additionalProperties": false
+}
