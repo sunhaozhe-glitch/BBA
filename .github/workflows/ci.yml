@@ -1,0 +1,52 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install jsonschema PyYAML
+      - run: bash tools/contract.sh prefetch
+      - run: bash tools/contract.sh check
+      - run: |
+          docker run --rm --network none --user "$(id -u):$(id -g)" -v "$PWD:/work" -w /work node:22-bookworm npm run contract:typecheck
+          node --check frontend/app.js
+          node --test tests/plugin/*.cjs
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prefetch Go modules
+        run: |
+          mkdir -p .cache/gomod .cache/gopath .cache/gobuild
+          docker run --rm --user "$(id -u):$(id -g)" -e GOMODCACHE=/work/.cache/gomod -e GOPATH=/work/.cache/gopath -e GOCACHE=/work/.cache/gobuild -v "$PWD:/work" -w /work/backend golang:1.26 go mod download
+          docker pull postgres:16-bookworm
+      - name: Isolated race tests
+        run: |
+          mkdir -p "$RUNNER_TEMP/bba"
+          export TMPDIR="$RUNNER_TEMP/bba"
+          bash tools/kernel.sh test-all
+      - name: Build all Go packages
+        run: docker run --rm --network none --user "$(id -u):$(id -g)" -e GOMODCACHE=/work/.cache/gomod -e GOPATH=/work/.cache/gopath -e GOCACHE=/work/.cache/gobuild -e GOPROXY=off -e GOFLAGS=-mod=readonly -v "$PWD:/work" -w /work/backend golang:1.26 go build ./...
+  character:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: koishi/character-runtime
+      - run: npm run build && npm run typecheck && npm test
+        working-directory: koishi/character-runtime

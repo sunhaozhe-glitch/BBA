@@ -1,0 +1,813 @@
+{
+  "PlanProposalRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["task_id", "expected_version", "scope_revision", "proposal_kind", "reason"],
+    "properties": {
+      "task_id": { "$ref": "common.json#/Id" },
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "graph_snapshot_id": { "$ref": "common.json#/Id" },
+      "proposal_kind": {
+        "type": "string",
+        "enum": ["use_template", "adjust_order", "request_clarification", "diagnose"]
+      },
+      "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "description": "Request for a bounded L2 proposal. Acceptance never applies the proposal; this endpoint is P0-17 contract-only and disabled in P0-01."
+  },
+  "PlanApplyRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["expected_version", "approval_ref", "proposal_digest"],
+    "properties": {
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "approval_ref": { "$ref": "common.json#/Id" },
+      "proposal_digest": { "$ref": "common.json#/Digest" }
+    },
+    "description": "Record an approved legacy proposal as immutable intent only. Apply creates no execution, permit, claim or work item. Proposal-mode execution requires the separate explicit materialize command and the normal execution gates."
+  },
+  "PlanStep": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["step_no", "action", "target_id", "account_id", "parameters"],
+    "properties": {
+      "step_no": { "type": "integer", "minimum": 1, "maximum": 20 },
+      "action": { "$ref": "bridge.json#/Action" },
+      "depends_on": { "type": "array", "maxItems": 19, "uniqueItems": true, "items": { "type": "integer", "minimum": 1, "maximum": 20 }, "description": "Earlier step numbers that must succeed before this step can be claimed. Cycles, self/forward references and references outside this proposal are rejected. Missing means all earlier steps; an explicit empty array means no dependencies." },
+      "target_id": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "account_id": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "group_id": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "keyword": { "type": "string", "nullable": true, "maxLength": 64 },
+          "limit": { "type": "integer", "nullable": true, "minimum": 1, "maximum": 50 },
+          "verification_message": { "type": "string", "nullable": true, "maxLength": 500 },
+          "text": { "type": "string", "nullable": true, "maxLength": 2000 },
+          "note": { "type": "string", "nullable": true, "maxLength": 500 }
+        }
+      }
+    },
+    "description": "One proposed step using a known action and in-scope references only. Free-form URLs, executable code and out-of-scope target/account expansion are forbidden; the validator and service re-check references."
+  },
+  "PlanProposal": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_id",
+      "task_id",
+      "expected_task_version",
+      "scope_revision",
+      "proposal_kind",
+      "steps",
+      "questions",
+      "rationale_summary"
+    ],
+    "properties": {
+      "schema_id": { "type": "string", "enum": ["PlanProposal.v1"] },
+      "task_id": { "$ref": "common.json#/Id" },
+      "expected_task_version": { "type": "integer", "minimum": 1 },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "proposal_kind": {
+        "type": "string",
+        "enum": ["use_template", "adjust_order", "request_clarification", "diagnose"]
+      },
+      "steps": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "$ref": "#/PlanStep" }
+      },
+      "questions": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+      },
+      "rationale_summary": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    },
+    "description": "Structured proposal output only. It cannot declare completion, widen scope or execute anything. All references and limits are revalidated before any apply transaction."
+  },
+  "IntentDraft": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_id",
+      "intent",
+      "keywords",
+      "requested_goal_count",
+      "requested_account_labels",
+      "missing_fields",
+      "ambiguous_fields"
+    ],
+    "properties": {
+      "schema_id": { "type": "string", "enum": ["IntentDraft.v1"] },
+      "intent": {
+        "type": "string",
+        "enum": ["group.acquire", "group.discover", "task_status", "summarize", "chat", "unknown"]
+      },
+      "keywords": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+      },
+      "requested_goal_count": {
+        "type": "integer",
+        "nullable": true,
+        "minimum": 1,
+        "maximum": 10000
+      },
+      "requested_account_labels": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+      },
+      "missing_fields": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+      },
+      "ambiguous_fields": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+      }
+    },
+    "description": "L1 intent draft. Account labels are resolved by the backend; model-supplied IDs or labels are candidates, never authorization."
+  },
+  "Summary": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_id",
+      "window_start",
+      "window_end",
+      "collector_scope",
+      "topics",
+      "limitations",
+      "privacy_class",
+      "retention_days",
+      "expires_at",
+      "producer"
+    ],
+    "properties": {
+      "schema_id": { "type": "string", "enum": ["Summary.v1"] },
+      "window_start": { "$ref": "common.json#/UTCDateTime" },
+      "window_end": { "$ref": "common.json#/UTCDateTime" },
+      "collector_scope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["account_id", "conversation_kind", "conversation_id"],
+        "properties": {
+          "account_id": { "$ref": "common.json#/Id" },
+          "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+          "conversation_id": { "$ref": "common.json#/QQId" }
+        }
+      },
+      "privacy_class": {
+        "type": "string",
+        "enum": ["local_only", "redacted_external_allowed"]
+      },
+      "retention_days": { "type": "integer", "minimum": 1, "maximum": 365 },
+      "expires_at": { "$ref": "common.json#/UTCDateTime" },
+      "producer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["account_id", "collector_scope", "plugin_version", "source_manifest_sha256"],
+        "properties": {
+          "account_id": { "$ref": "common.json#/Id" },
+          "collector_scope": { "$ref": "#/Summary/properties/collector_scope" },
+          "plugin_version": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "source_manifest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "maxLength": 64 }
+        }
+      },
+      "topics": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["summary", "message_refs"],
+          "properties": {
+            "summary": { "type": "string", "minLength": 1, "maxLength": 4000 },
+            "message_refs": {
+              "type": "array",
+              "maxItems": 500,
+              "items": { "type": "string", "minLength": 1, "maxLength": 256 }
+            }
+          }
+        }
+      },
+      "limitations": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    },
+    "description": "Grounded summary output. Every message_ref must resolve inside the approved window; unsourced motivation claims must be reported as limitations rather than certain facts."
+  },
+  "ModelRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "request_id",
+      "operation_kind",
+      "task_ref",
+      "route_policy",
+      "privacy_class",
+      "required_capabilities",
+      "schema_id",
+      "prompt_version",
+      "input_ref",
+      "max_provider_attempts",
+      "deadline_at"
+    ],
+    "properties": {
+      "request_id": { "$ref": "common.json#/Id" },
+      "operation_kind": {
+        "type": "string",
+        "enum": [
+          "chat_reply",
+          "persona_reply",
+          "simple_extract",
+          "complex_plan",
+          "long_summary",
+          "incident_diagnosis"
+        ]
+      },
+      "task_ref": {
+        "type": "object",
+        "nullable": true,
+        "additionalProperties": false,
+        "required": ["id", "version", "scope_revision"],
+        "properties": {
+          "id": { "$ref": "common.json#/Id" },
+          "version": { "type": "integer", "minimum": 1 },
+          "scope_revision": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "route_policy": {
+        "type": "string",
+        "enum": ["l1_local", "l2_prefer_online", "local_only"]
+      },
+      "privacy_class": {
+        "type": "string",
+        "enum": ["local_only", "redacted_external_allowed"]
+      },
+      "required_capabilities": {
+        "type": "array",
+        "maxItems": 8,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": ["structured_output", "tool_calls", "long_context"]
+        }
+      },
+      "schema_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "prompt_version": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "input_ref": { "$ref": "common.json#/Id" },
+      "max_provider_attempts": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "description": "Total provider attempts including repair and fallback. Nested SDK retries must not multiply this budget."
+      },
+      "deadline_at": { "$ref": "common.json#/UTCDateTime" }
+    },
+    "description": "Bounded model gateway request. route_policy and operation_kind are set by authorized workload code, not by a chat credential or group message. task_ref is null for ordinary chat. P0-17 only."
+  },
+  "ModelResponse": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "request_id",
+      "operation_kind",
+      "schema_id",
+      "result",
+      "model",
+      "usage",
+      "attempts",
+      "latency_ms",
+      "fallback_used",
+      "completed_at"
+    ],
+    "properties": {
+      "request_id": { "$ref": "common.json#/Id" },
+      "operation_kind": {
+        "type": "string",
+        "enum": [
+          "chat_reply",
+          "persona_reply",
+          "simple_extract",
+          "complex_plan",
+          "long_summary",
+          "incident_diagnosis"
+        ]
+      },
+      "schema_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "result": {
+        "oneOf": [
+          { "$ref": "#/PlanProposal" },
+          { "$ref": "#/IntentDraft" },
+          { "$ref": "#/Summary" },
+          { "type": "string", "maxLength": 8000 }
+        ],
+        "description": "Schema-checked structured output or bounded text. schema_id must match the selected shape; that correlation is a service check."
+      },
+      "model": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["provider", "api_model_id", "revision", "quantization"],
+        "properties": {
+          "provider": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "api_model_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "revision": { "type": "string", "nullable": true, "maxLength": 128 },
+          "quantization": { "type": "string", "nullable": true, "maxLength": 64 }
+        }
+      },
+      "usage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input_tokens", "output_tokens", "cost_micros"],
+        "properties": {
+          "input_tokens": { "type": "integer", "minimum": 0 },
+          "output_tokens": { "type": "integer", "minimum": 0 },
+          "cost_micros": { "type": "integer", "nullable": true, "minimum": 0 }
+        }
+      },
+      "attempts": { "type": "integer", "minimum": 1, "maximum": 10 },
+      "latency_ms": { "type": "integer", "minimum": 0 },
+      "fallback_used": { "type": "boolean" },
+      "completed_at": { "$ref": "common.json#/UTCDateTime" }
+    },
+    "description": "Model success projection. Provider or validation failures use the common error envelope, not a fabricated result. Model output never inherits service permission."
+  },
+  "ModelEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/ModelResponse" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "GroupSummaryIngestRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["account_id", "summary_id", "window_id", "window_message_count", "generated_at", "summary", "topic_evidence"],
+    "properties": {
+      "account_id": { "$ref": "common.json#/Id" },
+      "summary_id": { "$ref": "common.json#/Digest" },
+      "window_id": { "$ref": "common.json#/Digest" },
+      "window_message_count": { "type": "integer", "minimum": 0 },
+      "generated_at": { "$ref": "common.json#/UTCDateTime" },
+      "summary": { "$ref": "#/Summary" },
+      "topic_evidence": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "type": "string",
+          "enum": ["member_statement", "deterministic_statistic", "model_inference"]
+        },
+        "description": "One evidence kind per stored topic, positionally aligned with summary.topics. Both arrays must have the same length; an unequal length is rejected before any database write."
+      }
+    },
+    "description": "Collector Summary.v1 ingest envelope. Its idempotency identity is account plus summary_id plus the payload digest, so this route reads no Idempotency-Key header. Every array must be present, summary.topics and topic_evidence must have equal length, and a local_only summary must never carry a model_inference topic because that would imply message bodies crossed the collector boundary."
+  },
+  "GroupSummaryIngestResponse": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["created", "summary_id", "summary_version", "window_id", "generated_at", "expires_at"],
+    "properties": {
+      "created": {
+        "type": "boolean",
+        "description": "True only when this call stored a new immutable version; an exact replay returns false with the stored version."
+      },
+      "summary_id": { "$ref": "common.json#/Digest" },
+      "summary_version": { "type": "integer", "minimum": 1 },
+      "window_id": { "$ref": "common.json#/Digest" },
+      "generated_at": { "$ref": "common.json#/UTCDateTime" },
+      "expires_at": { "$ref": "common.json#/UTCDateTime" }
+    },
+    "description": "Stored Summary version identity. A replay with the same payload digest returns the existing version unchanged; a different payload under the same summary_id is IDEMPOTENCY_CONFLICT, never a silent overwrite."
+  },
+  "GroupSummaryIngestEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/GroupSummaryIngestResponse" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "GroupContextTopic": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["summary", "message_refs", "evidence_kind"],
+    "properties": {
+      "summary": { "type": "string", "minLength": 1, "maxLength": 4000 },
+      "message_refs": {
+        "type": "array",
+        "maxItems": 500,
+        "items": { "type": "string", "minLength": 1, "maxLength": 256 }
+      },
+      "evidence_kind": {
+        "type": "string",
+        "enum": ["member_statement", "deterministic_statistic", "model_inference"]
+      }
+    },
+    "description": "One stored topic with the evidence classification recorded at ingest. Context is untrusted reference data and never a send, membership or membership-result decision."
+  },
+  "GroupContext": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "account_id",
+      "group_id",
+      "summary_ref",
+      "summary_id",
+      "summary_version",
+      "source_manifest_sha256",
+      "privacy_class",
+      "topics",
+      "activity_window",
+      "active_speaker_account_id",
+      "cooldown_until",
+      "daily_remaining",
+      "participation_goal",
+      "source",
+      "generated_at",
+      "expires_at"
+    ],
+    "properties": {
+      "account_id": { "$ref": "common.json#/Id" },
+      "group_id": { "$ref": "common.json#/QQId" },
+      "summary_ref": {
+        "type": "string",
+        "nullable": true,
+        "pattern": "^[0-9a-f]{64}@v[1-9][0-9]*$",
+        "description": "Stable '<summary_id>@v<summary_version>' reference for the selected stored version; null when no Summary is live."
+      },
+      "summary_id": {
+        "type": "string",
+        "nullable": true,
+        "pattern": "^[0-9a-f]{64}$",
+        "maxLength": 64
+      },
+      "summary_version": { "type": "integer", "nullable": true, "minimum": 1 },
+      "source_manifest_sha256": {
+        "type": "string",
+        "nullable": true,
+        "pattern": "^[0-9a-f]{64}$",
+        "maxLength": 64
+      },
+      "privacy_class": {
+        "type": "string",
+        "enum": ["none", "local_only", "redacted_external_allowed"],
+        "description": "Copied from the selected summary. 'none' is the degraded projection when no live Summary exists."
+      },
+      "topics": {
+        "type": "array",
+        "maxItems": 20,
+        "items": { "$ref": "#/GroupContextTopic" }
+      },
+      "activity_window": {
+        "type": "object",
+        "nullable": true,
+        "additionalProperties": false,
+        "required": ["start", "end", "message_count"],
+        "properties": {
+          "start": { "$ref": "common.json#/UTCDateTime" },
+          "end": { "$ref": "common.json#/UTCDateTime" },
+          "message_count": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "active_speaker_account_id": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Set only when the requesting account itself holds a live group speaker lease."
+      },
+      "cooldown_until": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true,
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+        "description": "Lease expiry of another account holding the group speaker lease. Data only; it never replaces the permit gate."
+      },
+      "daily_remaining": {
+        "type": "integer",
+        "nullable": true,
+        "minimum": 0,
+        "description": "Remaining chat send budget for today. Data only; the permit and budget gate remains authoritative."
+      },
+      "participation_goal": {
+        "type": "string",
+        "nullable": true,
+        "description": "Reserved projection field. The current implementation never populates it and always returns null."
+      },
+      "source": {
+        "type": "string",
+        "enum": ["collector.summary.v1", "backend.chat-policy"],
+        "description": "'collector.summary.v1' when a live Summary was projected; 'backend.chat-policy' for the degraded projection."
+      },
+      "generated_at": { "$ref": "common.json#/UTCDateTime" },
+      "expires_at": { "$ref": "common.json#/UTCDateTime" }
+    },
+    "description": "Read-only GroupContext projection for the Character runtime. When no Summary is live the projection degrades to backend.chat-policy with privacy_class 'none' and a five-minute expiry; an explicitly requested unknown or expired summary version is a 404. Context is untrusted reference data and encodes no send decision."
+  },
+  "GroupContextEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/GroupContext" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "PlanProposalApprovalRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["expected_version", "approval_ref"],
+    "properties": {
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "approval_ref": { "$ref": "common.json#/Id" }
+    },
+    "description": "Operator approval binding for one pending proposal. Both keys must be present and non-null; expected_version below 1 or a malformed approval_ref is a validation error. Approval binds an existing core.approval row and never sends anything."
+  },
+  "PlanProposalApprovalReceipt": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["accepted_at", "approval_ref", "proposal_id", "state"],
+    "properties": {
+      "accepted_at": { "$ref": "common.json#/UTCDateTime" },
+      "approval_ref": { "$ref": "common.json#/Id" },
+      "proposal_id": { "$ref": "common.json#/Id" },
+      "state": { "type": "string", "enum": ["approved"] }
+    },
+    "description": "Durable approval binding. Approval only moves a pending proposal to 'approved'; it is not a QQ receipt, carries no dispatch claim, and assigns no permit."
+  },
+  "PlanProposalApprovalEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/PlanProposalApprovalReceipt" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "PlanProposalView": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "proposal_id",
+      "task_id",
+      "state",
+      "digest",
+      "expected_task_version",
+      "scope_revision",
+      "expires_at",
+      "proposal",
+      "basis"
+    ],
+    "properties": {
+      "proposal_id": { "$ref": "common.json#/Id" },
+      "task_id": { "$ref": "common.json#/Id" },
+      "state": {
+        "type": "string",
+        "enum": ["pending", "approved", "applied", "rejected", "expired"]
+      },
+      "digest": { "$ref": "common.json#/Digest" },
+      "expected_task_version": { "type": "integer", "minimum": 1 },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "expires_at": { "$ref": "common.json#/UTCDateTime" },
+      "proposal": { "$ref": "#/PlanProposal" },
+      "basis": {
+        "type": "array",
+        "items": { "$ref": "#/PlanProposalBasis" },
+        "description": "Append-only reference basis recorded when this proposal was created. Always present; an empty array means no reference data was available at creation time."
+      }
+    },
+    "description": "Operator read projection of one durable proposal: lifecycle state, digest and the exact task version/scope it was built against. The digest is not a capability; apply re-checks version, scope and approval. Reading never bumps the task version, approves, or calls an adapter."
+  },
+  "PlanProposalBasis": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "account_id",
+      "group_id",
+      "target_id",
+      "anchor_id",
+      "summary_id",
+      "summary_version",
+      "evidence_kinds",
+      "source_manifest_sha256",
+      "selection_reason",
+      "created_at"
+    ],
+    "properties": {
+      "account_id": { "$ref": "common.json#/Id" },
+      "group_id": { "$ref": "common.json#/QQId" },
+      "target_id": { "$ref": "common.json#/Id" },
+      "anchor_id": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Graph anchor used as reference input; null when the projection had no matching anchor."
+      },
+      "summary_id": {
+        "type": "string",
+        "nullable": true,
+        "pattern": "^[0-9a-f]{64}$",
+        "maxLength": 64
+      },
+      "summary_version": { "type": "integer", "nullable": true, "minimum": 1 },
+      "evidence_kinds": {
+        "type": "array",
+        "nullable": true,
+        "maxItems": 20,
+        "items": {
+          "type": "string",
+          "enum": ["member_statement", "deterministic_statistic", "model_inference"]
+        },
+        "description": "Evidence kinds of the referenced summary version, positionally aligned with its topics; null when no summary was referenced."
+      },
+      "source_manifest_sha256": {
+        "type": "string",
+        "nullable": true,
+        "pattern": "^[0-9a-f]{64}$",
+        "maxLength": 64
+      },
+      "selection_reason": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "description": "Rule that selected this version or recorded the absence of reference data. It explains a selection; it is not a decision or an authorization."
+      },
+      "created_at": { "$ref": "common.json#/UTCDateTime" }
+    },
+    "description": "One append-only proposal-basis row: which exact Summary version, graph anchor and evidence the proposal actually referenced when it was created.\n1) summary_id, summary_version, evidence_kinds and source_manifest_sha256 are null together or present together; a partial set is rejected.\n2) This row records only what was referenced at generation time and grants no execution authority; the BBA ledger (execution, result, claim, permit) remains the execution truth.\n3) A deterministic summary statistic is not group semantic understanding, and this BBA task graph projection must never be described as an ARTEX connection."
+  },
+  "PlanProposalEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/PlanProposalView" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "TaskGraphAnchor": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "kind"],
+    "properties": {
+      "id": { "$ref": "common.json#/Id" },
+      "kind": { "type": "string", "enum": ["account", "target"] },
+      "account_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+      "target_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+      "source_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+      "eligibility": {
+        "type": "string",
+        "nullable": true,
+        "enum": ["eligible", "already_covered", "excluded", "rejected"]
+      },
+      "baseline_covered": { "type": "boolean", "nullable": true }
+    },
+    "description": "Account or target anchor derived from trusted task state. An account anchor carries only account_id; a target anchor carries target_id, source_ref, eligibility and baseline_covered."
+  },
+  "TaskGraphNode": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "kind", "state", "data"],
+    "properties": {
+      "id": { "$ref": "common.json#/Id" },
+      "kind": { "type": "string", "enum": ["goal", "task", "account", "target", "fact"] },
+      "anchor_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+      "state": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "Kind-specific state: 'in_scope' for account nodes, the target eligibility for target nodes, the membership state for membership fact nodes, 'confirmed' for task_result fact nodes, the task lifecycle state for the task node, and 'open' or 'satisfied' for the goal node."
+      },
+      "data": {
+        "type": "object",
+        "additionalProperties": true,
+        "maxProperties": 16,
+        "description": "Opaque per-kind projection payload. Account nodes carry account_id; target nodes target_id and baseline_covered; fact nodes fact_id, target_id and account_id; the task node task_version and scope_revision; the goal node goal_count and confirmed_count."
+      }
+    },
+    "description": "One projection node. Nodes are derived inside BBA from task, membership and confirmed-result truth; a node never creates or advances an execution and never represents an external ARTEX node."
+  },
+  "TaskGraphFact": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "node_id",
+      "kind",
+      "account_id",
+      "target_id",
+      "source_runtime_id",
+      "source_event_id",
+      "evidence_ref",
+      "observed_at",
+      "data"
+    ],
+    "properties": {
+      "id": { "$ref": "common.json#/Id" },
+      "node_id": { "$ref": "common.json#/Id" },
+      "kind": { "type": "string", "enum": ["membership", "task_result"] },
+      "account_id": { "$ref": "common.json#/Id" },
+      "target_id": { "$ref": "common.json#/Id" },
+      "source_runtime_id": { "$ref": "common.json#/Id" },
+      "source_event_id": { "$ref": "common.json#/Id" },
+      "evidence_ref": { "$ref": "common.json#/Id" },
+      "observed_at": { "$ref": "common.json#/UTCDateTime" },
+      "data": {
+        "type": "object",
+        "additionalProperties": true,
+        "maxProperties": 16,
+        "description": "Opaque fact payload. task_result facts carry result_id, state, task_version and scope_revision; membership facts carry state, task_version and scope_revision."
+      }
+    },
+    "description": "Evidence-backed fact projected from a durable inbox event, membership row or confirmed result. Facts are append-only; a pending, submitted or unknown observation never becomes a task_result fact."
+  },
+  "TaskGraphEdge": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "from", "to", "kind"],
+    "properties": {
+      "id": { "$ref": "common.json#/Id" },
+      "from": { "$ref": "common.json#/Id" },
+      "to": { "$ref": "common.json#/Id" },
+      "kind": {
+        "type": "string",
+        "enum": ["has_goal", "has_account", "has_target", "supports_result", "observes_membership"]
+      }
+    },
+    "description": "Directed projection edge between two node ids. The edge set is closed; there is no external or cross-system edge kind."
+  },
+  "TaskGraph": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "workspace_id",
+      "task_id",
+      "root_id",
+      "revision",
+      "task_version",
+      "scope_revision",
+      "goal_count",
+      "task_state",
+      "snapshot_digest",
+      "projected_at",
+      "anchors",
+      "nodes",
+      "facts",
+      "edges"
+    ],
+    "properties": {
+      "workspace_id": { "$ref": "common.json#/Id" },
+      "task_id": { "$ref": "common.json#/Id" },
+      "root_id": { "$ref": "common.json#/Id" },
+      "revision": { "type": "integer", "minimum": 0 },
+      "task_version": { "type": "integer", "minimum": 1 },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "goal_count": { "type": "integer", "minimum": 1, "maximum": 10000 },
+      "task_state": { "$ref": "tasks.json#/TaskState" },
+      "snapshot_digest": { "$ref": "common.json#/Digest" },
+      "projected_at": { "$ref": "common.json#/UTCDateTime" },
+      "anchors": { "type": "array", "items": { "$ref": "#/TaskGraphAnchor" } },
+      "nodes": { "type": "array", "items": { "$ref": "#/TaskGraphNode" } },
+      "facts": { "type": "array", "items": { "$ref": "#/TaskGraphFact" } },
+      "edges": { "type": "array", "items": { "$ref": "#/TaskGraphEdge" } }
+    },
+    "description": "BBA-owned, derived task/fact graph for one task. The projection is materialized lazily under the task row lock, so a graph read is a controlled write-amplified read and must not be described as a zero-write read. It is not an ARTEX connection and carries no external graph state."
+  },
+  "TaskGraphEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/TaskGraph" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  }
+}

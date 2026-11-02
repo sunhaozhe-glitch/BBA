@@ -1,0 +1,43 @@
+{
+  "name": "bba-analysis-collector",
+  "version": "0.0.0",
+  "private": true,
+  "description": "P1a collection-only Koishi runtime for the pinned ChatLuna group-analysis collector, with an isolated database and explicit boundary denials.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "prebuild": "node ../character-runtime/tools/patch-chatluna.cjs .",
+    "pretest": "node ../character-runtime/tools/patch-chatluna.cjs .",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test test/*.test.cjs",
+    "check": "npm run typecheck && npm test"
+  },
+  "dependencies": {
+    "bba-character-runtime": "file:../character-runtime",
+    "koishi": "4.18.11",
+    "@koishijs/plugin-http": "0.6.3",
+    "koishi-plugin-chatluna": "1.4.4",
+    "koishi-plugin-chatluna-group-analysis": "1.4.1",
+    "koishi-plugin-puppeteer": "3.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.0",
+    "typescript": "5.9.3"
+  }
+}

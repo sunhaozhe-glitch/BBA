@@ -1,0 +1,1006 @@
+[
+  {
+    "schema_ref": "bridge.json#/Action",
+    "valid": true,
+    "value": "request_join",
+    "description": "Closed action union includes the fixed join action."
+  },
+  {
+    "schema_ref": "bridge.json#/Action",
+    "valid": false,
+    "value": "join_group",
+    "description": "Arbitrary provider action names are rejected; the join action is request_join."
+  },
+  {
+    "schema_ref": "bridge.json#/EffectCertainty",
+    "valid": true,
+    "value": "confirmed_submitted",
+    "description": "A submitted request exists but is not confirmed membership."
+  },
+  {
+    "schema_ref": "bridge.json#/EffectCertainty",
+    "valid": false,
+    "value": "probably_done",
+    "description": "Effect certainty is a closed evidence vocabulary; no guessed certainty value is accepted."
+  },
+  {
+    "schema_ref": "bridge.json#/Disposition",
+    "valid": true,
+    "value": "unknown",
+    "description": "Unknown is a first-class disposition, never converted to success."
+  },
+  {
+    "schema_ref": "bridge.json#/Disposition",
+    "valid": false,
+    "value": "pending",
+    "description": "pending is not an operation disposition; pending observations have their own state."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionState",
+    "valid": true,
+    "value": "UNKNOWN",
+    "description": "Dispatch-boundary ambiguity stays UNKNOWN until reconciled."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionState",
+    "valid": false,
+    "value": "DONE",
+    "description": "Execution states are fixed; DONE is not one of them."
+  },
+  {
+    "schema_ref": "bridge.json#/JoinParams",
+    "valid": true,
+    "value": {
+      "reason": "Operator-approved application reason.",
+      "verification_message": "Operator-approved application answer."
+    },
+    "description": "Bounded operator-approved join texts."
+  },
+  {
+    "schema_ref": "bridge.json#/JoinParams",
+    "valid": false,
+    "value": {
+      "verification_message": 42
+    },
+    "description": "verification_message must be a string."
+  },
+  {
+    "schema_ref": "bridge.json#/SearchParams",
+    "valid": true,
+    "value": {
+      "keyword": "AI",
+      "cursor": null,
+      "limit": 50
+    },
+    "description": "Search params bounded to 1..50. The local plugin has no cursor, so this remains a later verified-provider action."
+  },
+  {
+    "schema_ref": "bridge.json#/SearchParams",
+    "valid": false,
+    "value": {
+      "keyword": "AI",
+      "cursor": null,
+      "limit": 51
+    },
+    "description": "Search limit above the plugin/bridge supported maximum is rejected."
+  },
+  {
+    "schema_ref": "bridge.json#/MembershipParams",
+    "valid": true,
+    "value": {
+      "group_id": "123456789",
+      "snapshot_scope": "target_group"
+    },
+    "description": "Targeted membership read."
+  },
+  {
+    "schema_ref": "bridge.json#/MembershipParams",
+    "valid": false,
+    "value": {
+      "group_id": "123456789",
+      "snapshot_scope": "partial_list"
+    },
+    "description": "Membership snapshot scope is a closed target/all union; partial reads cannot claim completeness."
+  },
+  {
+    "schema_ref": "bridge.json#/JoinObservationParams",
+    "valid": true,
+    "value": {
+      "request_ref": null
+    },
+    "description": "Null request_ref means query by the outer target only."
+  },
+  {
+    "schema_ref": "bridge.json#/JoinObservationParams",
+    "valid": false,
+    "value": {
+      "request_ref": 123
+    },
+    "description": "External request references are strings, not numbers."
+  },
+  {
+    "schema_ref": "bridge.json#/SendTextParams",
+    "valid": true,
+    "value": {
+      "conversation_kind": "group",
+      "conversation_id": "123456789",
+      "text": "hello",
+      "trigger_ref": "trigger_example",
+      "segment_index": 0,
+      "segment_count": 1,
+      "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    "description": "Text-only send with a stable trigger reference and digest."
+  },
+  {
+    "schema_ref": "bridge.json#/SendTextParams",
+    "valid": false,
+    "value": {
+      "conversation_kind": "group",
+      "conversation_id": "123456789",
+      "text": "",
+      "trigger_ref": "trigger_example",
+      "segment_index": 0,
+      "segment_count": 1,
+      "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    "description": "Empty text segments are rejected."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": true,
+    "value": {
+      "execution_id": "exe_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "12",
+      "scope_revision": 1,
+      "action": "request_join",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "params": { "reason": "Operator-approved application reason.", "verification_message": "Operator-approved application answer." },
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": "approval_example",
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "request_join branch: fixed action plus typed JoinParams, positive decimal owner/fence strings."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": true,
+    "value": {
+      "execution_id": "exe_search_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_discover_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "13",
+      "scope_revision": 1,
+      "action": "search_groups",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "params": { "keyword": "AI", "cursor": null, "limit": 20 },
+      "request_digest": "1123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": null,
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "search_groups branch. Later-stage action only: acceptance requires a verified capability and separate authorization."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": true,
+    "value": {
+      "execution_id": "exe_observe_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_observe_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "14",
+      "scope_revision": 1,
+      "action": "observe_membership",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "params": { "group_id": "123456789", "snapshot_scope": "target_group" },
+      "request_digest": "2123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": null,
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "observe_membership branch: fresh read action with typed MembershipParams."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": true,
+    "value": {
+      "execution_id": "exe_join_observe_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_join_observe_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "15",
+      "scope_revision": 1,
+      "action": "observe_join_request",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "params": { "request_ref": null },
+      "request_digest": "3123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": null,
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "observe_join_request branch; only usable when that capability is verified."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": true,
+    "value": {
+      "execution_id": "exe_send_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_send_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "16",
+      "scope_revision": 1,
+      "action": "send_text",
+      "target": { "platform": "qq", "kind": "private", "external_id": "10001" },
+      "params": {
+        "conversation_kind": "private",
+        "conversation_id": "10001",
+        "text": "hello",
+        "trigger_ref": "trigger_example",
+        "segment_index": 0,
+        "segment_count": 1,
+        "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      },
+      "request_digest": "4123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": null,
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "send_text branch. P0 chat permissions are separate and disabled in this stage."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": false,
+    "value": {
+      "execution_id": "exe_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "12",
+      "scope_revision": 1,
+      "action": "request_join",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "params": { "keyword": "AI", "cursor": null, "limit": 20 },
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": "approval_example",
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "Action/params mismatch is rejected: request_join cannot use SearchParams."
+  },
+  {
+    "schema_ref": "bridge.json#/ExecutionRequest",
+    "valid": false,
+    "value": {
+      "execution_id": "exe_example",
+      "task_id": "task_example",
+      "subtask_id": "sub_example",
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "runtime_id": "runtime_qq1",
+      "owner_epoch": "7",
+      "fence_token": "12",
+      "scope_revision": 1,
+      "action": "join_group",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "params": { "verification_message": "Operator-approved application text." },
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "approval_ref": "approval_example",
+      "deadline_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "Unknown action names, URLs or code are rejected by the closed oneOf."
+  },
+  {
+    "schema_ref": "bridge.json#/Operation",
+    "valid": true,
+    "value": {
+      "operation_id": "op_example",
+      "state": "OBSERVED",
+      "disposition": "confirmed",
+      "effect_certainty": "confirmed",
+      "external_request_ref": null,
+      "observed_at": "2026-10-24T12:10:00Z",
+      "evidence_ref": "evidence_example",
+      "error": null
+    },
+    "description": "Confirmed operation with certainty confirmed and non-null evidence."
+  },
+  {
+    "schema_ref": "bridge.json#/Operation",
+    "valid": true,
+    "value": {
+      "operation_id": "op_example",
+      "state": "OBSERVED",
+      "disposition": "submitted",
+      "effect_certainty": "confirmed_submitted",
+      "external_request_ref": "request_external_1",
+      "observed_at": "2026-10-24T12:05:00Z",
+      "evidence_ref": "evidence_join_submission",
+      "error": null
+    },
+    "description": "Submitted operation: request exists, approval/membership is not confirmed."
+  },
+  {
+    "schema_ref": "bridge.json#/Operation",
+    "valid": true,
+    "value": {
+      "operation_id": "op_unknown_example",
+      "state": "UNKNOWN",
+      "disposition": "unknown",
+      "effect_certainty": "unknown",
+      "external_request_ref": null,
+      "observed_at": "2026-10-24T12:06:00Z",
+      "evidence_ref": null,
+      "error": null
+    },
+    "description": "Unknown outcome after dispatch ambiguity; it is never rewritten as success and never auto-resent."
+  },
+  {
+    "schema_ref": "bridge.json#/Operation",
+    "valid": true,
+    "value": {
+      "operation_id": "op_accepted_example",
+      "state": "ACCEPTED",
+      "disposition": null,
+      "effect_certainty": "no_effect",
+      "external_request_ref": null,
+      "observed_at": null,
+      "evidence_ref": null,
+      "error": null
+    },
+    "description": "Durably accepted ledger entry before dispatch; it proves no external effect yet."
+  },
+  {
+    "schema_ref": "bridge.json#/Operation",
+    "valid": false,
+    "value": {
+      "operation_id": "op_example",
+      "state": "OBSERVED",
+      "disposition": "confirmed",
+      "effect_certainty": "confirmed",
+      "external_request_ref": null,
+      "observed_at": "2026-10-24T12:10:00Z",
+      "evidence_ref": null,
+      "error": null
+    },
+    "description": "Contradictory operation: confirmed disposition/certainty without evidence is rejected."
+  },
+  {
+    "schema_ref": "bridge.json#/Operation",
+    "valid": false,
+    "value": {
+      "operation_id": "op_example",
+      "state": "OBSERVED",
+      "disposition": "submitted",
+      "effect_certainty": "confirmed",
+      "external_request_ref": null,
+      "observed_at": "2026-10-24T12:05:00Z",
+      "evidence_ref": "evidence_join_submission",
+      "error": null
+    },
+    "description": "submitted must use confirmed_submitted, not confirmed."
+  },
+  {
+    "schema_ref": "bridge.json#/OperationEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "operation_id": "op_example",
+        "state": "OBSERVED",
+        "disposition": "confirmed",
+        "effect_certainty": "confirmed",
+        "external_request_ref": null,
+        "observed_at": "2026-10-24T12:10:00Z",
+        "evidence_ref": "evidence_example",
+        "error": null
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Operation ledger response envelope."
+  },
+  {
+    "schema_ref": "bridge.json#/OperationEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "operation_id": "op_example",
+        "state": "UNKNOWN",
+        "disposition": "unknown",
+        "effect_certainty": "unknown",
+        "external_request_ref": null,
+        "observed_at": "2026-10-24T12:06:00Z",
+        "evidence_ref": null,
+        "error": null
+      }
+    },
+    "description": "OperationEnvelope requires meta."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": true,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_membership_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "101",
+      "operation_id": null,
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "membership.observed",
+      "payload": { "state": "joined", "snapshot_complete": true },
+      "observed_at": "2026-10-24T12:10:00Z",
+      "evidence_ref": "evidence_membership_example"
+    },
+    "description": "Membership fact. A joined state is necessary but not sufficient for a result; baseline/scope/account correlation are service checks."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": true,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_join_pending_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "102",
+      "operation_id": "op_example",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "join.request.observed",
+      "payload": { "state": "pending", "authoritative": true, "request_ref": "request_external_1" },
+      "observed_at": "2026-10-24T12:11:00Z",
+      "evidence_ref": "evidence_join_pending"
+    },
+    "description": "Valid pending observation; pending is never membership success and retains its slot."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": true,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_join_unknown_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "103",
+      "operation_id": null,
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "join.request.observed",
+      "payload": { "state": "unknown", "authoritative": false, "request_ref": null },
+      "observed_at": "2026-10-24T12:12:00Z",
+      "evidence_ref": "evidence_join_unknown"
+    },
+    "description": "Unknown join observation is valid as a fact and is never treated as rejection or success."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": true,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_execution_confirmed_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "104",
+      "operation_id": "op_example",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "execution.observed",
+      "payload": {
+        "outcome": "confirmed",
+        "effect_certainty": "confirmed",
+        "request_ref": "request_external_1",
+        "message_ref": null
+      },
+      "observed_at": "2026-10-24T12:13:00Z",
+      "evidence_ref": "evidence_execution_confirmed"
+    },
+    "description": "Execution observation confirmed only with matching confirmed certainty and non-null evidence."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": true,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_execution_unknown_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "105",
+      "operation_id": "op_unknown_example",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "execution.observed",
+      "payload": {
+        "outcome": "unknown",
+        "effect_certainty": "unknown",
+        "request_ref": null,
+        "message_ref": null
+      },
+      "observed_at": "2026-10-24T12:14:00Z",
+      "evidence_ref": "evidence_execution_unknown"
+    },
+    "description": "Execution unknown observation; it must trigger reconciliation, not retry."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": false,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_join_fake_success_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "106",
+      "operation_id": "op_example",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "join.request.observed",
+      "payload": { "state": "confirmed", "authoritative": true, "request_ref": "request_external_1" },
+      "observed_at": "2026-10-24T12:15:00Z",
+      "evidence_ref": "evidence_fake_success"
+    },
+    "description": "A join observation cannot claim state confirmed; approved membership is a separate membership observation."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": false,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_execution_contradiction_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "107",
+      "operation_id": "op_example",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "execution.observed",
+      "payload": {
+        "outcome": "confirmed",
+        "effect_certainty": "unknown",
+        "request_ref": null,
+        "message_ref": null
+      },
+      "observed_at": "2026-10-24T12:16:00Z",
+      "evidence_ref": "evidence_contradiction"
+    },
+    "description": "Confirmed outcome with unknown certainty is rejected; a bare success field is not confirmation."
+  },
+  {
+    "schema_ref": "bridge.json#/Observation",
+    "valid": false,
+    "value": {
+      "schema_version": "1",
+      "event_id": "evt_membership_incomplete_example",
+      "workspace_id": "ws_local",
+      "source_runtime_id": "runtime_qq1",
+      "source_account_id": "acc_qq1",
+      "source_epoch": "7",
+      "source_sequence": "108",
+      "operation_id": null,
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "membership.observed",
+      "payload": { "state": "joined" },
+      "observed_at": "2026-10-24T12:17:00Z",
+      "evidence_ref": "evidence_incomplete"
+    },
+    "description": "Membership payload must state whether the snapshot was complete."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationReceipt",
+    "valid": true,
+    "value": {
+      "event_id": "evt_membership_example",
+      "duplicate": false,
+      "apply_state": "queued",
+      "accepted_at": "2026-10-24T12:10:01Z"
+    },
+    "description": "Durable inbox acceptance receipt; the reducer may still fail or run later."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationReceipt",
+    "valid": false,
+    "value": {
+      "event_id": "evt_membership_example",
+      "duplicate": false,
+      "apply_state": "success",
+      "accepted_at": "2026-10-24T12:10:01Z"
+    },
+    "description": "Inbox apply states are queued/applied/failed; success is not an inbox state."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "event_id": "evt_membership_example",
+        "duplicate": false,
+        "apply_state": "queued",
+        "accepted_at": "2026-10-24T12:10:01Z"
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Observation acceptance envelope."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "event_id": "evt_membership_example",
+        "duplicate": false,
+        "apply_state": "queued",
+        "accepted_at": "2026-10-24T12:10:01Z"
+      }
+    },
+    "description": "ObservationEnvelope requires meta."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryRequest",
+    "valid": true,
+    "value": {
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "membership",
+      "request_ref": null
+    },
+    "description": "Read-only membership query; it never repeats the original write."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryRequest",
+    "valid": false,
+    "value": {
+      "workspace_id": "ws_local",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "join_pending",
+      "request_ref": null
+    },
+    "description": "Query kind is a closed membership/join_request union."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryResult",
+    "valid": true,
+    "value": {
+      "query_id": "query_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "membership",
+      "state": "unknown",
+      "authoritative": false,
+      "observed_at": "2026-10-24T12:20:00Z",
+      "evidence_ref": null,
+      "snapshot_complete": false,
+      "request_ref": null
+    },
+    "description": "Unknown membership is not not_joined and cannot support a result."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryResult",
+    "valid": true,
+    "value": {
+      "query_id": "query_join_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "join_request",
+      "state": "pending",
+      "authoritative": true,
+      "observed_at": "2026-10-24T12:21:00Z",
+      "evidence_ref": "evidence_join_query",
+      "snapshot_complete": true,
+      "request_ref": "request_external_1"
+    },
+    "description": "Authoritative pending request is still not membership success."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryResult",
+    "valid": false,
+    "value": {
+      "query_id": "query_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "kind": "membership",
+      "state": "confirmed",
+      "authoritative": true,
+      "observed_at": "2026-10-24T12:20:00Z",
+      "evidence_ref": "evidence_query",
+      "snapshot_complete": true,
+      "request_ref": null
+    },
+    "description": "Observation query states do not include confirmed; membership is joined/not_joined/unknown."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "query_id": "query_example",
+        "account_id": "acc_qq1",
+        "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+        "kind": "membership",
+        "state": "not_joined",
+        "authoritative": true,
+        "observed_at": "2026-10-24T12:20:00Z",
+        "evidence_ref": "evidence_query",
+        "snapshot_complete": true,
+        "request_ref": null
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Observation query envelope. not_joined does not prove there was no pending join request."
+  },
+  {
+    "schema_ref": "bridge.json#/ObservationQueryEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "query_id": "query_example",
+        "account_id": "acc_qq1",
+        "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+        "kind": "membership",
+        "state": "joined",
+        "authoritative": true,
+        "observed_at": "2026-10-24T12:20:00Z",
+        "evidence_ref": "evidence_query",
+        "snapshot_complete": true,
+        "request_ref": null
+      }
+    },
+    "description": "ObservationQueryEnvelope requires meta."
+  },
+  {
+    "schema_ref": "bridge.json#/DispatchPermitRequest",
+    "valid": true,
+    "value": {
+      "operation_id": "op_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "action": "request_join",
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "scope_revision": 1,
+      "owner_epoch": "7",
+      "fence_token": "12"
+    },
+    "description": "One-time dispatch permit request bound to operation, target, digest, scope, owner and fence."
+  },
+  {
+    "schema_ref": "bridge.json#/DispatchPermitRequest",
+    "valid": false,
+    "value": {
+      "operation_id": "op_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "action": "request_join",
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "scope_revision": 1,
+      "owner_epoch": "0",
+      "fence_token": "12"
+    },
+    "description": "Zero owner epoch is rejected; epochs and fences are positive decimal strings."
+  },
+  {
+    "schema_ref": "bridge.json#/DispatchPermit",
+    "valid": true,
+    "value": {
+      "permit_id": "permit_example",
+      "operation_id": "op_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "action": "request_join",
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "scope_revision": 1,
+      "owner_epoch": "7",
+      "fence_token": "12",
+      "issued_at": "2026-10-24T12:00:00Z",
+      "expires_at": "2026-10-24T12:00:30Z",
+      "state": "issued"
+    },
+    "description": "Stable one-time permit with a short expiry. A duplicate request cannot extend it."
+  },
+  {
+    "schema_ref": "bridge.json#/DispatchPermit",
+    "valid": false,
+    "value": {
+      "permit_id": "permit_example",
+      "operation_id": "op_example",
+      "account_id": "acc_qq1",
+      "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+      "action": "request_join",
+      "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "scope_revision": 1,
+      "owner_epoch": "7",
+      "fence_token": "12",
+      "issued_at": "2026-10-24T12:00:00Z",
+      "expires_at": "2026-10-24T12:00:30Z",
+      "state": "extended"
+    },
+    "description": "Permits are issued/consumed/expired only; there is no extension state."
+  },
+  {
+    "schema_ref": "bridge.json#/DispatchPermitEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "permit_id": "permit_example",
+        "operation_id": "op_example",
+        "account_id": "acc_qq1",
+        "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+        "action": "request_join",
+        "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "scope_revision": 1,
+        "owner_epoch": "7",
+        "fence_token": "12",
+        "issued_at": "2026-10-24T12:00:00Z",
+        "expires_at": "2026-10-24T12:00:30Z",
+        "state": "issued"
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Dispatch permit envelope."
+  },
+  {
+    "schema_ref": "bridge.json#/DispatchPermitEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "permit_id": "permit_example",
+        "operation_id": "op_example",
+        "account_id": "acc_qq1",
+        "target": { "platform": "qq", "kind": "group", "external_id": "123456789" },
+        "action": "request_join",
+        "request_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "scope_revision": 1,
+        "owner_epoch": "7",
+        "fence_token": "12",
+        "issued_at": "2026-10-24T12:00:00Z",
+        "expires_at": "2026-10-24T12:00:30Z",
+        "state": "issued",
+        "renew_until": "2026-10-24T12:05:00Z"
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Permit payloads reject unknown fields such as a renewal extension."
+  },
+  {
+    "schema_ref": "bridge.json#/ChatPermitRequest",
+    "valid": true,
+    "value": {
+      "send_id": "send_example",
+      "account_id": "acc_qq1",
+      "conversation_kind": "group",
+      "conversation_id": "123456789",
+      "trigger_ref": "trigger_example",
+      "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_binding_epoch": "3",
+      "deadline_at": "2026-10-24T12:01:00Z",
+      "segment_index": 0,
+      "segment_count": 1
+    },
+    "description": "Short-lived text-only chat permit request in a separate action family. Contract-only and disabled in P0-01."
+  },
+  {
+    "schema_ref": "bridge.json#/ChatPermitRequest",
+    "valid": false,
+    "value": {
+      "send_id": "send_example",
+      "account_id": "acc_qq1",
+      "conversation_kind": "group",
+      "conversation_id": "123456789",
+      "trigger_ref": "trigger_example",
+      "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_binding_epoch": "3",
+      "deadline_at": "2026-10-24T12:01:00Z",
+      "segment_index": 0,
+      "segment_count": 0
+    },
+    "description": "segment_count must be at least one."
+  },
+  {
+    "schema_ref": "bridge.json#/ChatPermit",
+    "valid": true,
+    "value": {
+      "permit_id": "chat_permit_example",
+      "send_id": "send_example",
+      "account_id": "acc_qq1",
+      "conversation_kind": "group",
+      "conversation_id": "123456789",
+      "trigger_ref": "trigger_example",
+      "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_binding_epoch": "3",
+      "issued_at": "2026-10-24T12:00:00Z",
+      "expires_at": "2026-10-24T12:00:20Z",
+      "segment_index": 0,
+      "segment_count": 1,
+      "state": "issued"
+    },
+    "description": "One-time text-only permit; it grants no group-management action."
+  },
+  {
+    "schema_ref": "bridge.json#/ChatPermit",
+    "valid": false,
+    "value": {
+      "permit_id": "chat_permit_example",
+      "send_id": "send_example",
+      "account_id": "acc_qq1",
+      "conversation_kind": "group",
+      "conversation_id": "123456789",
+      "trigger_ref": "trigger_example",
+      "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_binding_epoch": "3",
+      "issued_at": "2026-10-24T12:00:00Z",
+      "expires_at": "2026-10-24T12:00:20Z",
+      "segment_index": 0,
+      "segment_count": 1,
+      "state": "renewed"
+    },
+    "description": "Chat permits cannot be renewed; they are issued, consumed or expired."
+  },
+  {
+    "schema_ref": "bridge.json#/ChatPermitEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "permit_id": "chat_permit_example",
+        "send_id": "send_example",
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789",
+        "trigger_ref": "trigger_example",
+        "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "expected_binding_epoch": "3",
+        "issued_at": "2026-10-24T12:00:00Z",
+        "expires_at": "2026-10-24T12:00:20Z",
+        "segment_index": 0,
+        "segment_count": 1,
+        "state": "issued"
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Chat permit envelope."
+  },
+  {
+    "schema_ref": "bridge.json#/ChatPermitEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "permit_id": "chat_permit_example",
+        "send_id": "send_example",
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789",
+        "trigger_ref": "trigger_example",
+        "text_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "expected_binding_epoch": "3",
+        "issued_at": "2026-10-24T12:00:00Z",
+        "expires_at": "2026-10-24T12:00:20Z",
+        "segment_index": 0,
+        "segment_count": 1,
+        "state": "issued"
+      }
+    },
+    "description": "ChatPermitEnvelope requires meta."
+  }
+]

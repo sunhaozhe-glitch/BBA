@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BBA · QQ 私域运营控制台</title><link rel="stylesheet" href="/product/app.css"><script defer src="/product/app.js"></script></head><body>
+<aside id="sidebar"><a class="brand" href="/product/dashboard"><span class="logo">B</span><span>BBA <small>QQ 私域运营</small></span></a><nav id="navigation" aria-label="主导航"></nav><footer><span class="dot"></span> 只读工作台 · 第一批<br><a href="/">兼容控制台 ↗</a><button id="legal">开源许可与来源</button></footer></aside>
+<div class="shell"><header><button id="menu" aria-label="展开导航" aria-expanded="false">☰</button><span class="breadcrumb">工作空间 <span>/</span> <strong id="crumb">仪表盘</strong></span><div class="header-actions"><button id="theme" aria-label="切换明暗主题">◐</button><button id="refresh">刷新</button><button id="logout">退出连接</button></div></header>
+<main><div class="page-heading"><div><h1 id="title">总览</h1><p id="subtitle">QQ 业务全局状态 · 只读实时投影</p></div><span id="connection" class="badge">尚未连接</span></div>
+<section id="auth" class="card auth"><h2>连接现有 BBA 操作员</h2><p>沿用受信任操作员认证。凭据仅留在当前页面内存，不保存至浏览器存储；不会索取或接收 NapCat Token。</p><form id="connect-form"><label for="credential">BBA 操作员凭据</label><div class="form-row"><input id="credential" type="password" autocomplete="off" required placeholder="输入现有操作员凭据"><button type="submit" class="primary">连接</button></div></form></section>
+<div id="error" role="alert" hidden></div><section id="content" aria-live="polite"></section><p id="updated" class="muted timestamp">无缓存数据</p></main></div>
+<dialog id="details"><div class="dialog-heading"><h2 id="detail-title">详情</h2><button id="close-detail" aria-label="关闭详情">×</button></div><div id="detail-body"></div></dialog>
+</body></html>

@@ -1,0 +1,1004 @@
+{
+  "Action": {
+    "type": "string",
+    "enum": [
+      "search_groups",
+      "request_join",
+      "observe_membership",
+      "observe_join_request",
+      "cancel_join_request",
+      "send_text"
+    ],
+    "description": "Closed action set. No arbitrary URLs, shell commands or provider action names are accepted."
+  },
+  "EffectCertainty": {
+    "type": "string",
+    "enum": ["no_effect", "confirmed", "confirmed_submitted", "confirmed_rejected", "unknown"],
+    "description": "What is known about an external effect. Only confirmed supports a membership result; confirmed_submitted means the request exists, not that it was approved."
+  },
+  "Disposition": {
+    "type": "string",
+    "enum": ["confirmed", "submitted", "rejected", "failed_no_effect", "unknown"],
+    "description": "Observed operation disposition. Only confirmed may become business success evidence."
+  },
+  "ExecutionState": {
+    "type": "string",
+    "enum": ["CREATED", "ACCEPTED", "DISPATCHING", "OBSERVED", "UNKNOWN", "REJECTED_BEFORE_SEND"],
+    "description": "Bridge ledger state. Missing in-memory state never authorizes rediscovery or replay; UNKNOWN remains unknown until authoritative reconciliation."
+  },
+  "JoinParams": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["reason", "verification_message"],
+    "properties": {
+      "reason": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 500,
+        "description": "Operator-approved native richMsg application reason."
+      },
+      "verification_message": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 500,
+        "description": "Operator-approved native applyMsg answer. Models may not freely rewrite it."
+      }
+    }
+  },
+  "SearchParams": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["keyword", "cursor", "limit"],
+    "properties": {
+      "keyword": { "type": "string", "minLength": 1, "maxLength": 64 },
+      "cursor": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "limit": { "type": "integer", "minimum": 1, "maximum": 50 }
+    },
+    "description": "Bounded search request. The local NapCat plugin exposes no cursor; cursor remains part of the bridge capability for verified providers only."
+  },
+  "MembershipParams": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["group_id", "snapshot_scope"],
+    "properties": {
+      "group_id": {
+        "type": "string",
+        "nullable": true,
+        "pattern": "^[1-9][0-9]*$"
+      },
+      "snapshot_scope": { "type": "string", "enum": ["target_group", "all_memberships"] }
+    },
+    "description": "Membership read scope. target_group requires group_id; all_memberships requires a complete list. That conditional rule is a service check."
+  },
+  "JoinObservationParams": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["request_ref"],
+    "properties": {
+      "request_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 256,
+        "description": "Adapter request reference. Null means query by the outer target only."
+      }
+    }
+  },
+  "SendTextParams": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "conversation_kind",
+      "conversation_id",
+      "text",
+      "trigger_ref",
+      "segment_index",
+      "segment_count",
+      "text_digest"
+    ],
+    "properties": {
+      "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+      "conversation_id": { "$ref": "common.json#/QQId" },
+      "text": { "type": "string", "minLength": 1, "maxLength": 4000 },
+      "trigger_ref": { "$ref": "common.json#/Id" },
+      "segment_index": { "type": "integer", "minimum": 0 },
+      "segment_count": { "type": "integer", "minimum": 1, "maximum": 32 },
+      "text_digest": { "$ref": "common.json#/Digest" }
+    },
+    "description": "Text-only send parameters. segment_index must be less than segment_count; the service enforces that conditional rule."
+  },
+  "ExecutionRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "execution_id",
+      "task_id",
+      "subtask_id",
+      "workspace_id",
+      "account_id",
+      "runtime_id",
+      "owner_epoch",
+      "fence_token",
+      "scope_revision",
+      "action",
+      "target",
+      "params",
+      "request_digest",
+      "approval_ref",
+      "deadline_at"
+    ],
+    "properties": {
+      "execution_id": { "$ref": "common.json#/Id" },
+      "task_id": { "$ref": "common.json#/Id" },
+      "subtask_id": { "$ref": "common.json#/Id" },
+      "workspace_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "runtime_id": { "$ref": "common.json#/Id" },
+      "owner_epoch": { "$ref": "common.json#/DecimalSequence" },
+      "fence_token": { "$ref": "common.json#/DecimalSequence" },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "action": { "$ref": "#/Action" },
+      "target": { "$ref": "common.json#/Target" },
+      "params": {
+        "oneOf": [
+          { "$ref": "#/SearchParams" },
+          { "$ref": "#/JoinParams" },
+          { "$ref": "#/MembershipParams" },
+          { "$ref": "#/JoinObservationParams" },
+          { "$ref": "#/SendTextParams" }
+        ]
+      },
+      "request_digest": { "$ref": "common.json#/Digest" },
+      "approval_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "deadline_at": { "$ref": "common.json#/UTCDateTime" }
+    },
+    "oneOf": [
+      {
+        "required": ["action", "params"],
+        "properties": {
+          "action": { "type": "string", "enum": ["search_groups"] },
+          "params": { "$ref": "#/SearchParams" }
+        }
+      },
+      {
+        "required": ["action", "params"],
+        "properties": {
+          "action": { "type": "string", "enum": ["request_join"] },
+          "params": { "$ref": "#/JoinParams" }
+        }
+      },
+      {
+        "required": ["action", "params"],
+        "properties": {
+          "action": { "type": "string", "enum": ["observe_membership"] },
+          "params": { "$ref": "#/MembershipParams" }
+        }
+      },
+      {
+        "required": ["action", "params"],
+        "properties": {
+          "action": { "type": "string", "enum": ["observe_join_request"] },
+          "params": { "$ref": "#/JoinObservationParams" }
+        }
+      },
+      {
+        "required": ["action", "params"],
+        "properties": {
+          "action": { "type": "string", "enum": ["cancel_join_request"] },
+          "params": { "$ref": "#/JoinObservationParams" }
+        }
+      },
+      {
+        "required": ["action", "params"],
+        "properties": {
+          "action": { "type": "string", "enum": ["send_text"] },
+          "params": { "$ref": "#/SendTextParams" }
+        }
+      }
+    ],
+    "description": "Fixed bridge execution request. Each oneOf branch requires action and params and constrains action to one literal value, so action is the union discriminator; params is bound to that action. Search and send_text remain later-stage capabilities. request_digest is server-computed and never proves an external effect."
+  },
+
+  "Operation": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation_id",
+      "state",
+      "disposition",
+      "effect_certainty",
+      "external_request_ref",
+      "observed_at",
+      "evidence_ref",
+      "error"
+    ],
+    "properties": {
+      "operation_id": { "$ref": "common.json#/Id" },
+      "state": { "$ref": "#/ExecutionState" },
+      "disposition": {
+        "type": "string",
+        "nullable": true,
+        "enum": ["confirmed", "submitted", "rejected", "failed_no_effect", "unknown", null]
+      },
+      "effect_certainty": { "$ref": "#/EffectCertainty" },
+      "external_request_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "observed_at": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+        "nullable": true
+      },
+      "evidence_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "error": {
+        "type": "object",
+        "nullable": true,
+        "additionalProperties": false,
+        "required": ["code", "message", "retryable", "retry_after_ms", "details"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+          "message": { "type": "string", "minLength": 1, "maxLength": 1024 },
+          "retryable": { "type": "boolean" },
+          "retry_after_ms": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 86400000
+          },
+          "details": {
+            "type": "object",
+            "maxProperties": 32,
+            "additionalProperties": {
+              "anyOf": [
+                { "type": "string", "maxLength": 512 },
+                { "type": "integer" },
+                { "type": "number" },
+                { "type": "boolean" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "oneOf": [
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["CREATED", "ACCEPTED", "REJECTED_BEFORE_SEND"] },
+          "disposition": { "type": "string", "nullable": true, "enum": [null] },
+          "effect_certainty": { "type": "string", "enum": ["no_effect"] },
+          "observed_at": { "type": "string", "nullable": true, "enum": [null] },
+          "evidence_ref": { "type": "string", "nullable": true, "enum": [null] }
+        }
+      },
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["DISPATCHING"] },
+          "disposition": { "type": "string", "nullable": true, "enum": [null] },
+          "effect_certainty": { "type": "string", "enum": ["unknown"] },
+          "observed_at": { "type": "string", "nullable": true, "enum": [null] }
+        }
+      },
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["UNKNOWN"] },
+          "disposition": { "type": "string", "enum": ["unknown"] },
+          "effect_certainty": { "type": "string", "enum": ["unknown"] },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+          }
+        }
+      },
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["OBSERVED"] },
+          "disposition": { "type": "string", "enum": ["confirmed"] },
+          "effect_certainty": { "type": "string", "enum": ["confirmed"] },
+          "evidence_ref": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+          }
+        }
+      },
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["OBSERVED"] },
+          "disposition": { "type": "string", "enum": ["submitted"] },
+          "effect_certainty": { "type": "string", "enum": ["confirmed_submitted"] },
+          "evidence_ref": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+          }
+        }
+      },
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["OBSERVED"] },
+          "disposition": { "type": "string", "enum": ["rejected"] },
+          "effect_certainty": { "type": "string", "enum": ["confirmed_rejected"] },
+          "evidence_ref": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+          }
+        }
+      },
+      {
+        "required": ["state", "disposition", "effect_certainty"],
+        "properties": {
+          "state": { "type": "string", "enum": ["OBSERVED"] },
+          "disposition": { "type": "string", "enum": ["failed_no_effect"] },
+          "effect_certainty": { "type": "string", "enum": ["no_effect"] },
+          "evidence_ref": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+          }
+        }
+      }
+    ],
+    "description": "Persistent operation ledger state. confirmed requires effect_certainty confirmed plus non-null evidence; submitted requires confirmed_submitted; unknown stays unknown. Accepted/dispatching states are not success."
+  },
+  "OperationEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/Operation" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "Observation": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_version",
+      "event_id",
+      "workspace_id",
+      "source_runtime_id",
+      "source_account_id",
+      "source_epoch",
+      "source_sequence",
+      "operation_id",
+      "target",
+      "kind",
+      "payload",
+      "observed_at",
+      "evidence_ref"
+    ],
+    "properties": {
+      "schema_version": { "type": "string", "enum": ["1"] },
+      "event_id": { "$ref": "common.json#/Id" },
+      "workspace_id": { "$ref": "common.json#/Id" },
+      "source_runtime_id": { "$ref": "common.json#/Id" },
+      "source_account_id": { "$ref": "common.json#/Id" },
+      "source_epoch": { "$ref": "common.json#/DecimalSequence" },
+      "source_sequence": { "$ref": "common.json#/DecimalSequence" },
+      "operation_id": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "May be null for passive membership events. A missing correlation is never invented."
+      },
+      "target": { "$ref": "common.json#/Target" },
+      "kind": {
+        "type": "string",
+        "enum": ["membership.observed", "join.request.observed", "execution.observed"]
+      },
+      "payload": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["state", "snapshot_complete"],
+            "properties": {
+              "state": { "type": "string", "enum": ["joined", "not_joined", "unknown"] },
+              "snapshot_complete": { "type": "boolean" }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["state", "authoritative", "request_ref"],
+            "properties": {
+              "state": { "type": "string", "enum": ["pending", "approved", "rejected", "cancelled", "unknown"] },
+              "authoritative": { "type": "boolean" },
+              "request_ref": {
+                "type": "string",
+                "nullable": true,
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["outcome", "effect_certainty", "request_ref", "message_ref"],
+            "properties": {
+              "outcome": { "type": "string", "enum": ["submitted", "confirmed", "rejected", "failed_no_effect", "unknown"] },
+              "effect_certainty": { "$ref": "#/EffectCertainty" },
+              "request_ref": {
+                "type": "string",
+                "nullable": true,
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "message_ref": {
+                "type": "string",
+                "nullable": true,
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        ]
+      },
+      "observed_at": { "$ref": "common.json#/UTCDateTime" },
+      "evidence_ref": { "$ref": "common.json#/Id" }
+    },
+    "oneOf": [
+      {
+        "required": ["kind", "payload"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["membership.observed"] },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["state", "snapshot_complete"],
+            "properties": {
+              "state": { "type": "string", "enum": ["joined", "not_joined", "unknown"] },
+              "snapshot_complete": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      {
+        "required": ["kind", "payload"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["join.request.observed"] },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["state", "authoritative", "request_ref"],
+            "properties": {
+              "state": { "type": "string", "enum": ["pending", "approved", "rejected", "cancelled", "unknown"] },
+              "authoritative": { "type": "boolean" },
+              "request_ref": {
+                "type": "string",
+                "nullable": true,
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "required": ["kind", "payload"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["execution.observed"] },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["outcome", "effect_certainty", "request_ref", "message_ref"],
+                "properties": {
+                  "outcome": { "type": "string", "enum": ["confirmed"] },
+                  "effect_certainty": { "type": "string", "enum": ["confirmed"] },
+                  "request_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 },
+                  "message_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["outcome", "effect_certainty", "request_ref", "message_ref"],
+                "properties": {
+                  "outcome": { "type": "string", "enum": ["submitted"] },
+                  "effect_certainty": { "type": "string", "enum": ["confirmed_submitted"] },
+                  "request_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 },
+                  "message_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["outcome", "effect_certainty", "request_ref", "message_ref"],
+                "properties": {
+                  "outcome": { "type": "string", "enum": ["rejected"] },
+                  "effect_certainty": { "type": "string", "enum": ["confirmed_rejected"] },
+                  "request_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 },
+                  "message_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["outcome", "effect_certainty", "request_ref", "message_ref"],
+                "properties": {
+                  "outcome": { "type": "string", "enum": ["failed_no_effect"] },
+                  "effect_certainty": { "type": "string", "enum": ["no_effect"] },
+                  "request_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 },
+                  "message_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["outcome", "effect_certainty", "request_ref", "message_ref"],
+                "properties": {
+                  "outcome": { "type": "string", "enum": ["unknown"] },
+                  "effect_certainty": { "type": "string", "enum": ["unknown"] },
+                  "request_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 },
+                  "message_ref": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 256 }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "description": "Inbox observation. Payload is typed by kind, and execution outcomes must agree with effect certainty (confirmed only with confirmed and evidence). A joined membership fact still requires baseline, scope and authoritative-evidence checks before counting; pending/unknown join states and unknown execution outcomes never count as success. PUT acceptance means durable inbox persistence only."
+  },
+  "ObservationReceipt": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["event_id", "duplicate", "apply_state", "accepted_at"],
+    "properties": {
+      "event_id": { "$ref": "common.json#/Id" },
+      "duplicate": {
+        "type": "boolean",
+        "description": "True when the same event_id and digest were already accepted. It never triggers a second reducer application."
+      },
+      "apply_state": {
+        "type": "string",
+        "enum": ["queued", "applied", "failed"],
+        "description": "queued is the normal 202 state; applied/failed describe the background reducer, not task success."
+      },
+      "accepted_at": { "$ref": "common.json#/UTCDateTime" }
+    }
+  },
+  "ObservationEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/ObservationReceipt" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "ObservationQueryRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["workspace_id", "account_id", "target", "kind", "request_ref"],
+    "properties": {
+      "workspace_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "target": { "$ref": "common.json#/Target" },
+      "kind": { "type": "string", "enum": ["membership", "join_request"] },
+      "request_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 256
+      }
+    },
+    "description": "Bounded read-only external fact query. It must never repeat the original write action."
+  },
+  "ObservationQueryResult": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "query_id",
+      "account_id",
+      "target",
+      "kind",
+      "state",
+      "authoritative",
+      "observed_at",
+      "evidence_ref",
+      "snapshot_complete",
+      "request_ref"
+    ],
+    "properties": {
+      "query_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "target": { "$ref": "common.json#/Target" },
+      "kind": { "type": "string", "enum": ["membership", "join_request"] },
+      "state": {
+        "type": "string",
+        "enum": ["joined", "not_joined", "unknown", "pending", "approved", "rejected", "cancelled"],
+        "description": "unknown is not not_joined, and pending/approved are not membership success."
+      },
+      "authoritative": { "type": "boolean" },
+      "observed_at": { "$ref": "common.json#/UTCDateTime" },
+      "evidence_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "snapshot_complete": { "type": "boolean" },
+      "request_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 256
+      }
+    },
+    "description": "Read-only query result. Only authoritative joined membership with a complete snapshot can support a membership result; this schema does not correlate baseline/scope or create results."
+  },
+  "ObservationQueryEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/ObservationQueryResult" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "DispatchPermitRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation_id",
+      "account_id",
+      "target",
+      "action",
+      "request_digest",
+      "scope_revision",
+      "owner_epoch",
+      "fence_token"
+    ],
+    "properties": {
+      "operation_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "target": { "$ref": "common.json#/Target" },
+      "action": { "$ref": "#/Action" },
+      "request_digest": { "$ref": "common.json#/Digest" },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "owner_epoch": { "$ref": "common.json#/DecimalSequence" },
+      "fence_token": { "$ref": "common.json#/DecimalSequence" }
+    },
+    "description": "Request for a one-time send permit. owner_epoch and fence_token must be positive decimal strings; unknown fields and zero values are rejected."
+  },
+  "DispatchPermit": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "permit_id",
+      "operation_id",
+      "account_id",
+      "target",
+      "action",
+      "request_digest",
+      "scope_revision",
+      "owner_epoch",
+      "fence_token",
+      "issued_at",
+      "expires_at",
+      "state"
+    ],
+    "properties": {
+      "permit_id": { "$ref": "common.json#/Id" },
+      "operation_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "target": { "$ref": "common.json#/Target" },
+      "action": { "$ref": "#/Action" },
+      "request_digest": { "$ref": "common.json#/Digest" },
+      "scope_revision": { "type": "integer", "minimum": 1 },
+      "owner_epoch": { "$ref": "common.json#/DecimalSequence" },
+      "fence_token": { "$ref": "common.json#/DecimalSequence" },
+      "issued_at": { "$ref": "common.json#/UTCDateTime" },
+      "expires_at": { "$ref": "common.json#/UTCDateTime" },
+      "state": {
+        "type": "string",
+        "enum": ["issued", "consumed", "expired"],
+        "description": "Duplicate requests return the same permit; expiry is never extended and a second permit is never issued."
+      }
+    },
+    "description": "Stable one-time dispatch permit bound to operation, account, target, digest, scope revision, owner epoch and fence. It authorizes at most one external call before expires_at."
+  },
+  "DispatchPermitEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["data", "meta"],
+    "properties": {
+      "data": { "$ref": "#/DispatchPermit" },
+      "meta": { "$ref": "common.json#/RequestMeta" }
+    }
+  },
+  "ChatPermitRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "send_id",
+      "account_id",
+      "conversation_kind",
+      "conversation_id",
+      "trigger_ref",
+      "text_digest",
+      "expected_binding_epoch",
+      "deadline_at",
+      "segment_index",
+      "segment_count"
+    ],
+    "properties": {
+      "send_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+      "conversation_id": { "$ref": "common.json#/QQId" },
+      "trigger_ref": { "$ref": "common.json#/Id" },
+      "text_digest": { "$ref": "common.json#/Digest" },
+      "expected_binding_epoch": { "$ref": "common.json#/DecimalSequence" },
+      "deadline_at": { "$ref": "common.json#/UTCDateTime" },
+      "segment_index": { "type": "integer", "minimum": 0 },
+      "segment_count": { "type": "integer", "minimum": 1, "maximum": 32 }
+    },
+    "description": "Short-lived chat send permit request in an action family separate from task permits. The same send_id with a different text digest is a conflict. Enabled only for P0-15 text chat; it grants no group-management action."
+  },
+  "ChatPermit": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "permit_id",
+      "send_id",
+      "account_id",
+      "conversation_kind",
+      "conversation_id",
+      "trigger_ref",
+      "text_digest",
+      "expected_binding_epoch",
+      "issued_at",
+      "expires_at",
+      "segment_index",
+      "segment_count",
+      "state"
+    ],
+    "properties": {
+      "permit_id": { "$ref": "common.json#/Id" },
+      "send_id": { "$ref": "common.json#/Id" },
+      "account_id": { "$ref": "common.json#/Id" },
+      "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+      "conversation_id": { "$ref": "common.json#/QQId" },
+      "trigger_ref": { "$ref": "common.json#/Id" },
+      "text_digest": { "$ref": "common.json#/Digest" },
+      "expected_binding_epoch": { "$ref": "common.json#/DecimalSequence" },
+      "issued_at": { "$ref": "common.json#/UTCDateTime" },
+      "expires_at": { "$ref": "common.json#/UTCDateTime" },
+      "segment_index": { "type": "integer", "minimum": 0 },
+      "segment_count": { "type": "integer", "minimum": 1, "maximum": 32 },
+      "state": { "type": "string", "enum": ["issued", "consumed", "expired"] }
+    },
+    "description": "One-time text-only chat permit. It grants no group management action and is not reusable after expiry; an unknown delivery is not automatically resent."
+  },
+ "ChatPermitEnvelope": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+   "data": { "$ref": "#/ChatPermit" },
+   "meta": { "$ref": "common.json#/RequestMeta" }
+  }
+ },
+ "ChatTriggerRequest": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trigger_ref", "account_id", "conversation_kind", "conversation_id", "source_event_id", "sender_id", "directed_account_id", "deadline_at", "segment_count"],
+  "properties": {
+   "trigger_ref": { "$ref": "common.json#/Id" },
+   "account_id": { "$ref": "common.json#/Id" },
+   "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+   "conversation_id": { "$ref": "common.json#/QQId" },
+   "source_event_id": { "$ref": "common.json#/Id" },
+   "sender_id": { "$ref": "common.json#/QQId" },
+   "directed_account_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+   "deadline_at": { "$ref": "common.json#/UTCDateTime" },
+   "segment_count": { "type": "integer", "minimum": 1, "maximum": 32 }
+  },
+  "description": "Durable trigger registration for one inbound platform event. trigger_ref and source_event_id are caller-stable; runtime/owner epoch come only from the RuntimeCredential. Managed self-id senders are rejected."
+ },
+ "ChatTrigger": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trigger_ref", "account_id", "conversation_kind", "conversation_id", "source_event_id", "sender_id", "directed_account_id", "deadline_at", "segment_count", "next_segment", "state", "created_at"],
+  "properties": {
+   "trigger_ref": { "$ref": "common.json#/Id" },
+   "account_id": { "$ref": "common.json#/Id" },
+   "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+   "conversation_id": { "$ref": "common.json#/QQId" },
+   "source_event_id": { "$ref": "common.json#/Id" },
+   "sender_id": { "$ref": "common.json#/QQId" },
+   "directed_account_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+   "deadline_at": { "$ref": "common.json#/UTCDateTime" },
+   "segment_count": { "type": "integer", "minimum": 1, "maximum": 32 },
+   "next_segment": { "type": "integer", "minimum": 0, "maximum": 32 },
+   "state": { "type": "string", "enum": ["open", "complete", "expired", "suppressed"] },
+   "created_at": { "$ref": "common.json#/UTCDateTime" }
+  },
+  "description": "Immutable trigger identity plus the next segment the backend will permit. Speaker authority is read separately from chat context."
+ },
+ "ChatTriggerEnvelope": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+   "data": { "$ref": "#/ChatTrigger" },
+   "meta": { "$ref": "common.json#/RequestMeta" }
+  }
+ },
+ "ChatContext": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["account_id", "qq_self_id", "conversation_kind", "conversation_id", "active_speaker_account_id", "binding_epoch", "lease_expires_at", "speaker_active", "chat_enabled", "daily_limit", "issued_today", "managed_self_ids"],
+  "properties": {
+   "account_id": { "$ref": "common.json#/Id" },
+   "qq_self_id": { "$ref": "common.json#/QQId" },
+   "conversation_kind": { "type": "string", "enum": ["group", "private"] },
+   "conversation_id": { "$ref": "common.json#/QQId" },
+   "active_speaker_account_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+   "binding_epoch": { "type": "string", "nullable": true, "pattern": "^[1-9][0-9]*$" },
+   "lease_expires_at": { "type": "string", "format": "date-time", "nullable": true, "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$" },
+   "speaker_active": { "type": "boolean" },
+   "chat_enabled": { "type": "boolean" },
+   "daily_limit": { "type": "integer", "minimum": 1, "maximum": 10000 },
+   "issued_today": { "type": "integer", "minimum": 0 },
+   "managed_self_ids": { "type": "array", "items": { "$ref": "common.json#/QQId" } }
+  },
+  "description": "Runtime-readable chat authorization projection. For private chat binding_epoch is the account owner epoch and speaker_active is true. For groups it is the active-speaker lease epoch; a missing expired lease yields a null epoch and speaker_active=false."
+ },
+ "ChatContextEnvelope": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+   "data": { "$ref": "#/ChatContext" },
+   "meta": { "$ref": "common.json#/RequestMeta" }
+  }
+ },
+ "ChatPolicyRequest": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["enabled", "daily_limit"],
+  "properties": {
+   "enabled": { "type": "boolean" },
+   "daily_limit": { "type": "integer", "minimum": 1, "maximum": 10000 },
+   "expected_version": { "type": "integer", "nullable": true, "minimum": 0 }
+  }
+ },
+ "ChatPolicy": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["account_id", "enabled", "daily_limit", "version", "updated_at"],
+  "properties": {
+   "account_id": { "$ref": "common.json#/Id" },
+   "enabled": { "type": "boolean" },
+   "daily_limit": { "type": "integer", "minimum": 1, "maximum": 10000 },
+   "version": { "type": "integer", "minimum": 1 },
+   "updated_at": { "$ref": "common.json#/UTCDateTime" }
+  }
+ },
+ "ChatPolicyEnvelope": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+   "data": { "$ref": "#/ChatPolicy" },
+   "meta": { "$ref": "common.json#/RequestMeta" }
+  }
+ },
+ "GroupSpeakerLeaseRequest": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["account_id", "binding_epoch", "lease_expires_at"],
+  "properties": {
+   "account_id": { "$ref": "common.json#/Id" },
+   "binding_epoch": { "$ref": "common.json#/DecimalSequence" },
+   "lease_expires_at": { "$ref": "common.json#/UTCDateTime" },
+   "expected_version": { "type": "integer", "nullable": true, "minimum": 0 }
+  }
+ },
+ "GroupSpeakerLease": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["group_id", "active_speaker_account_id", "binding_epoch", "lease_expires_at", "version", "updated_at"],
+  "properties": {
+   "group_id": { "$ref": "common.json#/QQId" },
+   "active_speaker_account_id": { "$ref": "common.json#/Id" },
+   "binding_epoch": { "$ref": "common.json#/DecimalSequence" },
+   "lease_expires_at": { "$ref": "common.json#/UTCDateTime" },
+   "version": { "type": "integer", "minimum": 1 },
+   "updated_at": { "$ref": "common.json#/UTCDateTime" }
+  }
+ },
+ "GroupSpeakerLeaseEnvelope": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+   "data": { "$ref": "#/GroupSpeakerLease" },
+   "meta": { "$ref": "common.json#/RequestMeta" }
+  }
+ },
+ "ChatPermitConsumeRequest": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["send_id", "segment_index", "text_digest"],
+  "properties": {
+   "send_id": { "$ref": "common.json#/Id" },
+   "segment_index": { "type": "integer", "minimum": 0, "maximum": 31 },
+   "text_digest": { "$ref": "common.json#/Digest" }
+  },
+  "description": "One-shot consume intent for an issued permit. The digest must match the permit exactly; a second consume is rejected so the adapter cannot be called twice for one permit."
+ },
+ "ChatSendOutcomeRequest": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["send_id", "state", "occurred_at"],
+  "properties": {
+   "send_id": { "$ref": "common.json#/Id" },
+   "state": { "type": "string", "enum": ["sent", "unknown"] },
+   "message_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+   "occurred_at": { "$ref": "common.json#/UTCDateTime" }
+  },
+  "description": "Delivery outcome after a consumed permit. sent may carry the adapter message_id or null when the adapter returns no receipt; unknown is terminal, requires null, and is never resent. An unknown outcome also suppresses its trigger so no later segment can be issued."
+ },
+ "ChatSendOutcome": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["permit_id", "send_id", "state", "message_id", "occurred_at", "created_at"],
+  "properties": {
+   "permit_id": { "$ref": "common.json#/Id" },
+   "send_id": { "$ref": "common.json#/Id" },
+   "state": { "type": "string", "enum": ["sent", "unknown"] },
+   "message_id": { "type": "string", "nullable": true, "minLength": 1, "maxLength": 128 },
+   "occurred_at": { "$ref": "common.json#/UTCDateTime" },
+   "created_at": { "$ref": "common.json#/UTCDateTime" }
+  },
+  "description": "Stored delivery outcome for one consumed permit. message_id is null when a sent adapter call returned no receipt or when the delivery is unknown."
+ },
+ "ChatSendOutcomeEnvelope": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+   "data": { "$ref": "#/ChatSendOutcome" },
+   "meta": { "$ref": "common.json#/RequestMeta" }
+  }
+ }
+}

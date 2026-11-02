@@ -1,0 +1,72 @@
+{
+  "MaterializeRequest": {
+    "type": "object", "additionalProperties": false,
+    "required": ["expected_version", "approval_ref", "proposal_digest"],
+    "properties": {
+      "expected_version": {"type": "integer", "minimum": 1},
+      "approval_ref": {"$ref": "common.json#/Id"},
+      "proposal_digest": {"$ref": "common.json#/Digest"}
+    },
+    "description": "Explicitly materialize an approved proposal into immutable step applications and durable fenced work items. Creates no execution or external effect; worker gates remain authoritative."
+  },
+  "WorkItemAttemptView": {
+    "type": "object", "additionalProperties": false,
+    "required": ["attempt_no", "lease_epoch", "execution_id", "operation_id", "execution_state", "outcome", "error_code", "evidence_ref", "observation_event_id", "started_at", "finished_at"],
+    "properties": {
+      "attempt_no": {"type": "integer", "minimum": 1},
+      "lease_epoch": {"type": "integer", "minimum": 1},
+      "execution_id": {"type": "string", "nullable": true, "minLength": 1, "maxLength": 128},
+      "operation_id": {"type": "string", "nullable": true, "minLength": 1, "maxLength": 128},
+      "execution_state": {"type": "string", "nullable": true, "enum": ["created", "dispatching", "observed", "unknown", "rejected_before_send", null]},
+      "outcome": {"type": "string", "nullable": true, "enum": ["SUCCEEDED", "FAILED", "UNKNOWN", "CANCELLED", null]},
+      "error_code": {"type": "string", "nullable": true, "maxLength": 128},
+      "evidence_ref": {"type": "string", "nullable": true, "maxLength": 128},
+      "observation_event_id": {"type": "string", "nullable": true, "maxLength": 128},
+      "started_at": {"$ref": "common.json#/UTCDateTime"},
+      "finished_at": {"type": "string", "format": "date-time", "nullable": true}
+    }
+  },
+  "OrchestrationModeRequest": {
+    "type": "object", "additionalProperties": false,
+    "required": ["expected_version", "mode", "reason"],
+    "properties": {
+      "expected_version": {"type": "integer", "minimum": 1},
+      "mode": {"$ref": "tasks.json#/OrchestrationMode"},
+      "reason": {"type": "string", "minLength": 1, "maxLength": 500}
+    }
+  },
+  "WorkItemView": {
+    "type": "object", "additionalProperties": false,
+    "required": ["id", "task_id", "materialization_id", "application_id", "proposal_id", "step_id", "step_no", "kind", "state", "depends_on", "account_id", "target_id", "authorization_version", "attempt_count", "max_attempts", "created_at", "updated_at", "attempts"],
+    "properties": {
+      "id": {"$ref": "common.json#/Id"},
+      "task_id": {"$ref": "common.json#/Id"},
+      "materialization_id": {"$ref": "common.json#/Id"},
+      "application_id": {"$ref": "common.json#/Id"},
+      "proposal_id": {"$ref": "common.json#/Id"},
+      "step_id": {"$ref": "common.json#/Id"},
+      "step_no": {"type": "integer", "minimum": 1, "maximum": 20},
+      "kind": {"type": "string", "enum": ["request_join"]},
+      "state": {"type": "string", "enum": ["BLOCKED", "READY", "CLAIMED", "WAITING_RESULT", "SUCCEEDED", "FAILED", "UNKNOWN", "CANCELLED"]},
+      "blocked_reason": {"type": "string", "nullable": true, "maxLength": 1000},
+      "depends_on": {"type": "array", "maxItems": 19, "uniqueItems": true, "items": {"$ref": "common.json#/Id"}},
+      "account_id": {"$ref": "common.json#/Id"},
+      "target_id": {"$ref": "common.json#/Id"},
+      "authorization_version": {"type": "integer", "minimum": 1},
+      "execution_id": {"type": "string", "nullable": true, "minLength": 1, "maxLength": 128},
+      "attempt_count": {"type": "integer", "minimum": 0, "maximum": 10},
+      "max_attempts": {"type": "integer", "minimum": 1, "maximum": 10},
+      "last_error": {"type": "string", "nullable": true, "maxLength": 1000},
+      "created_at": {"$ref": "common.json#/UTCDateTime"},
+      "updated_at": {"$ref": "common.json#/UTCDateTime"}
+      ,"attempts": {"type": "array", "maxItems": 10, "items": {"$ref": "#/WorkItemAttemptView"}}
+    }
+  },
+  "WorkItemPageEnvelope": {
+    "type": "object", "additionalProperties": false, "required": ["data", "meta"],
+    "properties": {
+      "data": {"type": "object", "additionalProperties": false, "required": ["items"], "properties": {"items": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/WorkItemView"}}}},
+      "meta": {"$ref": "common.json#/RequestMeta"}
+    }
+  }
+}

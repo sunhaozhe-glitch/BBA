@@ -1,0 +1,33 @@
+{
+  "name": "bba-contract-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned OpenAPI lint/bundle and Go/TypeScript contract type generation (P0-01)",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "contract:prefetch": "bash tools/prefetch.sh",
+    "contract:refgate": "bash tools/refgate.sh",
+    "contract:validate": "python3 tools/validate_contracts.py contracts",
+    "contract:test": "python3 -m unittest discover -s tests/contract -t . -v",
+    "contract:lint": "bash tools/refgate.sh && redocly lint contracts/openapi.yaml",
+    "contract:bundle": "bash tools/refgate.sh && redocly bundle contracts/openapi.yaml --output build/openapi.bundled.json --ext json",
+    "contract:types:ts": "bash tools/refgate.sh && openapi-typescript build/openapi.bundled.json -o koishi/contracts/types.gen.ts",
+    "contract:fixtures:ts": "python3 tools/gen_ts_fixtures.py contracts build/ts-fixtures.gen.ts",
+    "contract:typecheck": "bash tools/refgate.sh && tsc -p tsconfig.contract.json",
+    "contract:smoke:ts": "bash tools/refgate.sh && tsc -p tsconfig.contract-smoke.json && node build/ts-smoke/build/ts-fixtures.gen.js",
+    "contract:generate:go": "bash tools/generate_go.sh",
+    "contract:check": "bash tools/contract.sh check",
+    "contract:pipeline": "bash tools/contract.sh generate",
+    "deps:node22": "bash tools/node22-deps.sh verify",
+    "dev:stack": "bash tools/dev-stack.sh start",
+    "dev:stack:stop": "bash tools/dev-stack.sh stop",
+    "dev:stack:status": "bash tools/dev-stack.sh status"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.71.0",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,1673 @@
+[
+  {
+    "schema_ref": "models.json#/PlanProposalRequest",
+    "valid": true,
+    "value": {
+      "task_id": "task_example",
+      "expected_version": 4,
+      "scope_revision": 1,
+      "proposal_kind": "use_template",
+      "reason": "Ask for a bounded next-step proposal."
+    },
+    "description": "Bounded L2 proposal request. It never applies anything; P0-17 contract only."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalRequest",
+    "valid": false,
+    "value": {
+      "task_id": "task_example",
+      "expected_version": 0,
+      "scope_revision": 1,
+      "proposal_kind": "use_template",
+      "reason": "Ask for a bounded next-step proposal."
+    },
+    "description": "expected_version must be positive."
+  },
+  {
+    "schema_ref": "models.json#/PlanApplyRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 4,
+      "approval_ref": "approval_example",
+      "proposal_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    "description": "Apply request bound to the exact proposal digest and approval."
+  },
+  {
+    "schema_ref": "models.json#/PlanApplyRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 4,
+      "approval_ref": "approval_example"
+    },
+    "description": "proposal_digest is required so a stale or substituted proposal cannot be applied."
+  },
+  {
+    "schema_ref": "models.json#/PlanStep",
+    "valid": true,
+    "value": {
+      "step_no": 1,
+      "action": "request_join",
+      "target_id": "target_example",
+      "account_id": "acc_qq1",
+      "parameters": {
+        "group_id": "123456789",
+        "keyword": null,
+        "limit": null,
+        "verification_message": "Operator-approved application text.",
+        "text": null,
+        "note": null
+      }
+    },
+    "description": "Known action with in-scope references and finite parameters only."
+  },
+  {
+    "schema_ref": "models.json#/PlanStep",
+    "valid": false,
+    "value": {
+      "step_no": 1,
+      "action": "run_shell",
+      "target_id": "target_example",
+      "account_id": "acc_qq1",
+      "parameters": {}
+    },
+    "description": "Arbitrary executable/tool actions are rejected; only known bridge actions are allowed."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposal",
+    "valid": true,
+    "value": {
+      "schema_id": "PlanProposal.v1",
+      "task_id": "task_example",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "proposal_kind": "use_template",
+      "steps": [
+        {
+          "step_no": 1,
+          "action": "request_join",
+          "target_id": "target_example",
+          "account_id": "acc_qq1",
+          "parameters": {
+            "group_id": "123456789",
+            "keyword": null,
+            "limit": null,
+            "verification_message": "Operator-approved application text.",
+            "text": null,
+            "note": null
+          }
+        }
+      ],
+      "questions": [],
+      "rationale_summary": "Use the already approved fixed candidate and target account."
+    },
+    "description": "Structured proposal only; it cannot declare completion or widen scope."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposal",
+    "valid": false,
+    "value": {
+      "schema_id": "PlanProposal.v1",
+      "task_id": "task_example",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "proposal_kind": "use_template",
+      "steps": [],
+      "questions": [],
+      "rationale_summary": "No steps.",
+      "executable": "curl https://example.invalid"
+    },
+    "description": "Arbitrary executable code or URLs are rejected as unknown fields."
+  },
+  {
+    "schema_ref": "models.json#/IntentDraft",
+    "valid": true,
+    "value": {
+      "schema_id": "IntentDraft.v1",
+      "intent": "group.acquire",
+      "keywords": ["AI", "local model"],
+      "requested_goal_count": 20,
+      "requested_account_labels": ["QQ1", "QQ2"],
+      "missing_fields": ["candidate_source"],
+      "ambiguous_fields": []
+    },
+    "description": "L1 intent draft. Labels are resolved by the backend and never become authorization."
+  },
+  {
+    "schema_ref": "models.json#/IntentDraft",
+    "valid": false,
+    "value": {
+      "schema_id": "IntentDraft.v1",
+      "intent": "auto_join",
+      "keywords": ["AI"],
+      "requested_goal_count": 20,
+      "requested_account_labels": ["QQ1"],
+      "missing_fields": [],
+      "ambiguous_fields": []
+    },
+    "description": "Intent is a closed enum; auto_join is not a recognized intent."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": true,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "local_only",
+      "retention_days": 7,
+      "expires_at": "2026-10-31T11:00:00Z",
+      "producer": {
+        "account_id": "acc_qq1",
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"]
+        }
+      ],
+      "limitations": ["Only the approved message window was reviewed."]
+    },
+    "description": "Grounded summary with explicit limitations and resolvable message references."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": false,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "local_only",
+      "retention_days": 7,
+      "expires_at": "2026-10-31T11:00:00Z",
+      "producer": {
+        "account_id": "acc_qq1",
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1"]
+        }
+      ]
+    },
+    "description": "limitations is required so unsourced or incomplete claims are explicit."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": false,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "local_only",
+      "retention_days": 7,
+      "expires_at": "2026-10-31T11:00:00Z",
+      "producer": {
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"]
+        }
+      ],
+      "limitations": ["Only the approved message window was reviewed."]
+    },
+    "description": "producer.account_id is required so every summary can be attributed to a producing account."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": false,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "external_public",
+      "retention_days": 7,
+      "expires_at": "2026-10-31T11:00:00Z",
+      "producer": {
+        "account_id": "acc_qq1",
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"]
+        }
+      ],
+      "limitations": ["Only the approved message window was reviewed."]
+    },
+    "description": "privacy_class is a closed enum; arbitrary classifications are rejected."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": false,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "local_only",
+      "retention_days": 0,
+      "expires_at": "2026-10-31T11:00:00Z",
+      "producer": {
+        "account_id": "acc_qq1",
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"]
+        }
+      ],
+      "limitations": ["Only the approved message window was reviewed."]
+    },
+    "description": "retention_days must stay within the 1..365 day contract."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": false,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "local_only",
+      "retention_days": 7,
+      "expires_at": "2026-10-31T11:00:00+08:00",
+      "producer": {
+        "account_id": "acc_qq1",
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"]
+        }
+      ],
+      "limitations": ["Only the approved message window was reviewed."]
+    },
+    "description": "expires_at must be RFC3339 UTC with a trailing Z; local offsets are rejected."
+  },
+  {
+    "schema_ref": "models.json#/Summary",
+    "valid": false,
+    "value": {
+      "schema_id": "Summary.v1",
+      "window_start": "2026-10-24T10:00:00Z",
+      "window_end": "2026-10-24T11:00:00Z",
+      "privacy_class": "local_only",
+      "retention_days": 7,
+      "expires_at": "2026-10-31T11:00:00Z",
+      "producer": {
+        "account_id": "acc_qq1",
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "plugin_version": "1.4.1",
+        "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+      },
+      "collector_scope": {
+        "account_id": "acc_qq1",
+        "conversation_kind": "group",
+        "conversation_id": "123456789"
+      },
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"]
+        }
+      ],
+      "limitations": ["Only the approved message window was reviewed."],
+      "provenance_note": "Unknown extension fields must not ride along."
+    },
+    "description": "Unknown summary fields are rejected rather than silently carried."
+  },
+  {
+    "schema_ref": "models.json#/ModelRequest",
+    "valid": true,
+    "value": {
+      "request_id": "modelreq_example",
+      "operation_kind": "complex_plan",
+      "task_ref": { "id": "task_example", "version": 4, "scope_revision": 1 },
+      "route_policy": "l2_prefer_online",
+      "privacy_class": "redacted_external_allowed",
+      "required_capabilities": ["structured_output"],
+      "schema_id": "PlanProposal.v1",
+      "prompt_version": "planning.v1",
+      "input_ref": "authorized_context_example",
+      "max_provider_attempts": 3,
+      "deadline_at": "2026-10-24T12:01:00Z"
+    },
+    "description": "Bounded model request with a task reference and total attempt budget."
+  },
+  {
+    "schema_ref": "models.json#/ModelRequest",
+    "valid": true,
+    "value": {
+      "request_id": "modelreq_chat_example",
+      "operation_kind": "chat_reply",
+      "task_ref": null,
+      "route_policy": "l1_local",
+      "privacy_class": "local_only",
+      "required_capabilities": [],
+      "schema_id": "TextReply.v1",
+      "prompt_version": "chat.v1",
+      "input_ref": "authorized_context_example",
+      "max_provider_attempts": 1,
+      "deadline_at": "2026-10-24T12:01:00Z"
+    },
+    "description": "Chat request has a null task_ref and local-only privacy."
+  },
+  {
+    "schema_ref": "models.json#/ModelRequest",
+    "valid": false,
+    "value": {
+      "request_id": "modelreq_example",
+      "operation_kind": "complex_plan",
+      "task_ref": { "id": "task_example", "version": 4, "scope_revision": 1 },
+      "route_policy": "l2_prefer_online",
+      "privacy_class": "redacted_external_allowed",
+      "required_capabilities": ["structured_output"],
+      "schema_id": "PlanProposal.v1",
+      "prompt_version": "planning.v1",
+      "input_ref": "authorized_context_example",
+      "max_provider_attempts": 11,
+      "deadline_at": "2026-10-24T12:01:00Z"
+    },
+    "description": "Provider attempt budget is finite (1..10)."
+  },
+  {
+    "schema_ref": "models.json#/ModelResponse",
+    "valid": true,
+    "value": {
+      "request_id": "modelreq_example",
+      "operation_kind": "complex_plan",
+      "schema_id": "PlanProposal.v1",
+      "result": {
+        "schema_id": "PlanProposal.v1",
+        "task_id": "task_example",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "proposal_kind": "use_template",
+        "steps": [
+          {
+            "step_no": 1,
+            "action": "request_join",
+            "target_id": "target_example",
+            "account_id": "acc_qq1",
+            "parameters": {
+              "group_id": "123456789",
+              "keyword": null,
+              "limit": null,
+              "verification_message": "Operator-approved application text.",
+              "text": null,
+              "note": null
+            }
+          }
+        ],
+        "questions": [],
+        "rationale_summary": "Use the already approved fixed candidate and target account."
+      },
+      "model": {
+        "provider": "deepseek",
+        "api_model_id": "deepseek-flash",
+        "revision": null,
+        "quantization": null
+      },
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "cost_micros": null
+      },
+      "attempts": 1,
+      "latency_ms": 1200,
+      "fallback_used": false,
+      "completed_at": "2026-10-24T12:00:05Z"
+    },
+    "description": "Successful model response with actual model identity and nullable unknown cost."
+  },
+  {
+    "schema_ref": "models.json#/ModelResponse",
+    "valid": true,
+    "value": {
+      "request_id": "modelreq_chat_example",
+      "operation_kind": "chat_reply",
+      "schema_id": "TextReply.v1",
+      "result": "Hello.",
+      "model": {
+        "provider": "local",
+        "api_model_id": "unverified-fixture-model",
+        "revision": null,
+        "quantization": "unknown"
+      },
+      "usage": {
+        "input_tokens": 10,
+        "output_tokens": 3,
+        "cost_micros": 0
+      },
+      "attempts": 1,
+      "latency_ms": 50,
+      "fallback_used": false,
+      "completed_at": "2026-10-24T12:00:01Z"
+    },
+    "description": "Plain text result for a chat operation. The model identifier is a fixture placeholder, not an installed-model claim."
+  },
+  {
+    "schema_ref": "models.json#/ModelResponse",
+    "valid": false,
+    "value": {
+      "request_id": "modelreq_example",
+      "operation_kind": "complex_plan",
+      "schema_id": "PlanProposal.v1",
+      "result": "not a structured proposal",
+      "model": {
+        "provider": "deepseek",
+        "api_model_id": "deepseek-flash",
+        "revision": null,
+        "quantization": null
+      },
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 50
+      },
+      "attempts": 1,
+      "latency_ms": 1200,
+      "fallback_used": false,
+      "completed_at": "2026-10-24T12:00:05Z"
+    },
+    "description": "Usage must include cost_micros explicitly, even when unknown/null."
+  },
+  {
+    "schema_ref": "models.json#/ModelEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "request_id": "modelreq_chat_example",
+        "operation_kind": "chat_reply",
+        "schema_id": "TextReply.v1",
+        "result": "Hello.",
+        "model": {
+          "provider": "local",
+          "api_model_id": "unverified-fixture-model",
+          "revision": null,
+          "quantization": "unknown"
+        },
+        "usage": {
+          "input_tokens": 10,
+          "output_tokens": 3,
+          "cost_micros": 0
+        },
+        "attempts": 1,
+        "latency_ms": 50,
+        "fallback_used": false,
+        "completed_at": "2026-10-24T12:00:01Z"
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Model response envelope. Model output still has no inherited service permission."
+  },
+  {
+    "schema_ref": "models.json#/ModelEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "request_id": "modelreq_chat_example",
+        "operation_kind": "chat_reply",
+        "schema_id": "TextReply.v1",
+        "result": "Hello.",
+        "model": {
+          "provider": "local",
+          "api_model_id": "unverified-fixture-model",
+          "revision": null,
+          "quantization": "unknown"
+        },
+        "usage": {
+          "input_tokens": 10,
+          "output_tokens": 3,
+          "cost_micros": 0
+        },
+        "attempts": 1,
+        "latency_ms": 50,
+        "fallback_used": false,
+        "completed_at": "2026-10-24T12:00:01Z"
+      }
+    },
+    "description": "ModelEnvelope requires meta."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_qq1",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "window_message_count": 42,
+      "generated_at": "2026-10-24T11:00:05Z",
+      "summary": {
+        "schema_id": "Summary.v1",
+        "window_start": "2026-10-24T10:00:00Z",
+        "window_end": "2026-10-24T11:00:00Z",
+        "privacy_class": "local_only",
+        "retention_days": 7,
+        "expires_at": "2026-10-31T11:00:00Z",
+        "producer": {
+          "account_id": "acc_qq1",
+          "collector_scope": {
+            "account_id": "acc_qq1",
+            "conversation_kind": "group",
+            "conversation_id": "123456789"
+          },
+          "plugin_version": "1.4.1",
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+        },
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "topics": [
+          {
+            "summary": "Participants discussed local model deployment.",
+            "message_refs": ["msg_example_1", "msg_example_2"]
+          }
+        ],
+        "limitations": ["Only the approved message window was reviewed."]
+      },
+      "topic_evidence": ["deterministic_statistic"]
+    },
+    "description": "Collector ingest with one grounded topic and matching evidence; identity is summary_id plus payload digest."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "summary_id": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde",
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "window_message_count": 42,
+      "generated_at": "2026-10-24T11:00:05Z",
+      "summary": {
+        "schema_id": "Summary.v1",
+        "window_start": "2026-10-24T10:00:00Z",
+        "window_end": "2026-10-24T11:00:00Z",
+        "privacy_class": "local_only",
+        "retention_days": 7,
+        "expires_at": "2026-10-31T11:00:00Z",
+        "producer": {
+          "account_id": "acc_qq1",
+          "collector_scope": {
+            "account_id": "acc_qq1",
+            "conversation_kind": "group",
+            "conversation_id": "123456789"
+          },
+          "plugin_version": "1.4.1",
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+        },
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "topics": [
+          {
+            "summary": "Participants discussed local model deployment.",
+            "message_refs": ["msg_example_1"]
+          }
+        ],
+        "limitations": ["Only the approved message window was reviewed."]
+      },
+      "topic_evidence": ["deterministic_statistic"]
+    },
+    "description": "summary_id must be exactly 64 lowercase hex characters; a 63-character id is rejected."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "window_id": "8F14E45FCEEA167A5A36DEDD4BEA2543F4C1A3FC42E4D1E7A9C0C8E1D3B5F7A9",
+      "window_message_count": 42,
+      "generated_at": "2026-10-24T11:00:05Z",
+      "summary": {
+        "schema_id": "Summary.v1",
+        "window_start": "2026-10-24T10:00:00Z",
+        "window_end": "2026-10-24T11:00:00Z",
+        "privacy_class": "local_only",
+        "retention_days": 7,
+        "expires_at": "2026-10-31T11:00:00Z",
+        "producer": {
+          "account_id": "acc_qq1",
+          "collector_scope": {
+            "account_id": "acc_qq1",
+            "conversation_kind": "group",
+            "conversation_id": "123456789"
+          },
+          "plugin_version": "1.4.1",
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+        },
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "topics": [
+          {
+            "summary": "Participants discussed local model deployment.",
+            "message_refs": ["msg_example_1"]
+          }
+        ],
+        "limitations": ["Only the approved message window was reviewed."]
+      },
+      "topic_evidence": ["deterministic_statistic"]
+    },
+    "description": "window_id must be lowercase hex; uppercase hex is rejected."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "window_message_count": 42,
+      "generated_at": "2026-10-24T11:00:05Z",
+      "summary": {
+        "schema_id": "Summary.v1",
+        "window_start": "2026-10-24T10:00:00Z",
+        "window_end": "2026-10-24T11:00:00Z",
+        "privacy_class": "local_only",
+        "retention_days": 0,
+        "expires_at": "2026-10-31T11:00:00Z",
+        "producer": {
+          "account_id": "acc_qq1",
+          "collector_scope": {
+            "account_id": "acc_qq1",
+            "conversation_kind": "group",
+            "conversation_id": "123456789"
+          },
+          "plugin_version": "1.4.1",
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+        },
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "topics": [
+          {
+            "summary": "Participants discussed local model deployment.",
+            "message_refs": ["msg_example_1"]
+          }
+        ],
+        "limitations": ["Only the approved message window was reviewed."]
+      },
+      "topic_evidence": ["deterministic_statistic"]
+    },
+    "description": "retention_days must stay within 1..365; zero is rejected."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "window_message_count": 42,
+      "generated_at": "2026-10-24T11:00:05Z",
+      "summary": {
+        "schema_id": "Summary.v1",
+        "window_start": "2026-10-24T10:00:00Z",
+        "window_end": "2026-10-24T11:00:00Z",
+        "privacy_class": "local_only",
+        "retention_days": 7,
+        "expires_at": "2026-10-31T11:00:00Z",
+        "producer": {
+          "account_id": "acc_qq1",
+          "collector_scope": {
+            "account_id": "acc_qq1",
+            "conversation_kind": "group",
+            "conversation_id": "123456789"
+          },
+          "plugin_version": "1.4.1",
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+        },
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "topics": [
+          {
+            "summary": "Participants discussed local model deployment.",
+            "message_refs": ["msg_example_1"]
+          }
+        ],
+        "limitations": ["Only the approved message window was reviewed."]
+      },
+      "topic_evidence": ["deterministic_statistic", "member_statement"]
+    },
+    "description": "topics and topic_evidence must have the same length; one topic with two evidence entries is rejected."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "window_message_count": 42,
+      "generated_at": "2026-10-24T11:00:05Z",
+      "summary": {
+        "schema_id": "Summary.v1",
+        "window_start": "2026-10-24T10:00:00Z",
+        "window_end": "2026-10-24T11:00:00Z",
+        "privacy_class": "local_only",
+        "retention_days": 7,
+        "expires_at": "2026-10-31T11:00:00Z",
+        "producer": {
+          "account_id": "acc_qq1",
+          "collector_scope": {
+            "account_id": "acc_qq1",
+            "conversation_kind": "group",
+            "conversation_id": "123456789"
+          },
+          "plugin_version": "1.4.1",
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774"
+        },
+        "collector_scope": {
+          "account_id": "acc_qq1",
+          "conversation_kind": "group",
+          "conversation_id": "123456789"
+        },
+        "topics": [
+          {
+            "summary": "Participants discussed local model deployment.",
+            "message_refs": ["msg_example_1"]
+          }
+        ],
+        "limitations": ["Only the approved message window was reviewed."]
+      },
+      "topic_evidence": ["model_inference"]
+    },
+    "description": "A local_only summary must not carry a model_inference topic; that would imply message bodies crossed the collector boundary."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestResponse",
+    "valid": true,
+    "value": {
+      "created": true,
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "summary_version": 3,
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "generated_at": "2026-10-24T11:00:05Z",
+      "expires_at": "2026-10-31T11:00:00Z"
+    },
+    "description": "First store of a summary version: created=true with 201."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestResponse",
+    "valid": false,
+    "value": {
+      "created": false,
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "summary_version": 0,
+      "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+      "generated_at": "2026-10-24T11:00:05Z",
+      "expires_at": "2026-10-31T11:00:00Z"
+    },
+    "description": "summary_version is assigned per account/group and starts at 1; zero is impossible."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "created": false,
+        "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+        "summary_version": 3,
+        "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+        "generated_at": "2026-10-24T11:00:05Z",
+        "expires_at": "2026-10-31T11:00:00Z"
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Exact replay envelope: created=false with HTTP 200 and the stored version unchanged."
+  },
+  {
+    "schema_ref": "models.json#/GroupSummaryIngestEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "created": true,
+        "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+        "summary_version": 1,
+        "window_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+        "generated_at": "2026-10-24T11:00:05Z",
+        "expires_at": "2026-10-31T11:00:00Z"
+      }
+    },
+    "description": "Envelope meta is required; a bare data object is not the route response."
+  },
+  {
+    "schema_ref": "models.json#/GroupContextTopic",
+    "valid": true,
+    "value": {
+      "summary": "Participants discussed local model deployment.",
+      "message_refs": ["msg_example_1", "msg_example_2"],
+      "evidence_kind": "deterministic_statistic"
+    },
+    "description": "Stored topic with its recorded evidence classification."
+  },
+  {
+    "schema_ref": "models.json#/GroupContextTopic",
+    "valid": false,
+    "value": {
+      "summary": "Participants discussed local model deployment.",
+      "message_refs": ["msg_example_1"],
+      "evidence_kind": "model_guess"
+    },
+    "description": "evidence_kind is a closed set recorded at ingest; an invented classification is rejected."
+  },
+  {
+    "schema_ref": "models.json#/GroupContext",
+    "valid": true,
+    "value": {
+      "account_id": "acc_qq1",
+      "group_id": "123456789",
+      "summary_ref": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774@v3",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "summary_version": 3,
+      "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "privacy_class": "local_only",
+      "topics": [
+        {
+          "summary": "Participants discussed local model deployment.",
+          "message_refs": ["msg_example_1", "msg_example_2"],
+          "evidence_kind": "deterministic_statistic"
+        }
+      ],
+      "activity_window": {
+        "start": "2026-10-24T10:00:00Z",
+        "end": "2026-10-24T11:00:00Z",
+        "message_count": 42
+      },
+      "active_speaker_account_id": "acc_qq1",
+      "cooldown_until": null,
+      "daily_remaining": 7,
+      "participation_goal": null,
+      "source": "collector.summary.v1",
+      "generated_at": "2026-10-24T11:00:05Z",
+      "expires_at": "2026-10-31T11:00:00Z"
+    },
+    "description": "Live Summary projection: exact versioned reference, untrusted topics, and data-only speaker/budget fields."
+  },
+  {
+    "schema_ref": "models.json#/GroupContext",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "group_id": "123456789",
+      "summary_ref": null,
+      "summary_id": null,
+      "summary_version": null,
+      "source_manifest_sha256": null,
+      "privacy_class": "external_public",
+      "topics": [],
+      "activity_window": null,
+      "active_speaker_account_id": null,
+      "cooldown_until": null,
+      "daily_remaining": 0,
+      "participation_goal": null,
+      "source": "backend.chat-policy",
+      "generated_at": "2026-10-24T11:00:05Z",
+      "expires_at": "2026-10-24T11:05:05Z"
+    },
+    "description": "privacy_class is a closed set; the degraded projection reports 'none', never an invented class."
+  },
+  {
+    "schema_ref": "models.json#/GroupContextEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "account_id": "acc_qq1",
+        "group_id": "123456789",
+        "summary_ref": null,
+        "summary_id": null,
+        "summary_version": null,
+        "source_manifest_sha256": null,
+        "privacy_class": "none",
+        "topics": [],
+        "activity_window": null,
+        "active_speaker_account_id": null,
+        "cooldown_until": null,
+        "daily_remaining": 0,
+        "participation_goal": null,
+        "source": "backend.chat-policy",
+        "generated_at": "2026-10-24T11:00:05Z",
+        "expires_at": "2026-10-24T11:05:05Z"
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Degraded context when no Summary is live: chat-policy source, privacy_class 'none', five-minute expiry."
+  },
+  {
+    "schema_ref": "models.json#/GroupContextEnvelope",
+    "valid": false,
+    "value": {
+      "data": null,
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Context data is always an object; a null projection is not a valid read."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 4,
+      "approval_ref": "approval_example"
+    },
+    "description": "Approval binds an existing approval row to the exact expected task version."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 0,
+      "approval_ref": "approval_example"
+    },
+    "description": "expected_version below 1 is rejected before the approval transaction."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 4
+    },
+    "description": "approval_ref is required; approval never implies a reference."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalReceipt",
+    "valid": true,
+    "value": {
+      "accepted_at": "2026-10-24T11:00:05Z",
+      "approval_ref": "approval_example",
+      "proposal_id": "proposal_example",
+      "state": "approved"
+    },
+    "description": "Approval receipt: durable binding only, no dispatch and no QQ receipt."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalReceipt",
+    "valid": false,
+    "value": {
+      "accepted_at": "2026-10-24T11:00:05Z",
+      "approval_ref": "approval_example",
+      "proposal_id": "proposal_example",
+      "state": "pending"
+    },
+    "description": "An accepted approval always reports state 'approved'; pending is not an approval outcome."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "accepted_at": "2026-10-24T11:00:05Z",
+        "approval_ref": "approval_example",
+        "proposal_id": "proposal_example",
+        "state": "approved"
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "202 approval envelope; it never claims an external action."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalApprovalEnvelope",
+    "valid": false,
+    "value": {
+      "data": null,
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Approval data is required; a null receipt is not evidence of approval."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalView",
+    "valid": true,
+    "value": {
+      "proposal_id": "proposal_example",
+      "task_id": "task_example",
+      "state": "approved",
+      "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "expires_at": "2026-10-24T11:15:05Z",
+      "proposal": {
+        "schema_id": "PlanProposal.v1",
+        "task_id": "task_example",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "proposal_kind": "use_template",
+        "steps": [
+          {
+            "step_no": 1,
+            "action": "request_join",
+            "target_id": "target_example",
+            "account_id": "acc_qq1",
+            "parameters": {
+              "group_id": "123456789",
+              "keyword": null,
+              "limit": null,
+              "verification_message": "Operator-approved application text.",
+              "text": null,
+              "note": null
+            }
+          }
+        ],
+        "questions": [],
+        "rationale_summary": "Use the already approved fixed candidate and target account."
+      },
+      "basis": [
+        {
+          "account_id": "acc_qq1",
+          "group_id": "123456789",
+          "target_id": "target_example",
+          "anchor_id": "anchor_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+          "summary_version": 2,
+          "evidence_kinds": ["deterministic_statistic"],
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+          "selection_reason": "Newest live Summary version at proposal creation.",
+          "created_at": "2026-10-24T11:00:05Z"
+        }
+      ]
+    },
+    "description": "Read projection for operator review: state, digest, exact version/scope and the referenced Summary version/anchor basis. Reading changes nothing."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalView",
+    "valid": false,
+    "value": {
+      "proposal_id": "proposal_example",
+      "task_id": "task_example",
+      "state": "dispatched",
+      "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "expires_at": "2026-10-24T11:15:05Z",
+      "proposal": {
+        "schema_id": "PlanProposal.v1",
+        "task_id": "task_example",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "proposal_kind": "use_template",
+        "steps": [],
+        "questions": [],
+        "rationale_summary": "No steps."
+      },
+      "basis": []
+    },
+    "description": "Proposal state is a closed lifecycle set; 'dispatched' would falsely imply an external send."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "proposal_id": "proposal_example",
+        "task_id": "task_example",
+        "state": "pending",
+        "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "expires_at": "2026-10-24T11:15:05Z",
+        "proposal": {
+          "schema_id": "PlanProposal.v1",
+          "task_id": "task_example",
+          "expected_task_version": 4,
+          "scope_revision": 1,
+          "proposal_kind": "use_template",
+          "steps": [],
+          "questions": [],
+          "rationale_summary": "No eligible target at creation time."
+        },
+        "basis": [
+          {
+            "account_id": "acc_qq1",
+            "group_id": "123456789",
+            "target_id": "target_example",
+            "anchor_id": null,
+            "summary_id": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+            "summary_version": 3,
+            "evidence_kinds": ["member_statement", "deterministic_statistic"],
+            "source_manifest_sha256": "8f14e45fceea167a5a36dedd4bea2543f4c1a3fc42e4d1e7a9c0c8e1d3b5f7a9",
+            "selection_reason": "Second observation selected the newer live Summary version 3.",
+            "created_at": "2026-10-24T11:30:05Z"
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "200 read envelope for one durable pending proposal; after a second observation the basis follows the newer Summary version and its manifest."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "proposal_id": "proposal_example",
+        "task_id": "task_example",
+        "state": "pending",
+        "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "expires_at": "2026-10-24T11:15:05Z",
+        "proposal": {
+          "schema_id": "PlanProposal.v1",
+          "task_id": "task_example",
+          "expected_task_version": 4,
+          "scope_revision": 1,
+          "proposal_kind": "use_template",
+          "steps": [],
+          "questions": [],
+          "rationale_summary": "No eligible target at creation time."
+        },
+        "basis": []
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      },
+      "external_artex_task_id": "artex_task_1"
+    },
+    "description": "Proposal reads are BBA-local; an external ARTEX task id cannot ride along."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalBasis",
+    "valid": true,
+    "value": {
+      "account_id": "acc_qq1",
+      "group_id": "123456789",
+      "target_id": "target_example",
+      "anchor_id": "anchor_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "summary_version": 2,
+      "evidence_kinds": ["deterministic_statistic"],
+      "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "selection_reason": "Newest live Summary version for the group at creation time.",
+      "created_at": "2026-10-24T11:00:05Z"
+    },
+    "description": "Basis row referencing one exact Summary version, its evidence kinds and manifest, plus the graph anchor used as input."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalBasis",
+    "valid": true,
+    "value": {
+      "account_id": "acc_qq1",
+      "group_id": "123456789",
+      "target_id": "target_example",
+      "anchor_id": null,
+      "summary_id": null,
+      "summary_version": null,
+      "evidence_kinds": null,
+      "source_manifest_sha256": null,
+      "selection_reason": "No live Summary or graph anchor existed when the proposal was created.",
+      "created_at": "2026-10-24T11:00:05Z"
+    },
+    "description": "No reference data: the four summary fields are null together and anchor_id is null."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalBasis",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "group_id": "123456789",
+      "target_id": "target_example",
+      "anchor_id": null,
+      "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+      "summary_version": null,
+      "evidence_kinds": null,
+      "source_manifest_sha256": null,
+      "selection_reason": "Partially referenced Summary.",
+      "created_at": "2026-10-24T11:00:05Z"
+    },
+    "description": "A summary_id without version, evidence kinds and manifest is a partial reference and is rejected."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalBasis",
+    "valid": false,
+    "value": {
+      "account_id": "acc_qq1",
+      "group_id": "123456789",
+      "target_id": "target_example",
+      "anchor_id": null,
+      "summary_id": null,
+      "summary_version": null,
+      "evidence_kinds": null,
+      "source_manifest_sha256": null,
+      "selection_reason": "",
+      "created_at": "2026-10-24T11:00:05Z"
+    },
+    "description": "selection_reason must state the selection rule or the absence of reference data; an empty reason is rejected."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalView",
+    "valid": true,
+    "value": {
+      "proposal_id": "proposal_example",
+      "task_id": "task_example",
+      "state": "pending",
+      "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "expires_at": "2026-10-24T11:15:05Z",
+      "proposal": {
+        "schema_id": "PlanProposal.v1",
+        "task_id": "task_example",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "proposal_kind": "use_template",
+        "steps": [],
+        "questions": [],
+        "rationale_summary": "No eligible target at creation time."
+      },
+      "basis": [
+        {
+          "account_id": "acc_qq1",
+          "group_id": "123456789",
+          "target_id": "target_example",
+          "anchor_id": null,
+          "summary_id": null,
+          "summary_version": null,
+          "evidence_kinds": null,
+          "source_manifest_sha256": null,
+          "selection_reason": "No live Summary existed when the proposal was created.",
+          "created_at": "2026-10-24T11:00:05Z"
+        }
+      ]
+    },
+    "description": "GET proposal view with no live Summary: basis is present and its four summary fields are null together."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalView",
+    "valid": false,
+    "value": {
+      "proposal_id": "proposal_example",
+      "task_id": "task_example",
+      "state": "pending",
+      "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "expires_at": "2026-10-24T11:15:05Z",
+      "proposal": {
+        "schema_id": "PlanProposal.v1",
+        "task_id": "task_example",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "proposal_kind": "use_template",
+        "steps": [],
+        "questions": [],
+        "rationale_summary": "No eligible target at creation time."
+      },
+      "basis": [
+        {
+          "account_id": "acc_qq1",
+          "group_id": "123456789",
+          "target_id": "target_example",
+          "anchor_id": "anchor_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "summary_id": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+          "summary_version": 2,
+          "evidence_kinds": null,
+          "source_manifest_sha256": "3525ee27411f2415ea6e30237eb66cd78393f48aedf3a8b7adb713c3ab798774",
+          "selection_reason": "Newest live Summary version at proposal creation.",
+          "created_at": "2026-10-24T11:00:05Z"
+        }
+      ]
+    },
+    "description": "A basis entry that references a Summary but omits its evidence kinds is a partial reference and is rejected."
+  },
+  {
+    "schema_ref": "models.json#/PlanProposalView",
+    "valid": false,
+    "value": {
+      "proposal_id": "proposal_example",
+      "task_id": "task_example",
+      "state": "pending",
+      "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "expected_task_version": 4,
+      "scope_revision": 1,
+      "expires_at": "2026-10-24T11:15:05Z",
+      "proposal": {
+        "schema_id": "PlanProposal.v1",
+        "task_id": "task_example",
+        "expected_task_version": 4,
+        "scope_revision": 1,
+        "proposal_kind": "use_template",
+        "steps": [],
+        "questions": [],
+        "rationale_summary": "No eligible target at creation time."
+      }
+    },
+    "description": "basis is required on the GET proposal view; an absent basis cannot be read as 'no reference data'."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphAnchor",
+    "valid": true,
+    "value": {
+      "id": "anchor_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "kind": "account",
+      "account_id": "acc_qq1"
+    },
+    "description": "Account anchor carries only the account identity."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphAnchor",
+    "valid": false,
+    "value": {
+      "id": "anchor_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "kind": "external_artex",
+      "account_id": "acc_qq1"
+    },
+    "description": "Anchors are BBA account/target anchors only; there is no external ARTEX anchor kind."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphNode",
+    "valid": true,
+    "value": {
+      "id": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "kind": "goal",
+      "state": "open",
+      "data": {
+        "goal_count": 1,
+        "confirmed_count": 0
+      }
+    },
+    "description": "Goal node derived from task truth; open until confirmed results satisfy the goal count."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphNode",
+    "valid": false,
+    "value": {
+      "id": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "kind": "external_artex",
+      "state": "open",
+      "data": {}
+    },
+    "description": "Node kinds are closed to goal/task/account/target/fact; an external ARTEX node is not part of this projection."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphFact",
+    "valid": true,
+    "value": {
+      "id": "fact_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "node_id": "node_1a2b3c4d5e6f708192a3b4c5d6e7f809",
+      "kind": "task_result",
+      "account_id": "acc_qq1",
+      "target_id": "target_example",
+      "source_runtime_id": "rt_example",
+      "source_event_id": "event_example",
+      "evidence_ref": "evidence_example",
+      "observed_at": "2026-10-24T10:30:00Z",
+      "data": {
+        "result_id": "result_example",
+        "state": "joined",
+        "task_version": 4,
+        "scope_revision": 1
+      }
+    },
+    "description": "Confirmed task-result fact with its trusted source runtime, event and evidence reference."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphFact",
+    "valid": false,
+    "value": {
+      "id": "fact_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "node_id": "node_1a2b3c4d5e6f708192a3b4c5d6e7f809",
+      "kind": "external_artex",
+      "account_id": "acc_qq1",
+      "target_id": "target_example",
+      "source_runtime_id": "rt_example",
+      "source_event_id": "event_example",
+      "evidence_ref": "evidence_example",
+      "observed_at": "2026-10-24T10:30:00Z",
+      "data": {}
+    },
+    "description": "Fact kinds are membership or task_result only; an external ARTEX fact is rejected."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphEdge",
+    "valid": true,
+    "value": {
+      "id": "edge_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "from": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "to": "node_1a2b3c4d5e6f708192a3b4c5d6e7f809",
+      "kind": "has_goal"
+    },
+    "description": "Edge between two projection nodes using the closed edge set."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphEdge",
+    "valid": false,
+    "value": {
+      "id": "edge_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "from": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "to": "node_1a2b3c4d5e6f708192a3b4c5d6e7f809",
+      "kind": "links_artex"
+    },
+    "description": "There is no cross-system edge kind; linking to ARTEX is not part of this graph."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraph",
+    "valid": true,
+    "value": {
+      "workspace_id": "ws_example",
+      "task_id": "task_example",
+      "root_id": "graph_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "revision": 3,
+      "task_version": 4,
+      "scope_revision": 1,
+      "goal_count": 1,
+      "task_state": "RUNNING",
+      "snapshot_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "projected_at": "2026-10-24T11:00:06Z",
+      "anchors": [
+        {
+          "id": "anchor_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "kind": "target",
+          "target_id": "target_example",
+          "source_ref": "source_example",
+          "eligibility": "eligible",
+          "baseline_covered": false
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "kind": "task",
+          "state": "RUNNING",
+          "data": {
+            "task_version": 4,
+            "scope_revision": 1
+          }
+        }
+      ],
+      "facts": [],
+      "edges": [
+        {
+          "id": "edge_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "from": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "to": "node_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "kind": "has_target"
+        }
+      ]
+    },
+    "description": "BBA-owned derived graph projection. It is a controlled lazy projection, not a zero-write read and not an ARTEX connection."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraph",
+    "valid": false,
+    "value": {
+      "workspace_id": "ws_example",
+      "task_id": "task_example",
+      "root_id": "graph_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "revision": 3,
+      "task_version": 4,
+      "scope_revision": 1,
+      "goal_count": 1,
+      "task_state": "RUNNING",
+      "snapshot_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "projected_at": "2026-10-24T11:00:06Z",
+      "anchors": [],
+      "nodes": [],
+      "facts": [],
+      "edges": [],
+      "external_source": "artex"
+    },
+    "description": "The graph projection is BBA-local and read-only; it must not declare an external ARTEX source."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "workspace_id": "ws_example",
+        "task_id": "task_example",
+        "root_id": "graph_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "revision": 0,
+        "task_version": 1,
+        "scope_revision": 1,
+        "goal_count": 1,
+        "task_state": "DRAFT",
+        "snapshot_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "projected_at": "2026-10-24T11:00:06Z",
+        "anchors": [],
+        "nodes": [],
+        "facts": [],
+        "edges": []
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "200 graph envelope; an empty projection is returned as empty arrays, never as absent fields."
+  },
+  {
+    "schema_ref": "models.json#/TaskGraphEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "workspace_id": "ws_example",
+        "task_id": "task_example",
+        "root_id": "graph_0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "revision": 0,
+        "task_version": 1,
+        "scope_revision": 1,
+        "goal_count": 1,
+        "task_state": "DRAFT",
+        "snapshot_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "projected_at": "2026-10-24T11:00:06Z",
+        "anchors": [],
+        "nodes": [],
+        "facts": [],
+        "edges": []
+      }
+    },
+    "description": "Envelope meta is required; a bare graph projection is not the route response."
+  }
+]

@@ -1,0 +1,7 @@
+BBA ARTEX adaptation, modified 2026-10-31.
+Upstream: ARTEX v0.3.24 commit e740334b9042d6da64156b0adb37a293117e140e.
+Adapted: web/src/app/globals.css theme variables; web/src/components/ui/card.tsx card structure; web/src/navigation/sidebar/sidebar-items.ts navigation grouping; web/src/app/(main)/dashboard/page.tsx retained rows and chart/table semantics.
+No ARTEX Go code, authentication or execution backend copied.
+Root LICENSE: AGPLv3; web/LICENSE: MIT Copyright (c) 2024 Mohammed Arham Khan. Both preserved in licenses/. File-scope ambiguities remain a release review gate; do not treat whole ARTEX repository as MIT.
+Local source and changes: frontend/, tools/build-product.py, backend/cmd/taskengine-server/product*.go.
+NO WARRANTY.

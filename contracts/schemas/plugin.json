@@ -1,0 +1,184 @@
+{
+  "PluginSearchRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["keyword", "count"],
+    "properties": {
+      "keyword": { "type": "string", "minLength": 1, "maxLength": 64 },
+      "count": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "description": "Single bounded search count. The plugin has no cursor and does not accept unbounded counts."
+      }
+    },
+    "description": "Wire request for POST /api/Plugin/ext/napcat-plugin-cleaner/search-group. The canonical plugin registration ID is napcat-plugin-cleaner; the legacy dxc-join-api path is not part of this contract."
+  },
+  "PluginGroup": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["group_id", "group_name", "member_count"],
+    "properties": {
+      "group_id": {
+        "type": "integer",
+        "format": "int64",
+        "minimum": 1,
+        "description": "Actual local plugin wire ID, numeric int64. Core normalization converts it to a decimal QQId string before it leaves the adapter."
+      },
+      "group_name": { "type": "string", "maxLength": 200 },
+      "member_count": { "type": "integer", "minimum": 0 }
+    },
+    "description": "One plugin search hit. A group name is display data and never an identity."
+  },
+  "PluginSearchResponse": {
+    "oneOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok", "groups"],
+        "properties": {
+          "ok": { "type": "boolean", "enum": [true] },
+          "groups": {
+            "type": "array",
+            "maxItems": 50,
+            "items": { "$ref": "#/PluginGroup" }
+          }
+        }
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok", "error", "code"],
+        "properties": {
+          "ok": { "type": "boolean", "enum": [false] },
+          "error": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" }
+        }
+      }
+    ],
+    "description": "Wire response for POST /api/Plugin/ext/napcat-plugin-cleaner/search-group. No cursor is returned. Failure bodies are adapter errors and are never candidate evidence."
+  },
+  "PluginJoinRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["group_id", "confirm", "reason", "answer"],
+    "properties": {
+      "group_id": {
+        "type": "integer",
+        "format": "int64",
+        "minimum": 1,
+        "description": "Actual local plugin wire ID, numeric int64. Core QQ identity remains the decimal string form."
+      },
+      "confirm": {
+        "type": "string",
+        "enum": ["1"],
+        "description": "The plugin wire confirmation must be the string \"1\"; numeric 1 is not the contract shape."
+      },
+      "reason": {
+        "type": "string",
+        "maxLength": 500,
+        "description": "Operator-approved application text. It is forwarded as the native richMsg field but is not proof of approval."
+      },
+      "answer": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "description": "Required operator-approved group question answer. It is forwarded as the native applyMsg field; an empty answer is rejected before dispatch."
+      }
+    },
+    "description": "Wire request for POST /api/Plugin/ext/napcat-plugin-cleaner/join-group. Canonical path only; do not call the legacy dxc-join-api path. After dispatch, any ambiguous transport or missing result is UNKNOWN and must be reconciled, never retried automatically."
+  },
+  "PluginJoinResponse": {
+    "oneOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok", "result"],
+        "properties": {
+          "ok": { "type": "boolean", "enum": [true] },
+          "result": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Plugin result code. Only a finite non-negative safe integer is a code; a numeric code only proves that the plugin returned one, not membership or approval. Missing/unparseable/non-integral/negative results use the failure branch."
+          },
+          "raw": {
+            "oneOf": [
+              {
+                "type": "string",
+                "maxLength": 4096,
+                "nullable": true,
+                "description": "Bounded JSON/text diagnostic; null represents a void native return. Runtime serialization is bounded to 4096 UTF-8 bytes including escapes."
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Finite non-negative safe integer returned as-is by the native API."
+              },
+              {
+                "type": "object",
+                "maxProperties": 64,
+                "additionalProperties": true,
+                "description": "Bounded opaque plugin echo for evidence/diagnostics only. Arrays, oversized objects (>64 properties), and special objects degrade to a bounded string. It must not be parsed as an authoritative membership claim."
+              }
+            ],
+            "description": "Bounded native return diagnostics, retained even when a numeric result was extracted. Allowed shapes: null, finite non-negative safe integer, string, or a plain object of at most 64 properties."
+          },
+          "request_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Optional native request reference extracted for correlation; it is not membership confirmation."
+          }
+        }
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok", "error", "code"],
+        "properties": {
+          "ok": { "type": "boolean", "enum": [false] },
+          "error": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+          "result": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Optional finite non-negative safe integer code from the failure path; it never proves membership."
+          },
+          "raw": {
+            "oneOf": [
+              {
+                "type": "string",
+                "maxLength": 4096,
+                "nullable": true,
+                "description": "Bounded JSON/text diagnostic; null represents a void native return. Runtime serialization is bounded to 4096 UTF-8 bytes including escapes."
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Finite non-negative safe integer returned as-is by the native API."
+              },
+              {
+                "type": "object",
+                "maxProperties": 64,
+                "additionalProperties": true,
+                "description": "Bounded opaque plugin echo for evidence/diagnostics only. Arrays, oversized objects (>64 properties), and special objects degrade to a bounded string. It must not be parsed as an authoritative membership claim."
+              }
+            ],
+            "description": "Bounded native exception/return diagnostics. Allowed shapes: null, finite non-negative safe integer, string, or a plain object of at most 64 properties."
+          },
+          "request_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Optional native request reference extracted for correlation; it is not membership confirmation."
+          }
+        }
+      }
+    ],
+    "description": "Wire response for POST /api/Plugin/ext/napcat-plugin-cleaner/join-group. ok=true with a result code means only that the plugin returned a code; submitted/pending/unknown are not membership success. A void/absent result is ambiguous, must be stored UNKNOWN, and must never be converted into confirmed success."
+  }
+}

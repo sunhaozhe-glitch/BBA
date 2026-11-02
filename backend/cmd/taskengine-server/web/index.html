@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>BBA Task Engine Console</title>
+    <link rel="stylesheet" href="/app.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">BBA / TASK ENGINE</p>
+          <h1>Development console</h1>
+        </div>
+        <div class="topbar-actions">
+          <span id="env-indicator" class="badge" data-tone="info">Local fixture</span>
+          <span id="mode-indicator" class="mode-indicator" data-state="off">Dev ops off</span>
+          <button id="refresh" class="icon-button" type="button" title="Refresh data (read-only)" aria-label="Refresh data (read-only)">↻</button>
+        </div>
+      </header>
+
+      <section id="error-panel" class="error-panel" aria-labelledby="error-title" hidden>
+        <div class="section-heading">
+          <h2 id="error-title">Errors and conflicts</h2>
+          <button id="clear-errors" class="text-button" type="button">Dismiss all</button>
+        </div>
+        <p class="subtle">Errors stay visible until dismissed. Refresh and reconnect never clear them.</p>
+        <ol id="error-list" class="error-list" aria-live="assertive" aria-relevant="additions"></ol>
+      </section>
+
+      <section id="login" class="login-panel" aria-labelledby="login-title">
+        <div class="fixture-head">
+          <h2 id="login-title">Connect to local API</h2>
+          <span id="login-fixture-badge" class="badge" data-tone="info">Fixture session</span>
+        </div>
+        <p id="login-fixture-note" class="fixture-note">This is an offline fixture session. There is no QR-code login, no device authorization and no external session refresh in this build. Connecting only keeps the operator bearer token in memory for this tab and issues explicit local API requests; nothing here signs in to QQ, calls a real model provider or refreshes an external session.</p>
+        <label for="token">Bearer token</label>
+        <div class="token-row">
+          <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="Paste operator token">
+          <button id="connect" class="primary-button" type="button">Connect</button>
+        </div>
+        <p class="subtle">The token must already exist as a SHA-256 digest in the local resolver file supplied with <code>-resolver-file</code>; this page cannot create or reissue one. Token stays in memory for this tab and is never persisted. Mutations stay locked until development operation mode is explicitly enabled after connecting.</p>
+      </section>
+
+      <section id="workspace" hidden>
+        <div class="status-row">
+          <p id="status" role="status" aria-live="polite">Not connected</p>
+          <button id="disconnect" class="text-button" type="button">Disconnect</button>
+        </div>
+
+        <nav class="section-nav" aria-label="Console sections">
+          <a href="#detail-title">Task detail</a>
+          <a href="#report-title">Group analysis report</a>
+          <a href="#proposal-detail-title">Proposal detail and trace</a>
+          <a href="#proposal-panel">Proposal lifecycle</a>
+        </nav>
+
+        <section class="dev-panel" aria-labelledby="dev-title">
+          <div class="section-heading">
+            <h2 id="dev-title">Development operation mode</h2>
+            <span id="dev-state" class="badge" data-tone="off">Disabled</span>
+          </div>
+          <p id="dev-help" class="subtle">Reads are always available after connecting. Create, control, reconcile and proposal actions are locked until this mode is enabled. Every mutation is an authenticated local development request: no real QQ action is authorized, and the isolated worker is expected to use fixture transport only. The server must be started with <code>-development-operations</code> to expose the create, control and proposal routes; otherwise the resulting 404, 403 or 409 remains visible in the error log.</p>
+          <label class="check-row" for="dev-mode">
+            <input id="dev-mode" type="checkbox" aria-controls="ops-fieldset" aria-describedby="dev-help">
+            <span>Enable development operations for this tab. I understand these controls persist authenticated mutations in the local Task Engine ledger.</span>
+          </label>
+        </section>
+
+        <div class="columns">
+          <section class="list-pane" aria-labelledby="accounts-title">
+            <div class="section-heading"><h2 id="accounts-title">Accounts</h2><span id="account-count" class="count">0</span></div>
+            <div id="accounts" class="rows" aria-live="polite"></div>
+            <button id="accounts-more" class="text-button" type="button" hidden>Load more accounts</button>
+          </section>
+          <section class="list-pane" aria-labelledby="tasks-title">
+            <div class="section-heading"><h2 id="tasks-title">Tasks</h2><span id="task-count" class="count">0</span></div>
+            <div id="tasks" class="rows" aria-live="polite"></div>
+            <button id="tasks-more" class="text-button" type="button" hidden>Load more tasks</button>
+          </section>
+        </div>
+
+        <section class="detail-pane" aria-labelledby="detail-title">
+          <div class="section-heading">
+            <h2 id="detail-title">Task detail</h2>
+            <span id="detail-task-id" class="count"></span>
+          </div>
+          <div id="detail" class="detail-body"><p class="subtle">Select a task.</p></div>
+        </section>
+
+        <section id="login-sessions" class="account-login" aria-labelledby="login-sessions-title">
+          <div class="section-heading">
+            <h2 id="login-sessions-title">Account login session</h2>
+            <span id="login-provider-status" class="count" role="status" aria-live="polite">Login provider not checked</span>
+          </div>
+          <p class="subtle">Operator login proxy only. The browser never receives the NapCat/OneBot token; the server exchanges its 0600 token files and returns a short-term QR image. The session record is durable, but the QR image is held only in server memory for this handler and is never stored by this page. Every action is explicit; nothing here polls automatically.</p>
+          <div class="login-controls">
+            <div class="field">
+              <label for="login-account">Account</label>
+              <select id="login-account" data-testid="login-account"></select>
+              <p id="account-readiness" class="hint" data-testid="account-readiness">Account readiness not loaded.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Recent sessions</span>
+              <div id="login-session-list" class="rows" data-testid="login-session-list"></div>
+            </div>
+          </div>
+          <div class="button-row">
+            <button id="login-create" class="primary-button" type="button" data-testid="login-create">Create login session</button>
+            <button id="login-qr" class="secondary-button" type="button" data-testid="login-qr">Load QR code</button>
+            <button id="login-poll" class="secondary-button" type="button" data-testid="login-poll">Poll status once</button>
+            <button id="login-cancel" class="secondary-button danger-button" type="button" data-testid="login-cancel">Cancel session</button>
+          </div>
+          <p id="login-action-note" class="hint" role="status" aria-live="polite">No login session selected.</p>
+          <div id="login-session-body" class="login-session-body" data-testid="login-session-body"></div>
+          <p class="hint">A QR refresh increments the session generation; replies for an older generation are rejected and cannot reopen a cancelled or expired session. ONLINE is shown only after the server reads back the QQ identity and verifies the account binding.</p>
+        </section>
+
+        <section id="report-pane" class="report-pane" aria-labelledby="report-title">
+          <div class="section-heading">
+            <h2 id="report-title">Group analysis report</h2>
+            <span id="report-task" class="count">No task selected</span>
+          </div>
+          <p id="report-disclaimer" class="subtle report-disclaimer">Reference data only. Each proposal row below shows the provenance recorded when the proposal was generated: which live Summary id and version, which graph anchor, which evidence kinds, the source manifest digest and the selection rule the generator actually consulted. This record is not a decision, it grants no approve or apply authority, and a statistical Summary is not verified group semantic understanding. Proposal state, execution, result, claim and permit in the BBA ledger remain execution truth. Offline fixture only: no live QQ, model-provider or external graph connection is used.</p>
+          <div class="report-context-readback">
+            <div class="section-heading">
+              <h3>GroupContext report</h3>
+              <span id="report-context-ref" class="count" data-testid="report-context-ref">No context loaded</span>
+            </div>
+            <p class="hint">Read-only operator view of the same durable GroupContext the Character runtime consumes. Account and group are explicit; no runtime credential is used, no message is sent, and no permit or execution is created.</p>
+            <form id="report-context-form" class="form-grid">
+              <div class="field">
+                <label for="report-account">Account</label>
+                <select id="report-account" data-testid="report-context-account"></select>
+                <p class="hint">Only accounts returned by <code>GET /v1/accounts</code> are listed. The server re-checks the account workspace and scope.</p>
+              </div>
+              <div class="field">
+                <label for="report-group">QQ group ID</label>
+                <input id="report-group" data-testid="report-context-group" inputmode="numeric" autocomplete="off" placeholder="group_id bound to this account">
+              </div>
+              <div class="field">
+                <label for="report-summary-id">Summary ID (optional)</label>
+                <input id="report-summary-id" autocomplete="off" placeholder="64-hex summary_id; leave blank for newest live">
+              </div>
+              <div class="field">
+                <label for="report-summary-version">Summary version (required with ID)</label>
+                <input id="report-summary-version" type="number" min="1" step="1" autocomplete="off" placeholder="1">
+              </div>
+              <div class="form-actions span-2">
+                <button id="report-context-load" class="secondary-button" type="submit" data-testid="report-context-load">Load GroupContext report</button>
+                <span id="report-context-status" class="subtle" aria-live="polite"></span>
+              </div>
+            </form>
+            <div id="report-context" class="report-context-body" aria-live="polite" data-testid="report-context"><p class="subtle">Select an account and enter a group ID, then load the read-only GroupContext report.</p></div>
+            <p class="basis-note">Source, Summary version, generated/expiry timestamps, active window, speaker lease, daily remaining and topics are shown exactly as the GroupContext response reports them. A Summary is reference data, not verified semantic truth, and it never authorises a send.</p>
+          </div>
+          <div class="report-graph-readback">
+            <div class="section-heading">
+              <h3>Task graph and analysis readback</h3>
+              <button id="report-graph-load" class="secondary-button" type="button" data-testid="report-graph-load" disabled>Load task graph report</button>
+            </div>
+            <p class="hint">Reads <code>GET /v1/tasks/{task_id}/graph</code>. This is the same durable graph projection the task detail uses: graph revision/scope, anchors and any summary or analysis fields the backend reports. It does not call ARTEX, a model or GroupContext directly, and an analysis state is reported, never inferred into execution authority.</p>
+            <div id="report-graph" class="report-graph-body" aria-live="polite" data-testid="report-graph"><p class="subtle">Select a task to read its graph projection.</p></div>
+          </div>
+          <form id="report-load-form" class="form-grid report-load">
+            <div class="field span-2">
+              <label for="report-proposal-ids">Proposal IDs to read (one per line)</label>
+              <textarea id="report-proposal-ids" rows="3" spellcheck="false" placeholder="proposal_id returned by create, approval, or a durable proposal record"></textarea>
+              <p class="hint">This console has no proposal list route, so it reads only the IDs supplied here or created, approved or opened in this tab. Every ID is read back with <code>GET /v1/tasks/{task_id}/plan-proposals/{proposal_id}</code>; nothing is synthesized.</p>
+            </div>
+            <div class="form-actions span-2">
+              <button id="report-load-submit" class="secondary-button" type="submit">Load proposal basis</button>
+              <span id="report-status" class="subtle" aria-live="polite"></span>
+            </div>
+          </form>
+          <div id="report" class="report-body" aria-live="polite"><p class="subtle">Select a task, then load one or more proposal IDs.</p></div>
+        </section>
+
+        <section id="proposal-detail-pane" class="detail-pane proposal-detail" aria-labelledby="proposal-detail-title">
+          <div class="section-heading">
+            <h2 id="proposal-detail-title">Proposal detail and trace</h2>
+            <span id="proposal-detail-id" class="count">No proposal loaded</span>
+          </div>
+          <p class="subtle">Review proposal, approval and recorded intent. Apply only records intent; existing task scheduling runs independently. Proposal-driven dispatch and execution/result correlation are not implemented.</p>
+          <div id="proposal-detail" class="detail-body"><p class="subtle">Load a proposal from the report above, or use a remembered proposal ID after creating one, to inspect it here.</p></div>
+
+          <fieldset id="proposal-detail-ops" class="ops proposal-ops" aria-describedby="proposal-detail-help" disabled>
+            <legend>Decide on the loaded proposal</legend>
+            <p id="proposal-detail-locked-note" class="subtle">Controls are locked. Enable development operation mode above to unlock authenticated approve and apply for the loaded proposal.</p>
+            <p id="proposal-detail-help" class="subtle">Approval binds an existing approval reference. Apply records intent only: it does not enqueue proposal steps for the worker. Existing task scheduling runs independently; proposal-driven dispatch is not implemented. Both requests require authentication and a retained Idempotency-Key reused only while the request body is unchanged.</p>
+            <div class="operation-grid">
+              <form id="proposal-detail-approve-form" class="form-grid">
+                <h3 class="span-2">Approve loaded proposal</h3>
+                <div class="field span-2">
+                  <label for="proposal-detail-approve-ref">Approval reference (existing durable approval ID)</label>
+                  <input id="proposal-detail-approve-ref" type="text" maxlength="128" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="proposal-detail-approve-version">Expected task version</label>
+                  <input id="proposal-detail-approve-version" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="form-actions span-2">
+                  <button id="proposal-detail-approve-submit" class="secondary-button" type="submit">Approve proposal</button>
+                  <span id="proposal-detail-approve-key" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+              <form id="proposal-detail-apply-form" class="form-grid">
+                <h3 class="span-2">Apply loaded proposal</h3>
+                <div class="field">
+                  <label for="proposal-detail-apply-ref">Approval reference</label>
+                  <input id="proposal-detail-apply-ref" type="text" maxlength="128" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="proposal-detail-apply-digest">Proposal digest (64 lowercase hex)</label>
+                  <input id="proposal-detail-apply-digest" type="text" maxlength="64" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="proposal-detail-apply-version">Expected task version</label>
+                  <input id="proposal-detail-apply-version" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="form-actions span-2">
+                  <button id="proposal-detail-apply-submit" class="secondary-button" type="submit">Apply proposal</button>
+                  <span id="proposal-detail-apply-key" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+            </div>
+            <p id="proposal-detail-action-note" class="subtle" aria-live="polite"></p>
+          </fieldset>
+        </section>
+
+
+        <section id="orchestration" class="task-ops" aria-labelledby="orchestration-title">
+          <div class="section-heading">
+            <h2 id="orchestration-title">Plan, materialize, and work trace</h2>
+            <span id="orchestration-mode" class="count">Orchestration mode not reported</span>
+          </div>
+          <p class="subtle">Legacy apply stays intent-only: it records an applied intent and never emits work. Materialize turns a latest approved proposal into the S1 execution plan, work items, and applications; it is a separate, explicit action below. Work and application rows are the execution readback.</p>
+          <div class="operation-grid">
+            <section class="operation-panel" aria-labelledby="orchestration-mode-title">
+              <div class="section-heading">
+                <h3 id="orchestration-mode-title">Orchestration mode</h3>
+              </div>
+              <form id="orchestration-form" class="form-grid">
+                <div class="field">
+                  <label for="orchestration-mode-input">Mode</label>
+                  <select id="orchestration-mode-input" data-testid="orchestration-mode-input">
+                    <option value="legacy">legacy (intent-only apply)</option>
+                    <option value="proposal">proposal (materialize execution plan)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="orchestration-version">Expected task version</label>
+                  <input id="orchestration-version" inputmode="numeric" autocomplete="off" data-testid="orchestration-version">
+                </div>
+                <div class="field span-2">
+                  <label for="orchestration-reason">Reason</label>
+                  <input id="orchestration-reason" maxlength="256" autocomplete="off" data-testid="orchestration-reason">
+                </div>
+                <div class="form-actions span-2">
+                  <button id="orchestration-submit" class="secondary-button" type="submit" data-testid="orchestration-submit">Change orchestration mode</button>
+                  <span id="orchestration-status" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+              <p class="hint">Changing the mode does not run anything by itself. The server re-reads the authorization revision and any in-flight proposal that depends on a changed basis is invalidated rather than retried.</p>
+            </section>
+            <section class="operation-panel" aria-labelledby="materialize-title">
+              <div class="section-heading">
+                <h3 id="materialize-title">Materialize an approved proposal</h3>
+              </div>
+              <form id="materialize-form" class="form-grid">
+                <div class="field">
+                  <label for="materialize-proposal">Approved proposal ID</label>
+                  <input id="materialize-proposal" autocomplete="off" spellcheck="false" placeholder="prp_…" data-testid="materialize-proposal" required>
+                </div>
+                <div class="field">
+                  <label for="materialize-version">Expected task version</label>
+                  <input id="materialize-version" inputmode="numeric" autocomplete="off" data-testid="materialize-version">
+                </div>
+                <div class="field">
+                  <label for="materialize-approval">Approval reference</label>
+                  <input id="materialize-approval" autocomplete="off" data-testid="materialize-approval">
+                </div>
+                <div class="field">
+                  <label for="materialize-digest">Proposal digest</label>
+                  <input id="materialize-digest" autocomplete="off" spellcheck="false" placeholder="sha256:…" data-testid="materialize-digest" required>
+                </div>
+                <div class="form-actions span-2">
+                  <button id="materialize-submit" class="primary-button" type="submit" data-testid="materialize-submit">Materialize execution plan</button>
+                  <span id="materialize-status" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+              <p class="hint">The server materializes the exact approved proposal named above. The approval reference and proposal digest must match the durable approved row; a mismatch is rejected. Materialize is separate from legacy apply, which remains intent-only.</p>
+            </section>
+            <section class="operation-panel" aria-labelledby="work-items-title">
+              <div class="section-heading">
+                <h3 id="work-items-title">Work items and applications</h3>
+                <button id="work-items-load" class="secondary-button" type="button" data-testid="work-items-load">Load work items</button>
+              </div>
+              <div id="work-items" class="trace-list" aria-live="polite"><p class="subtle">Select a task, then load its work items.</p></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="graph-panel" class="task-ops" aria-labelledby="graph-title">
+          <div class="section-heading">
+            <h2 id="graph-title">Dual graph and ARTEX sync</h2>
+            <button id="graph-sync-load" class="secondary-button" type="button" data-testid="graph-sync-load">Load graph sync</button>
+          </div>
+          <p class="subtle">The task graph and proposal graph stay local and authoritative. External mapping is an additive projection: an unbound or unavailable ARTEX graph never grants approval, dispatch, or delivery authority.</p>
+          <div id="graph-sync-body" class="graph-sync-body" aria-live="polite"><p class="subtle">Select a task, then load its external graph status.</p></div>
+          <form id="graph-bind-form" class="form-grid graph-bind">
+            <div class="field">
+              <label for="graph-bind-kind">Graph kind</label>
+              <select id="graph-bind-kind" data-testid="graph-bind-kind">
+                <option value="fact">fact</option>
+                <option value="goal">goal</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="graph-bind-root">External root id</label>
+              <input id="graph-bind-root" autocomplete="off" spellcheck="false" placeholder="ARTEX root bound to this local graph" data-testid="graph-bind-root">
+            </div>
+            <div class="form-actions span-2">
+              <button id="graph-bind-submit" class="secondary-button" type="submit" data-testid="graph-bind-submit" disabled>Bind external root</button>
+              <span id="graph-bind-note" class="subtle">Load graph sync first; binding stays disabled unless the server reports external writes allowed.</span>
+            </div>
+          </form>
+          <div class="section-heading graph-snapshots-heading">
+            <h3 id="graph-snapshots-title">Planning snapshots</h3>
+            <button id="graph-snapshots-load" class="secondary-button" type="button" data-testid="graph-snapshots-load">Load snapshots</button>
+          </div>
+          <p class="subtle">A planning snapshot is a bounded, read-only record of the Summary/anchor/graph/authorization/model revisions a planner consulted. Its candidates are unapproved inferences, not execution authority.</p>
+          <div id="graph-snapshots" class="rows" aria-live="polite"><p class="subtle">Select a task, then load planning snapshots.</p></div>
+        </section>
+
+        <section id="runtime-panel" class="task-ops" aria-labelledby="runtime-title">
+          <div class="section-heading">
+            <h2 id="runtime-title">Runtime, model, and flags</h2>
+            <button id="runtime-load" class="secondary-button" type="button" data-testid="runtime-load">Load runtime</button>
+          </div>
+          <p class="subtle">Read-only operator readback. Configuration values are redacted by key; the console never requests provider secrets and keeps its bearer token only in memory.</p>
+          <div id="runtime-body" class="runtime-body" aria-live="polite"><p class="subtle">Runtime not loaded.</p></div>
+        </section>
+
+        <fieldset id="ops-fieldset" class="ops" aria-describedby="dev-help" disabled>
+          <legend>Development operations</legend>
+          <p id="ops-locked-note" class="subtle">Controls are locked. Enable development operation mode above to unlock authenticated mutations.</p>
+
+          <div class="operation-grid">
+            <section class="operation-panel" aria-labelledby="create-title">
+              <div class="section-heading">
+                <h2 id="create-title">Create task</h2>
+                <span class="badge" data-tone="off">POST /v1/tasks</span>
+              </div>
+              <form id="create-form" class="form-grid">
+                <div class="field span-2">
+                  <label for="create-title-field">Title</label>
+                  <input id="create-title-field" name="title" type="text" maxlength="200" required placeholder="Development acquire task">
+                </div>
+                <div class="field">
+                  <label for="create-mode">Execution mode</label>
+                  <select id="create-mode" name="execution_mode">
+                    <option value="dry_run">dry_run</option>
+                    <option value="read_only">read_only</option>
+                  </select>
+                  <p class="hint">Live mode is intentionally not offered by this development console.</p>
+                </div>
+                <div class="field">
+                  <label for="create-goal">Goal count</label>
+                  <input id="create-goal" name="goal_count" type="number" min="1" max="10000" step="1" value="1" required>
+                </div>
+                <div class="field span-2">
+                  <label for="create-deadline">Deadline (local time, sent as UTC Z)</label>
+                  <input id="create-deadline" name="deadline" type="datetime-local" required>
+                </div>
+                <div class="field span-2">
+                  <label for="create-candidates">Candidate groups</label>
+                  <textarea id="create-candidates" name="candidates" rows="5" spellcheck="false" required placeholder="one per line: group_id,source_ref"></textarea>
+                  <p class="hint">Fixed import only. Each line is <code>group_id,source_ref</code>; group IDs are decimal strings, never JavaScript numbers.</p>
+                </div>
+                <fieldset class="account-picker span-2">
+                  <legend>Allowed accounts (1–20)</legend>
+                  <div id="create-accounts" class="checkbox-grid"></div>
+                  <p id="create-accounts-empty" class="subtle">Connect and load accounts to choose allowed account IDs.</p>
+                </fieldset>
+                <div class="field span-2">
+                  <label for="create-join-reason">Join reason (operator-approved text)</label>
+                  <textarea id="create-join-reason" name="join_reason" rows="3" maxlength="500" required></textarea>
+                </div>
+                <div class="field span-2">
+                  <label for="create-verification">Verification message (operator-approved text)</label>
+                  <textarea id="create-verification" name="verification_message" rows="3" maxlength="500" required></textarea>
+                </div>
+                <div class="field">
+                  <label for="create-max-candidates">Max candidates</label>
+                  <input id="create-max-candidates" name="max_candidates" type="number" min="1" max="5000" step="1" value="100" required>
+                </div>
+                <div class="field">
+                  <label for="create-max-attempts">Max attempts per action</label>
+                  <input id="create-max-attempts" name="max_attempts_per_action" type="number" min="1" max="10" step="1" value="3" required>
+                </div>
+                <div class="field">
+                  <label for="create-max-total">Max total external attempts</label>
+                  <input id="create-max-total" name="max_total_external_attempts" type="number" min="1" max="10000" step="1" value="100" required>
+                </div>
+                <div class="field">
+                  <label for="create-max-model">Max model attempts</label>
+                  <input id="create-max-model" name="max_model_attempts" type="number" min="0" max="10" step="1" value="0" required>
+                </div>
+                <div class="field span-2">
+                  <label class="check-row" for="create-submit-checkbox">
+                    <input id="create-submit-checkbox" name="submit" type="checkbox">
+                    <span>Submit for validation now. Leave unchecked to persist a DRAFT.</span>
+                  </label>
+                </div>
+                <div class="form-actions span-2">
+                  <button id="create-submit" class="primary-button" type="submit">Create task</button>
+                  <span id="create-key" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+            </section>
+
+            <section class="operation-panel" aria-labelledby="controls-title">
+              <div class="section-heading">
+                <h2 id="controls-title">Task controls</h2>
+                <span id="controls-task" class="count">No task selected</span>
+              </div>
+              <p class="subtle">Select a task in the list. Each action uses the expected version below. A 409 requires review: the task may have changed, or the idempotency key may conflict; this client never retries automatically.</p>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="controls-version">Expected version</label>
+                  <input id="controls-version" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field">
+                  <label for="controls-reason">Reason (required, ≤500)</label>
+                  <input id="controls-reason" type="text" maxlength="500" placeholder="Development operator reason">
+                </div>
+              </div>
+              <div class="button-row" role="group" aria-label="Task lifecycle controls">
+                <button class="secondary-button" type="button" data-control="start" data-testid="task-start">Start</button>
+                <button class="secondary-button" type="button" data-control="pause" data-testid="task-pause">Pause</button>
+                <button class="secondary-button" type="button" data-control="resume" data-testid="task-resume">Resume</button>
+                <button class="secondary-button danger-button" type="button" data-control="cancel" data-testid="task-cancel">Cancel</button>
+              </div>
+              <div class="button-row">
+                <button id="reconcile-button" class="secondary-button" type="button">Request read-only reconcile</button>
+              </div>
+              <p id="controls-hint" class="hint">Start, pause and resume are enabled only for states the Task Engine contract allows. Controls still require valid scope, deadline and permissions on the server.</p>
+              <p id="controls-key" class="subtle" aria-live="polite"></p>
+              <p class="subtle">Reconcile records a durable read-only request. HTTP 202 is acceptance only and is not evidence that an external membership read occurred.</p>
+            </section>
+          </div>
+
+          <details id="proposal-panel" class="operation-panel proposal-panel" open>
+            <summary>Plan proposal lifecycle</summary>
+            <p class="subtle">These bounded routes require <code>-development-operations</code>, operator authentication and task permissions. Errors remain visible. Approval binds an existing approval reference. Apply records intent only; existing task scheduling runs independently. Proposal-driven dispatch and execution/result correlation are not implemented. The create receipt supplies the proposal ID; enter the digest from its durable record.</p>
+            <div class="operation-grid">
+              <form id="proposal-create-form" class="form-grid">
+                <h3 class="span-2">Create proposal</h3>
+                <div class="field">
+                  <label for="proposal-create-version">Expected task version</label>
+                  <input id="proposal-create-version" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field">
+                  <label for="proposal-create-scope">Scope revision</label>
+                  <input id="proposal-create-scope" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field">
+                  <label for="proposal-create-kind">Proposal kind</label>
+                  <select id="proposal-create-kind">
+                    <option value="use_template">use_template</option>
+                  </select>
+                  <p class="hint">This endpoint accepts only the bounded controlled-participation template.</p>
+                </div>
+                <div class="field">
+                  <label for="proposal-create-reason">Reason (required, ≤500)</label>
+                  <input id="proposal-create-reason" type="text" maxlength="500">
+                </div>
+                <div class="form-actions span-2">
+                  <button id="proposal-create-submit" class="secondary-button" type="submit">Create proposal</button>
+                  <span id="proposal-create-key" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+
+              <form id="proposal-approve-form" class="form-grid">
+                <h3 class="span-2">Approve proposal</h3>
+                <div class="field">
+                  <label for="proposal-approve-id">Proposal ID</label>
+                  <input id="proposal-approve-id" type="text" maxlength="128" autocomplete="off">
+                </div>
+                <div class="field">
+                  <label for="proposal-approve-version">Expected task version</label>
+                  <input id="proposal-approve-version" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field span-2">
+                  <label for="proposal-approve-ref">Approval reference</label>
+                  <input id="proposal-approve-ref" type="text" maxlength="128" autocomplete="off">
+                </div>
+                <div class="form-actions span-2">
+                  <button id="proposal-approve-submit" class="secondary-button" type="submit">Approve proposal</button>
+                  <span id="proposal-approve-key" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+
+              <form id="proposal-apply-form" class="form-grid">
+                <h3 class="span-2">Apply approved proposal</h3>
+                <div class="field">
+                  <label for="proposal-apply-id">Proposal ID</label>
+                  <input id="proposal-apply-id" type="text" maxlength="128" autocomplete="off">
+                </div>
+                <div class="field">
+                  <label for="proposal-apply-version">Expected task version</label>
+                  <input id="proposal-apply-version" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field">
+                  <label for="proposal-apply-ref">Approval reference</label>
+                  <input id="proposal-apply-ref" type="text" maxlength="128" autocomplete="off">
+                </div>
+                <div class="field">
+                  <label for="proposal-apply-digest">Proposal digest (64 lowercase hex)</label>
+                  <input id="proposal-apply-digest" type="text" maxlength="64" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="form-actions span-2">
+                  <button id="proposal-apply-submit" class="secondary-button" type="submit">Apply proposal</button>
+                  <span id="proposal-apply-key" class="subtle" aria-live="polite"></span>
+                </div>
+              </form>
+            </div>
+          </details>
+        </fieldset>
+
+        <section id="outcome-panel" class="outcome-panel" aria-labelledby="outcome-title" aria-live="polite" hidden>
+          <div class="section-heading">
+            <h2 id="outcome-title">Latest operation result</h2>
+            <span id="outcome-badge" class="badge" data-tone="info">—</span>
+          </div>
+          <p id="outcome-context" class="subtle"></p>
+          <dl id="outcome-fields" class="detail-grid"></dl>
+          <p id="outcome-note" class="subtle"></p>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

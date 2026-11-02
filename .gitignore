@@ -1,0 +1,30 @@
+# Tooling dependencies and caches (never commit downloaded binaries or module caches)
+node_modules/
+.cache/
+build/
+.tmp/
+
+# Python bytecode / test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Editor / OS noise
+.DS_Store
+*.swp
+
+# Local evidence can contain credentials, database dumps and runtime binaries.
+evals/results/
+.*-path
+.env
+.env.*
+!.env.example
+**/private/
+**/tokens/
+*.pem
+*.key
+koishi/character-runtime/dist/
+koishi/analysis-collector/lib/
+koishi/character-runtime/data/

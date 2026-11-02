@@ -1,0 +1,743 @@
+[
+  {
+    "schema_ref": "tasks.json#/TaskState",
+    "valid": true,
+    "value": "WAITING_EXTERNAL",
+    "description": "Task is waiting on an external join request; this is not success."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskState",
+    "valid": false,
+    "value": "SUCCESS",
+    "description": "SUCCESS is not a task state; terminal success is SUCCEEDED and only after final verification."
+  },
+  {
+    "schema_ref": "tasks.json#/ExecutionMode",
+    "valid": true,
+    "value": "dry_run",
+    "description": "Default mode. Declaring it does not authorize any QQ call."
+  },
+  {
+    "schema_ref": "tasks.json#/ExecutionMode",
+    "valid": false,
+    "value": "automatic_live",
+    "description": "The closed mode union is dry_run, read_only and live; no implicit live mode exists."
+  },
+  {
+    "schema_ref": "tasks.json#/Goal",
+    "valid": true,
+    "value": {
+      "metric": "new_unique_groups_for_account_pool",
+      "count": 20,
+      "strict_target_cap": true,
+      "require_final_membership_check": true
+    },
+    "description": "Strict goal requiring final authoritative membership verification."
+  },
+  {
+    "schema_ref": "tasks.json#/Goal",
+    "valid": false,
+    "value": {
+      "metric": "new_unique_groups_for_account_pool",
+      "count": 0,
+      "strict_target_cap": true,
+      "require_final_membership_check": true
+    },
+    "description": "A goal count must be positive."
+  },
+  {
+    "schema_ref": "tasks.json#/FixedCandidate",
+    "valid": true,
+    "value": {
+      "group_id": "123456789",
+      "source_ref": "import_example"
+    },
+    "description": "Explicit candidate identity plus import provenance."
+  },
+  {
+    "schema_ref": "tasks.json#/FixedCandidate",
+    "valid": false,
+    "value": {
+      "group_id": 123456789,
+      "source_ref": "import_example"
+    },
+    "description": "Core group IDs are decimal strings; numeric QQ IDs belong only to the plugin wire."
+  },
+  {
+    "schema_ref": "tasks.json#/CandidateSource",
+    "valid": true,
+    "value": {
+      "kind": "fixed",
+      "groups": [
+        {
+          "group_id": "123456789",
+          "source_ref": "import_example_1"
+        },
+        {
+          "group_id": "987654321",
+          "source_ref": "import_example_2"
+        }
+      ]
+    },
+    "description": "Non-empty fixed import. The service additionally rejects the same group_id appearing under different source_ref values."
+  },
+  {
+    "schema_ref": "tasks.json#/CandidateSource",
+    "valid": false,
+    "value": {
+      "kind": "fixed",
+      "groups": []
+    },
+    "description": "Fixed candidate sources must contain at least one explicit group."
+  },
+  {
+    "schema_ref": "tasks.json#/CandidateSource",
+    "valid": false,
+    "value": {
+      "kind": "fixed",
+      "groups": [
+        {
+          "group_id": "123456789",
+          "source_ref": "import_example"
+        },
+        {
+          "group_id": "123456789",
+          "source_ref": "import_example"
+        }
+      ]
+    },
+    "description": "Exact duplicate candidate records are rejected by uniqueItems; differing provenance duplicates remain a service semantic check."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskLimits",
+    "valid": true,
+    "value": {
+      "max_candidates": 50,
+      "max_search_pages_per_keyword": 10,
+      "max_attempts_per_action": 3,
+      "max_total_external_attempts": 100,
+      "max_model_attempts": 3
+    },
+    "description": "Finite limits. The optional search budget is metadata for a later authorized provider and never authorizes keyword discovery."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskLimits",
+    "valid": false,
+    "value": {
+      "max_candidates": 50,
+      "max_attempts_per_action": 0,
+      "max_total_external_attempts": 100,
+      "max_model_attempts": 3
+    },
+    "description": "Per-action attempts must be at least one."
+  },
+  {
+    "schema_ref": "tasks.json#/CreateTaskRequest",
+    "valid": true,
+    "value": {
+      "type": "group.acquire",
+      "join_reason": "Operator-approved application reason.",
+      "verification_message": "Operator-approved application answer.",
+      "title": "AI groups fixed import",
+      "keywords": ["AI", "local model"],
+      "goal": {
+        "metric": "new_unique_groups_for_account_pool",
+        "count": 20,
+        "strict_target_cap": true,
+        "require_final_membership_check": true
+      },
+      "allowed_account_ids": ["acc_qq1", "acc_qq2"],
+      "candidate_source": {
+        "kind": "fixed",
+        "groups": [
+          { "group_id": "123456789", "source_ref": "import_example_1" },
+          { "group_id": "987654321", "source_ref": "import_example_2" }
+        ]
+      },
+      "execution_mode": "dry_run",
+      "deadline_at": "2026-10-30T12:00:00Z",
+      "limits": {
+        "max_candidates": 50,
+        "max_search_pages_per_keyword": 10,
+        "max_attempts_per_action": 3,
+        "max_total_external_attempts": 100,
+        "max_model_attempts": 3
+      },
+      "approval_ref": null,
+      "submit": true
+    },
+    "description": "Complete strict creation request. keywords are display metadata; candidate_source is the only candidate authorization."
+  },
+  {
+    "schema_ref": "tasks.json#/CreateTaskRequest",
+    "valid": false,
+    "value": {
+      "type": "group.acquire",
+      "title": "AI groups without candidate source",
+      "goal": {
+        "metric": "new_unique_groups_for_account_pool",
+        "count": 20,
+        "strict_target_cap": true,
+        "require_final_membership_check": true
+      },
+      "allowed_account_ids": ["acc_qq1"],
+      "execution_mode": "dry_run",
+      "deadline_at": "2026-10-30T12:00:00Z",
+      "limits": {
+        "max_candidates": 50,
+        "max_attempts_per_action": 3,
+        "max_total_external_attempts": 100,
+        "max_model_attempts": 3
+      },
+      "approval_ref": null,
+      "submit": true
+    },
+    "description": "candidate_source is required; there is no default keyword discovery."
+  },
+  {
+    "schema_ref": "tasks.json#/CreateTaskRequest",
+    "valid": false,
+    "value": {
+      "type": "group.acquire",
+      "title": "AI groups",
+      "goal": {
+        "metric": "new_unique_groups_for_account_pool",
+        "count": 20,
+        "strict_target_cap": true,
+        "require_final_membership_check": true
+      },
+      "allowed_account_ids": ["acc_qq1"],
+      "candidate_source": {
+        "kind": "fixed",
+        "groups": [{ "group_id": "123456789", "source_ref": "import_example_1" }]
+      },
+      "search_mode": "keyword",
+      "execution_mode": "dry_run",
+      "deadline_at": "2026-10-30T12:00:00Z",
+      "limits": {
+        "max_candidates": 50,
+        "max_attempts_per_action": 3,
+        "max_total_external_attempts": 100,
+        "max_model_attempts": 3
+      },
+      "approval_ref": null,
+      "submit": true
+    },
+    "description": "Unknown request fields are rejected; keyword discovery is not an implicit candidate source."
+  },
+  {
+    "schema_ref": "tasks.json#/Task",
+    "valid": true,
+    "value": {
+      "id": "task_example",
+      "workspace_id": "ws_local",
+      "type": "group.acquire",
+      "title": "AI groups fixed import",
+      "state": "WAITING_EXTERNAL",
+      "version": 4,
+      "scope_revision": 1,
+      "orchestration_mode": "legacy",
+      "authorization_revision": 1,
+      "execution_mode": "dry_run",
+      "goal_count": 2,
+      "confirmed_unique_count": 0,
+      "reserved_target_count": 2,
+      "pending_external_count": 1,
+      "unknown_execution_count": 0,
+      "blocked_reason": null,
+      "deadline_at": "2026-10-30T12:00:00Z",
+      "created_at": "2026-10-24T12:00:00Z"
+    },
+    "description": "Pending external requests keep reserved slots and are not counted as confirmed success."
+  },
+  {
+    "schema_ref": "tasks.json#/Task",
+    "valid": false,
+    "value": {
+      "id": "task_example",
+      "workspace_id": "ws_local",
+      "type": "group.acquire",
+      "title": "AI groups fixed import",
+      "state": "WAITING_EXTERNAL",
+      "version": 4,
+      "scope_revision": 1,
+      "execution_mode": "dry_run",
+      "goal_count": 2,
+      "confirmed_unique_count": 0,
+      "reserved_target_count": 2,
+      "pending_external_count": 1,
+      "unknown_execution_count": 0,
+      "deadline_at": "2026-10-30T12:00:00Z",
+      "created_at": "2026-10-24T12:00:00Z"
+    },
+    "description": "blocked_reason is required and explicitly null when there is no blocker."
+  },
+  {
+    "schema_ref": "tasks.json#/Task",
+    "valid": false,
+    "value": {
+      "id": "task_example",
+      "workspace_id": "ws_local",
+      "type": "group.acquire",
+      "title": "AI groups fixed import",
+      "state": "SUCCESS",
+      "version": 4,
+      "scope_revision": 1,
+      "execution_mode": "dry_run",
+      "goal_count": 2,
+      "confirmed_unique_count": 2,
+      "reserved_target_count": 0,
+      "pending_external_count": 0,
+      "unknown_execution_count": 0,
+      "blocked_reason": null,
+      "deadline_at": "2026-10-30T12:00:00Z",
+      "created_at": "2026-10-24T12:00:00Z"
+    },
+    "description": "There is no SUCCESS task state; success requires SUCCEEDED plus final evidence checks."
+  },
+  {
+    "schema_ref": "tasks.json#/Subtask",
+    "valid": true,
+    "value": {
+      "id": "sub_example",
+      "task_id": "task_example",
+      "kind": "ensure_membership",
+      "target_id": "target_example",
+      "discovery_key": null,
+      "state": "WAITING_EXTERNAL",
+      "assigned_account_id": "acc_qq1",
+      "current_execution_id": "exe_example",
+      "priority": 50,
+      "next_run_at": "2026-10-24T12:05:00Z",
+      "attempt_count": 1,
+      "max_attempts": 3,
+      "last_error_code": null,
+      "version": 2,
+      "created_at": "2026-10-24T12:00:00Z",
+      "updated_at": "2026-10-24T12:01:00Z"
+    },
+    "description": "Membership subtask waiting on an external request; the slot remains reserved."
+  },
+  {
+    "schema_ref": "tasks.json#/Subtask",
+    "valid": true,
+    "value": {
+      "id": "sub_discover_example",
+      "task_id": "task_example",
+      "kind": "discover",
+      "target_id": null,
+      "discovery_key": "kw_ai",
+      "state": "QUEUED",
+      "assigned_account_id": null,
+      "current_execution_id": null,
+      "priority": 10,
+      "next_run_at": null,
+      "attempt_count": 0,
+      "max_attempts": 3,
+      "last_error_code": null,
+      "version": 1,
+      "created_at": "2026-10-24T12:00:00Z",
+      "updated_at": "2026-10-24T12:00:00Z"
+    },
+    "description": "Discovery subtask has a discovery_key and null target; correlation rules are service checks."
+  },
+  {
+    "schema_ref": "tasks.json#/Subtask",
+    "valid": false,
+    "value": {
+      "id": "sub_example",
+      "task_id": "task_example",
+      "kind": "ensure_membership",
+      "target_id": "target_example",
+      "discovery_key": null,
+      "state": "PENDING",
+      "assigned_account_id": "acc_qq1",
+      "current_execution_id": "exe_example",
+      "priority": 50,
+      "next_run_at": "2026-10-24T12:05:00Z",
+      "attempt_count": 1,
+      "max_attempts": 3,
+      "last_error_code": null,
+      "version": 2,
+      "created_at": "2026-10-24T12:00:00Z",
+      "updated_at": "2026-10-24T12:01:00Z"
+    },
+    "description": "PENDING is not a subtask state; external waiting is WAITING_EXTERNAL."
+  },
+  {
+    "schema_ref": "tasks.json#/SubtaskPage",
+    "valid": true,
+    "value": {
+      "items": []
+    },
+    "description": "Empty subtask page; cursor metadata is in the envelope."
+  },
+  {
+    "schema_ref": "tasks.json#/SubtaskPage",
+    "valid": false,
+    "value": {
+      "items": [],
+      "next_cursor": null
+    },
+    "description": "Page objects do not carry cursors or has_more."
+  },
+  {
+    "schema_ref": "tasks.json#/Result",
+    "valid": true,
+    "value": {
+      "id": "result_example",
+      "task_id": "task_example",
+      "target_id": "target_example",
+      "account_id": "acc_qq1",
+      "execution_id": "exe_example",
+      "kind": "group_joined",
+      "valid": true,
+      "confirmed_at": "2026-10-24T12:10:00Z",
+      "evidence_ref": "evidence_example",
+      "invalidated_at": null,
+      "invalidation_reason": null,
+      "version": 1
+    },
+    "description": "Only an evidence-backed authoritative membership fact creates a Result."
+  },
+  {
+    "schema_ref": "tasks.json#/Result",
+    "valid": false,
+    "value": {
+      "id": "result_example",
+      "task_id": "task_example",
+      "target_id": "target_example",
+      "account_id": "acc_qq1",
+      "execution_id": "exe_example",
+      "kind": "group_pending",
+      "valid": true,
+      "confirmed_at": "2026-10-24T12:10:00Z",
+      "evidence_ref": "evidence_example",
+      "invalidated_at": null,
+      "invalidation_reason": null,
+      "version": 1
+    },
+    "description": "Result is never pending; pending/submitted/unknown live in execution and observation states."
+  },
+  {
+    "schema_ref": "tasks.json#/ResultPage",
+    "valid": true,
+    "value": {
+      "items": []
+    },
+    "description": "Empty valid result page."
+  },
+  {
+    "schema_ref": "tasks.json#/ResultPage",
+    "valid": false,
+    "value": {
+      "items": [],
+      "next_cursor": null,
+      "has_more": false
+    },
+    "description": "Result pages keep cursor and has_more in envelope meta only."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEvent",
+    "valid": true,
+    "value": {
+      "id": "evt_example",
+      "task_id": "task_example",
+      "seq": "9007199254740993",
+      "type": "task.state_changed",
+      "state_before": "RUNNING",
+      "state_after": "WAITING_EXTERNAL",
+      "reason": "join request submitted",
+      "actor": "scheduler",
+      "execution_id": "exe_example",
+      "subtask_id": "sub_example",
+      "target_id": "target_example",
+      "created_at": "2026-10-24T12:00:00Z"
+    },
+    "description": "Persistent event projection; GET task remains authoritative."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEvent",
+    "valid": false,
+    "value": {
+      "id": "evt_example",
+      "task_id": "task_example",
+      "seq": "0",
+      "type": "task.state_changed",
+      "state_before": "RUNNING",
+      "state_after": "WAITING_EXTERNAL",
+      "reason": "join request submitted",
+      "actor": "scheduler",
+      "execution_id": "exe_example",
+      "subtask_id": "sub_example",
+      "target_id": "target_example",
+      "created_at": "2026-10-24T12:00:00Z"
+    },
+    "description": "Task event sequence starts at one and is monotonic."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEventPage",
+    "valid": true,
+    "value": {
+      "items": []
+    },
+    "description": "Empty event page."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEventPage",
+    "valid": false,
+    "value": {
+      "items": [],
+      "next_cursor": null
+    },
+    "description": "Cursor lives in envelope meta, not in the event page."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "task_example",
+        "workspace_id": "ws_local",
+        "type": "group.acquire",
+        "title": "AI groups fixed import",
+        "state": "WAITING_EXTERNAL",
+        "version": 4,
+        "scope_revision": 1,
+        "orchestration_mode": "legacy",
+        "authorization_revision": 1,
+        "execution_mode": "dry_run",
+        "goal_count": 2,
+        "confirmed_unique_count": 0,
+        "reserved_target_count": 2,
+        "pending_external_count": 1,
+        "unknown_execution_count": 0,
+        "blocked_reason": null,
+        "deadline_at": "2026-10-30T12:00:00Z",
+        "created_at": "2026-10-24T12:00:00Z"
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Task response envelope with explicit cursor metadata."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": { "items": [
+        {
+          "id": "task_example",
+          "workspace_id": "ws_example",
+          "title": "Operator-visible task",
+          "type": "group.acquire",
+          "state": "WAITING_EXTERNAL",
+          "version": 4,
+          "scope_revision": 1,
+          "orchestration_mode": "legacy",
+          "authorization_revision": 1,
+          "execution_mode": "dry_run",
+          "goal_count": 2,
+          "confirmed_unique_count": 0,
+          "reserved_target_count": 2,
+          "pending_external_count": 1,
+          "unknown_execution_count": 0,
+          "blocked_reason": null,
+          "deadline_at": "2026-10-30T12:00:00Z",
+          "created_at": "2026-10-24T12:00:00Z"
+        }
+      ] },
+      "meta": { "request_id": "req_example", "next_cursor": "opaque_next", "has_more": true }
+    },
+    "description": "Paginated task list retains authoritative confirmed, pending and unknown counters."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": { "items": [ { "id": "task_example" } ] },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Task pages reject incomplete projections instead of displaying guessed outcome values."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "task_example"
+      }
+    },
+    "description": "Envelopes require both data and meta; an incomplete data object is also rejected."
+  },
+  {
+    "schema_ref": "tasks.json#/ReceiptEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "rcpt_example",
+        "resource_id": "task_example",
+        "action": "request_plan_proposal",
+        "accepted_at": "2026-10-24T12:00:00Z",
+        "expected_version": 4,
+        "state": "accepted"
+      },
+      "meta": {
+        "request_id": "req_example",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Plan proposal request receipt; acceptance never applies the proposal."
+  },
+  {
+    "schema_ref": "tasks.json#/ReceiptEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "rcpt_example",
+        "resource_id": "task_example",
+        "action": "reconcile",
+        "accepted_at": "2026-10-24T12:00:00Z",
+        "expected_version": 4,
+        "state": "accepted"
+      }
+    },
+    "description": "Receipt envelopes require meta."
+  },
+  {
+    "schema_ref": "tasks.json#/AccountPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Account page envelope."
+  },
+  {
+    "schema_ref": "tasks.json#/AccountPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "has_more": false }
+    },
+    "description": "Envelope meta requires next_cursor even when null."
+  },
+  {
+    "schema_ref": "tasks.json#/CapabilityPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Capability page envelope; no unsupported capability is implied."
+  },
+  {
+    "schema_ref": "tasks.json#/CapabilityPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": { "items": [], "next_cursor": null },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "The page object may not duplicate cursor state."
+  },
+  {
+    "schema_ref": "tasks.json#/SubtaskPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": "opaque_cursor_2", "has_more": true }
+    },
+    "description": "Cursor page with has_more true."
+  },
+  {
+    "schema_ref": "tasks.json#/SubtaskPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": "opaque_cursor_2" }
+    },
+    "description": "has_more is required by RequestMeta."
+  },
+  {
+    "schema_ref": "tasks.json#/ResultPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Result page envelope."
+  },
+  {
+    "schema_ref": "tasks.json#/ResultPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": 5, "has_more": false }
+    },
+    "description": "next_cursor is an opaque string or null, never a number."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEventPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Task event page envelope."
+  },
+  {
+    "schema_ref": "tasks.json#/TaskEventPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": { "items": [] },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false },
+      "extra": true
+    },
+    "description": "Unknown envelope fields are rejected."
+  },
+  {
+    "schema_ref": "tasks.json#/HeartbeatEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "runtime_id": "runtime_qq1",
+        "account_id": "acc_qq1",
+        "owner_epoch": "7",
+        "sequence": "101",
+        "accepted_at": "2026-10-24T12:00:01Z",
+        "account_version": 1,
+        "control_state": "active",
+        "next_action_at": null
+      },
+      "meta": { "request_id": "req_example", "next_cursor": null, "has_more": false }
+    },
+    "description": "Heartbeat acceptance envelope."
+  },
+  {
+    "schema_ref": "tasks.json#/HeartbeatEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "runtime_id": "runtime_qq1",
+        "account_id": "acc_qq1",
+        "owner_epoch": "7",
+        "sequence": "101",
+        "accepted_at": "2026-10-24T12:00:01Z",
+        "account_version": 1,
+        "control_state": "active",
+        "next_action_at": null
+      }
+    },
+    "description": "Heartbeat envelopes also require meta."
+  },
+  {"schema_ref": "tasks.json#/CreateTaskRequest", "valid": true, "value": {"type": "group.analyze", "join_reason": "", "verification_message": "", "title": "QQ business type fixture", "goal": {"metric": "new_unique_groups_for_account_pool", "count": 1, "strict_target_cap": true, "require_final_membership_check": true}, "allowed_account_ids": ["acc_qq1"], "candidate_source": {"kind": "fixed", "groups": [{"group_id": "123456789", "source_ref": "qq03_import_example"}]}, "execution_mode": "read_only", "deadline_at": "2026-10-30T12:00:00Z", "limits": {"max_candidates": 1, "max_attempts_per_action": 1, "max_total_external_attempts": 1, "max_model_attempts": 0}, "approval_ref": null, "submit": false}, "description": "QQ-03 read-only group analysis type: recognised and persisted as a draft; execution depends on existing Summary/Collector evidence and is not executed by this slice."},
+  {"schema_ref": "tasks.json#/CreateTaskRequest", "valid": true, "value": {"type": "chat", "join_reason": "", "verification_message": "", "title": "QQ business type fixture", "goal": {"metric": "new_unique_groups_for_account_pool", "count": 1, "strict_target_cap": true, "require_final_membership_check": true}, "allowed_account_ids": ["acc_qq1"], "candidate_source": {"kind": "fixed", "groups": [{"group_id": "123456789", "source_ref": "qq03_import_example"}]}, "execution_mode": "read_only", "deadline_at": "2026-10-30T12:00:00Z", "limits": {"max_candidates": 1, "max_attempts_per_action": 1, "max_total_external_attempts": 1, "max_model_attempts": 0}, "approval_ref": null, "submit": false}, "description": "QQ-03 chat task type: Task Engine lifecycle object only; the daily chat-send permit chain stays the separate runtime send boundary."},
+  {"schema_ref": "tasks.json#/CreateTaskRequest", "valid": true, "value": {"type": "customer.add_me", "join_reason": "", "verification_message": "", "title": "QQ business type fixture", "goal": {"metric": "new_unique_groups_for_account_pool", "count": 1, "strict_target_cap": true, "require_final_membership_check": true}, "allowed_account_ids": ["acc_qq1"], "candidate_source": {"kind": "fixed", "groups": [{"group_id": "123456789", "source_ref": "qq03_import_example"}]}, "execution_mode": "dry_run", "deadline_at": "2026-10-30T12:00:00Z", "limits": {"max_candidates": 1, "max_attempts_per_action": 1, "max_total_external_attempts": 1, "max_model_attempts": 0}, "approval_ref": null, "submit": false}, "description": "QQ-03 customer-adds-us type: recognised and persisted; no evidenced friend adapter capability exists, so execution is explicitly unsupported."},
+  {"schema_ref": "tasks.json#/CreateTaskRequest", "valid": true, "value": {"type": "customer.add_customer", "join_reason": "", "verification_message": "", "title": "QQ business type fixture", "goal": {"metric": "new_unique_groups_for_account_pool", "count": 1, "strict_target_cap": true, "require_final_membership_check": true}, "allowed_account_ids": ["acc_qq1"], "candidate_source": {"kind": "fixed", "groups": [{"group_id": "123456789", "source_ref": "qq03_import_example"}]}, "execution_mode": "dry_run", "deadline_at": "2026-10-30T12:00:00Z", "limits": {"max_candidates": 1, "max_attempts_per_action": 1, "max_total_external_attempts": 1, "max_model_attempts": 0}, "approval_ref": null, "submit": false}, "description": "QQ-03 we-add-customer type: recognised and persisted; no evidenced friend adapter capability exists, so execution is explicitly unsupported."},
+  {"schema_ref": "tasks.json#/CreateTaskRequest", "valid": false, "value": {"type": "customer.friend_add", "join_reason": "", "verification_message": "", "title": "QQ business type fixture", "goal": {"metric": "new_unique_groups_for_account_pool", "count": 1, "strict_target_cap": true, "require_final_membership_check": true}, "allowed_account_ids": ["acc_qq1"], "candidate_source": {"kind": "fixed", "groups": [{"group_id": "123456789", "source_ref": "qq03_import_example"}]}, "execution_mode": "dry_run", "deadline_at": "2026-10-30T12:00:00Z", "limits": {"max_candidates": 1, "max_attempts_per_action": 1, "max_total_external_attempts": 1, "max_model_attempts": 0}, "approval_ref": null, "submit": false}, "description": "Closed union: an unlisted customer action name is rejected; it must never be guessed into an adapter call."},
+  {"schema_ref": "tasks.json#/Task", "valid": true, "value": {"id": "task_example", "workspace_id": "ws_local", "type": "chat", "title": "QQ chat task read-back", "state": "DRAFT", "version": 1, "scope_revision": 1, "orchestration_mode": "legacy", "authorization_revision": 1, "execution_mode": "read_only", "goal_count": 1, "confirmed_unique_count": 0, "reserved_target_count": 0, "pending_external_count": 0, "unknown_execution_count": 0, "blocked_reason": null, "deadline_at": "2026-10-30T12:00:00Z", "created_at": "2026-11-02T12:00:00Z"}, "description": "Read-back projection keeps the real task type; a recognized type with no evidenced execution chain is never reported as executed."}
+]

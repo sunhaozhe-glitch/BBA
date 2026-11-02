@@ -1,0 +1,455 @@
+{
+  "Id": {
+    "type": "string",
+    "minLength": 1,
+    "maxLength": 128,
+    "description": "Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders."
+  },
+  "QQId": {
+    "type": "string",
+    "pattern": "^[1-9][0-9]*$",
+    "description": "QQ account or group identifier encoded as an unsigned decimal string. Never coerce to a JavaScript number."
+  },
+  "DecimalSequence": {
+    "type": "string",
+    "pattern": "^[1-9][0-9]*$",
+    "description": "Positive decimal integer carried as a string (owner epoch, fence token, sequence). Never represented as a JavaScript number."
+  },
+  "Digest": {
+    "type": "string",
+    "pattern": "^[a-f0-9]{64}$",
+    "description": "Lowercase hexadecimal SHA-256 digest, exactly 64 characters."
+  },
+  "UTCDateTime": {
+    "type": "string",
+    "format": "date-time",
+    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+    "description": "RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract."
+  },
+  "RequestMeta": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["request_id", "next_cursor", "has_more"],
+    "properties": {
+      "request_id": { "$ref": "#/Id" },
+      "next_cursor": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 512,
+        "description": "Opaque stable-sort cursor. Always present; null means no further page. Cursors live only in envelope meta."
+      },
+      "has_more": { "type": "boolean" }
+    },
+    "description": "Envelope metadata. request_id echoes the server request id; next_cursor and has_more are required even for single-resource responses."
+  },
+  "Error": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["code", "message", "retryable", "retry_after_ms", "details"],
+    "properties": {
+      "code": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]{2,63}$",
+        "description": "Stable machine-readable error code. Canonical codes include VALIDATION_FAILED, UNAUTHENTICATED, RESOURCE_NOT_FOUND, ACTION_FORBIDDEN, TASK_VERSION_CONFLICT, IDEMPOTENCY_CONFLICT, CAPABILITY_UNAVAILABLE, LOCAL_BUDGET_EXHAUSTED, ADAPTER_TRANSIENT_NO_EFFECT, EXTERNAL_OUTCOME_UNKNOWN, JOIN_PENDING, JOIN_REJECTED, ACCOUNT_RESTRICTED, CHALLENGE_REQUIRED, MODEL_SCHEMA_INVALID, STATE_STORE_UNAVAILABLE, CURSOR_EXPIRED, FEATURE_DISABLED, OPERATION_PAYLOAD_CONFLICT and OBSERVATION_DIGEST_CONFLICT. New codes may appear; clients must not treat an unknown code as success."
+      },
+      "message": { "type": "string", "minLength": 1, "maxLength": 1024 },
+      "retryable": {
+        "type": "boolean",
+        "description": "Whether the same idempotent HTTP request may be retried. This never authorizes retrying a QQ side effect."
+      },
+      "retry_after_ms": {
+        "type": "integer",
+        "nullable": true,
+        "minimum": 0,
+        "maximum": 86400000
+      },
+      "details": {
+        "type": "object",
+        "maxProperties": 32,
+        "additionalProperties": {
+          "anyOf": [
+            { "type": "string", "maxLength": 512 },
+            { "type": "integer" },
+            { "type": "number" },
+            { "type": "boolean" }
+          ]
+        },
+        "description": "Bounded metadata of safe scalar values. Secrets and raw provider bodies are forbidden here."
+      }
+    },
+    "description": "Structured error object. retryable concerns HTTP delivery only; QQ action retries are governed by effect certainty and retry policy."
+  },
+  "ErrorEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["error", "meta"],
+    "properties": {
+      "error": { "$ref": "#/Error" },
+      "meta": { "$ref": "#/RequestMeta" }
+    },
+    "description": "Error response envelope. It carries no data field."
+  },
+  "Target": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["platform", "kind", "external_id"],
+    "properties": {
+      "platform": { "type": "string", "enum": ["qq"] },
+      "kind": { "type": "string", "enum": ["group", "private"] },
+      "external_id": { "$ref": "#/QQId" }
+    },
+    "description": "Normalized external target identity. Group name and keywords are never used as identity."
+  },
+  "Pagination": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "cursor": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 50
+      }
+    },
+    "description": "Read-request pagination. Cursor is optional on the first page; limit is 1..100 with a service default of 50."
+  },
+  "Receipt": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "resource_id", "action", "accepted_at", "expected_version", "state"],
+    "properties": {
+      "id": { "$ref": "#/Id" },
+      "resource_id": { "$ref": "#/Id" },
+      "action": {
+        "type": "string",
+        "enum": ["start", "pause", "resume", "cancel", "reconcile", "request_plan_proposal", "apply", "set_orchestration_mode", "materialize"]
+      },
+      "accepted_at": { "$ref": "#/UTCDateTime" },
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "state": {
+        "type": "string",
+        "enum": ["accepted"],
+        "description": "HTTP 202 means the request was persisted and accepted only; it does not mean the external action completed or was withdrawn."
+      }
+    },
+    "description": "Mutation receipt accepted for asynchronous processing. It is never proof of a QQ-side outcome."
+  },
+  "Account": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "workspace_id",
+      "platform",
+      "self_id",
+      "runtime_id",
+      "owner_epoch",
+      "connection_state",
+      "login_state",
+      "control_state",
+      "risk_state",
+      "capabilities",
+      "heartbeat_at",
+      "version"
+    ],
+    "properties": {
+      "id": { "$ref": "#/Id" },
+      "workspace_id": { "$ref": "#/Id" },
+      "platform": { "type": "string", "enum": ["qq"] },
+      "self_id": { "type": "string", "pattern": "^[1-9][0-9]*$", "nullable": true },
+      "runtime_id": { "$ref": "#/Id" },
+      "owner_epoch": { "$ref": "#/DecimalSequence" },
+      "connection_state": {
+        "type": "string",
+        "enum": ["online", "offline", "degraded", "unknown"]
+      },
+      "login_state": {
+        "type": "string",
+        "enum": ["logged_in", "logged_out", "challenge_required", "unknown"]
+      },
+      "control_state": {
+        "type": "string",
+        "enum": ["active", "paused", "blocked"]
+      },
+      "risk_state": {
+        "type": "string",
+        "enum": ["clear", "restricted", "challenge_required", "unknown"]
+      },
+      "capabilities": {
+        "type": "array",
+        "maxItems": 8,
+        "items": { "$ref": "#/Capability" }
+      },
+      "heartbeat_at": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+        "nullable": true
+      },
+      "version": { "type": "integer", "minimum": 1 }
+    },
+    "description": "Account projection over separate connection, login, control and risk dimensions. No single enum stands in for all of them."
+  },
+  "AccountIdentityStatus": {
+    "type": "string",
+    "enum": ["unverified", "verified", "stale", "drift"],
+    "description": "verified is valid only after authenticated runtime self-info read-back in the current process generation. Persisted verified state becomes stale on restart."
+  },
+  "AccountIdentitySource": {
+    "type": "string",
+    "enum": ["napcat_get_login_info"],
+    "description": "Authenticated, read-only OneBot self-info action. Config labels, endpoint metadata, and package identity are not identity evidence."
+  },
+  "AccountIdentity": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["account_id", "qq_self_id", "runtime_id", "adapter_id", "adapter_instance_id", "napcat_instance_id", "character_runtime_id", "character_db_id", "character_cache_namespace", "capability_profile_id", "status", "identity_verified_at", "identity_source", "runtime_generation"],
+    "properties": {
+      "account_id": { "$ref": "#/Id" },
+      "qq_self_id": { "type": "string", "pattern": "^[1-9][0-9]*$", "nullable": true },
+      "runtime_id": { "$ref": "#/Id" },
+      "adapter_id": { "$ref": "#/Id" },
+      "adapter_instance_id": { "$ref": "#/Id" },
+      "napcat_instance_id": { "$ref": "#/Id" },
+      "character_runtime_id": { "$ref": "#/Id" },
+      "character_db_id": { "$ref": "#/Id" },
+      "character_cache_namespace": { "$ref": "#/Id" },
+      "capability_profile_id": { "$ref": "#/Id" },
+      "status": { "$ref": "#/AccountIdentityStatus" },
+      "identity_verified_at": { "type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$", "nullable": true },
+      "identity_source": { "type": "string", "enum": ["napcat_get_login_info"], "nullable": true },
+      "runtime_generation": { "type": "integer", "minimum": 1 }
+    },
+    "description": "Single account-to-NapCat/runtime/adapter/Character binding. qq_self_id, identity_verified_at and identity_source are null until authenticated read-back; runtime restart makes prior verification stale."
+  },
+  "AccountIdentityPage": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["items"],
+    "properties": {
+      "items": { "type": "array", "items": { "$ref": "#/AccountIdentity" } }
+    },
+    "description": "Account identity registry projection; no cursor or inferred identity is included."
+  },
+  "AccountPage": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["items"],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": { "$ref": "#/Account" }
+      }
+    },
+    "description": "Account list payload. The cursor lives in envelope meta, not here."
+  },
+  "CapabilityAction": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["supported", "effect", "pagination", "fresh_read", "idempotency"],
+    "properties": {
+      "supported": {
+        "type": "boolean",
+        "description": "False when unverified or unavailable. Unknown capabilities must fail closed."
+      },
+      "effect": { "type": "string", "enum": ["read", "write", "none"] },
+      "pagination": { "type": "string", "enum": ["none", "cursor"] },
+      "fresh_read": {
+        "type": "boolean",
+        "description": "True only when the action returns an authoritative external read rather than cached state."
+      },
+      "idempotency": {
+        "type": "string",
+        "enum": ["none", "operation_id"],
+        "description": "none means no provider-side idempotency; the bridge ledger still deduplicates by operation_id."
+      }
+    },
+    "description": "Per-action capability declaration. Interface existence alone never proves support."
+  },
+  "Capability": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "account_id",
+      "adapter_id",
+      "adapter_version",
+      "verification_state",
+      "verified_at",
+      "evidence_ref",
+      "actions"
+    ],
+    "properties": {
+      "account_id": { "$ref": "#/Id" },
+      "adapter_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "adapter_version": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "verification_state": {
+        "type": "string",
+        "enum": ["unverified", "verified"],
+        "description": "verified requires real evidence; an unverified declaration never authorizes the action."
+      },
+      "verified_at": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+        "nullable": true
+      },
+      "evidence_ref": {
+        "type": "string",
+        "nullable": true,
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "actions": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "search_groups",
+          "request_join",
+          "observe_membership",
+          "observe_join_request",
+          "cancel_join_request",
+          "send_text"
+        ],
+        "properties": {
+          "search_groups": { "$ref": "#/CapabilityAction" },
+          "request_join": { "$ref": "#/CapabilityAction" },
+          "observe_membership": { "$ref": "#/CapabilityAction" },
+          "observe_join_request": { "$ref": "#/CapabilityAction" },
+          "cancel_join_request": { "$ref": "#/CapabilityAction" },
+          "send_text": { "$ref": "#/CapabilityAction" }
+        }
+      }
+    },
+    "description": "Adapter capability projection bound to one account and version. All fixed action names are present so unsupported actions can be declared explicitly."
+  },
+  "CapabilityPage": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["items"],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": { "$ref": "#/Capability" }
+      }
+    },
+    "description": "Capability list payload. The cursor lives in envelope meta."
+  },
+  "AccountControlRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["action", "expected_version", "reason"],
+    "properties": {
+      "action": { "type": "string", "enum": ["pause", "resume"] },
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "description": "Account control request. Account pause blocks new sensitive actions by default; it cannot revoke an already issued send permit."
+  },
+  "TaskControlRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["action", "expected_version", "reason"],
+    "properties": {
+      "action": { "type": "string", "enum": ["start", "pause", "resume", "cancel"] },
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "description": "Task control request. Resume revalidates scope, accounts, baseline, deadline and unresolved external state; it never turns UNKNOWN into QUEUED."
+  },
+  "VersionRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["expected_version"],
+    "properties": {
+      "expected_version": { "type": "integer", "minimum": 1 }
+    },
+    "description": "Optimistic concurrency guard for mutations that need no additional fields."
+  },
+  "ReconcileRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["expected_version", "reason"],
+    "properties": {
+      "expected_version": { "type": "integer", "minimum": 1 },
+      "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "description": "Read-only reconciliation request. Acceptance does not rerun any write action."
+  },
+  "HeartbeatRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "workspace_id",
+      "runtime_id",
+      "account_id",
+      "owner_epoch",
+      "sequence",
+      "connection_state",
+      "login_state",
+      "heartbeat_at",
+      "capabilities"
+    ],
+    "properties": {
+      "workspace_id": { "$ref": "#/Id" },
+      "runtime_id": { "$ref": "#/Id" },
+      "account_id": { "$ref": "#/Id" },
+      "owner_epoch": { "$ref": "#/DecimalSequence" },
+      "sequence": { "$ref": "#/DecimalSequence" },
+      "connection_state": {
+        "type": "string",
+        "enum": ["online", "offline", "degraded", "unknown"]
+      },
+      "login_state": {
+        "type": "string",
+        "enum": ["logged_in", "logged_out", "challenge_required", "unknown"]
+      },
+      "heartbeat_at": { "$ref": "#/UTCDateTime" },
+      "capabilities": {
+        "type": "array",
+        "maxItems": 8,
+        "items": { "$ref": "#/Capability" }
+      }
+    },
+    "description": "Runtime heartbeat. owner_epoch and sequence are monotonic decimal strings; stale heartbeat data is ignored rather than merged as newer."
+  },
+  "HeartbeatReceipt": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "runtime_id",
+      "account_id",
+      "owner_epoch",
+      "sequence",
+      "accepted_at",
+      "account_version",
+      "control_state",
+      "next_action_at"
+    ],
+    "properties": {
+      "runtime_id": { "$ref": "#/Id" },
+      "account_id": { "$ref": "#/Id" },
+      "owner_epoch": { "$ref": "#/DecimalSequence" },
+      "sequence": { "$ref": "#/DecimalSequence" },
+      "accepted_at": { "$ref": "#/UTCDateTime" },
+      "account_version": { "type": "integer", "minimum": 1 },
+      "control_state": {
+        "type": "string",
+        "enum": ["active", "paused", "blocked"]
+      },
+      "next_action_at": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+        "nullable": true
+      }
+    },
+    "description": "Heartbeat acceptance receipt. account_version is the server-side account version after applying the heartbeat."
+  }
+}

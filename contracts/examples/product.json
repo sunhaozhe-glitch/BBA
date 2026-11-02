@@ -1,0 +1,1420 @@
+[
+  {
+    "schema_ref": "login.json#/LoginSessionState",
+    "valid": true,
+    "value": "QR_READY",
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionState",
+    "valid": false,
+    "value": "not_allowed",
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionFailureReason",
+    "valid": true,
+    "value": "IDENTITY_MISMATCH",
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionFailureReason",
+    "valid": false,
+    "value": "not_allowed",
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionNextAction",
+    "valid": true,
+    "value": "poll",
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionNextAction",
+    "valid": false,
+    "value": "not_allowed",
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginProviderMode",
+    "valid": true,
+    "value": "fixture",
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginProviderMode",
+    "valid": false,
+    "value": "not_allowed",
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginStatus",
+    "valid": true,
+    "value": {
+      "provider": "fixture",
+      "fixture": true,
+      "live": false,
+      "session_ttl_seconds": 600,
+      "qr_ttl_seconds": 120,
+      "identity_readback": "fixture"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginStatus",
+    "valid": false,
+    "value": {
+      "provider": "fixture",
+      "fixture": true,
+      "live": false,
+      "session_ttl_seconds": 600,
+      "qr_ttl_seconds": 120,
+      "identity_readback": "fixture",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginGenerationRequest",
+    "valid": true,
+    "value": {
+      "expected_generation": 1
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginGenerationRequest",
+    "valid": false,
+    "value": {
+      "expected_generation": 1,
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionIdentity",
+    "valid": true,
+    "value": {
+      "self_id": "11001",
+      "nickname": "Synthetic account",
+      "verified_at": "2026-10-30T12:00:00Z",
+      "binding_checked": true
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionIdentity",
+    "valid": false,
+    "value": {
+      "self_id": "11001",
+      "nickname": "Synthetic account",
+      "verified_at": "2026-10-30T12:00:00Z",
+      "binding_checked": true,
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionProjection",
+    "valid": true,
+    "value": {
+      "projected": true,
+      "account_login_state": "logged_in",
+      "account_connection_state": "online",
+      "identity_status": "verified"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionProjection",
+    "valid": false,
+    "value": {
+      "projected": true,
+      "account_login_state": "logged_in",
+      "account_connection_state": "online",
+      "identity_status": "verified",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSession",
+    "valid": true,
+    "value": {
+      "id": "login_fixture",
+      "workspace_id": "ws_fixture",
+      "account_id": "cross-a",
+      "adapter_instance_id": "adapter-a",
+      "runtime_id": "cross-runtime-a",
+      "provider": "fixture",
+      "state": "QR_READY",
+      "generation": 1,
+      "version": 2,
+      "expired": false,
+      "qr_available": false,
+      "next_action": "poll",
+      "expires_at": "2026-10-30T12:10:00Z",
+      "created_at": "2026-10-30T12:00:00Z",
+      "updated_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSession",
+    "valid": false,
+    "value": {
+      "id": "login_fixture",
+      "workspace_id": "ws_fixture",
+      "account_id": "cross-a",
+      "adapter_instance_id": "adapter-a",
+      "runtime_id": "cross-runtime-a",
+      "provider": "fixture",
+      "state": "QR_READY",
+      "generation": 1,
+      "version": 2,
+      "expired": false,
+      "qr_available": false,
+      "next_action": "poll",
+      "expires_at": "2026-10-30T12:10:00Z",
+      "created_at": "2026-10-30T12:00:00Z",
+      "updated_at": "2026-10-30T12:00:00Z",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionPage",
+    "valid": true,
+    "value": {
+      "items": [
+        {
+          "id": "login_fixture",
+          "workspace_id": "ws_fixture",
+          "account_id": "cross-a",
+          "adapter_instance_id": "adapter-a",
+          "runtime_id": "cross-runtime-a",
+          "provider": "fixture",
+          "state": "QR_READY",
+          "generation": 1,
+          "version": 2,
+          "expired": false,
+          "qr_available": false,
+          "next_action": "poll",
+          "expires_at": "2026-10-30T12:10:00Z",
+          "created_at": "2026-10-30T12:00:00Z",
+          "updated_at": "2026-10-30T12:00:00Z"
+        }
+      ]
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionPage",
+    "valid": false,
+    "value": {
+      "items": [
+        {
+          "id": "login_fixture",
+          "workspace_id": "ws_fixture",
+          "account_id": "cross-a",
+          "adapter_instance_id": "adapter-a",
+          "runtime_id": "cross-runtime-a",
+          "provider": "fixture",
+          "state": "QR_READY",
+          "generation": 1,
+          "version": 2,
+          "expired": false,
+          "qr_available": false,
+          "next_action": "poll",
+          "expires_at": "2026-10-30T12:10:00Z",
+          "created_at": "2026-10-30T12:00:00Z",
+          "updated_at": "2026-10-30T12:00:00Z"
+        }
+      ],
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginStatusEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "provider": "fixture",
+        "fixture": true,
+        "live": false,
+        "session_ttl_seconds": 600,
+        "qr_ttl_seconds": 120,
+        "identity_readback": "fixture"
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginStatusEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "provider": "fixture",
+        "fixture": true,
+        "live": false,
+        "session_ttl_seconds": 600,
+        "qr_ttl_seconds": 120,
+        "identity_readback": "fixture"
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "login_fixture",
+        "workspace_id": "ws_fixture",
+        "account_id": "cross-a",
+        "adapter_instance_id": "adapter-a",
+        "runtime_id": "cross-runtime-a",
+        "provider": "fixture",
+        "state": "QR_READY",
+        "generation": 1,
+        "version": 2,
+        "expired": false,
+        "qr_available": false,
+        "next_action": "poll",
+        "expires_at": "2026-10-30T12:10:00Z",
+        "created_at": "2026-10-30T12:00:00Z",
+        "updated_at": "2026-10-30T12:00:00Z"
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "login_fixture",
+        "workspace_id": "ws_fixture",
+        "account_id": "cross-a",
+        "adapter_instance_id": "adapter-a",
+        "runtime_id": "cross-runtime-a",
+        "provider": "fixture",
+        "state": "QR_READY",
+        "generation": 1,
+        "version": 2,
+        "expired": false,
+        "qr_available": false,
+        "next_action": "poll",
+        "expires_at": "2026-10-30T12:10:00Z",
+        "created_at": "2026-10-30T12:00:00Z",
+        "updated_at": "2026-10-30T12:00:00Z"
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "login_fixture",
+            "workspace_id": "ws_fixture",
+            "account_id": "cross-a",
+            "adapter_instance_id": "adapter-a",
+            "runtime_id": "cross-runtime-a",
+            "provider": "fixture",
+            "state": "QR_READY",
+            "generation": 1,
+            "version": 2,
+            "expired": false,
+            "qr_available": false,
+            "next_action": "poll",
+            "expires_at": "2026-10-30T12:10:00Z",
+            "created_at": "2026-10-30T12:00:00Z",
+            "updated_at": "2026-10-30T12:00:00Z"
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "login.json#/LoginSessionPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "login_fixture",
+            "workspace_id": "ws_fixture",
+            "account_id": "cross-a",
+            "adapter_instance_id": "adapter-a",
+            "runtime_id": "cross-runtime-a",
+            "provider": "fixture",
+            "state": "QR_READY",
+            "generation": 1,
+            "version": 2,
+            "expired": false,
+            "qr_available": false,
+            "next_action": "poll",
+            "expires_at": "2026-10-30T12:10:00Z",
+            "created_at": "2026-10-30T12:00:00Z",
+            "updated_at": "2026-10-30T12:00:00Z"
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "product.json#/OrchestrationModeRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 3,
+      "mode": "proposal",
+      "reason": "Explicit approved workflow"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "product.json#/OrchestrationModeRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 3,
+      "mode": "proposal",
+      "reason": "Explicit approved workflow",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "product.json#/WorkItemView",
+    "valid": true,
+    "value": {
+      "id": "work_fixture",
+      "task_id": "task_fixture",
+      "materialization_id": "materialization_fixture",
+      "application_id": "application_fixture",
+      "proposal_id": "proposal_fixture",
+      "step_id": "step_1",
+      "step_no": 1,
+      "kind": "request_join",
+      "state": "READY",
+      "depends_on": [],
+      "account_id": "cross-a",
+      "target_id": "target_fixture",
+      "authorization_version": 2,
+      "attempt_count": 0,
+      "max_attempts": 2,
+      "created_at": "2026-10-30T12:00:00Z",
+      "updated_at": "2026-10-30T12:00:00Z",
+      "attempts": []
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "product.json#/WorkItemView",
+    "valid": false,
+    "value": {
+      "id": "work_fixture",
+      "task_id": "task_fixture",
+      "materialization_id": "materialization_fixture",
+      "application_id": "application_fixture",
+      "proposal_id": "proposal_fixture",
+      "step_id": "step_1",
+      "step_no": 1,
+      "kind": "request_join",
+      "state": "READY",
+      "depends_on": [],
+      "account_id": "cross-a",
+      "target_id": "target_fixture",
+      "authorization_version": 2,
+      "attempt_count": 0,
+      "max_attempts": 2,
+      "created_at": "2026-10-30T12:00:00Z",
+      "updated_at": "2026-10-30T12:00:00Z",
+      "attempts": [],
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "product.json#/WorkItemPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "work_fixture",
+            "task_id": "task_fixture",
+            "materialization_id": "materialization_fixture",
+            "application_id": "application_fixture",
+            "proposal_id": "proposal_fixture",
+            "step_id": "step_1",
+            "step_no": 1,
+            "kind": "request_join",
+            "state": "READY",
+            "depends_on": [],
+            "account_id": "cross-a",
+            "target_id": "target_fixture",
+            "authorization_version": 2,
+            "attempt_count": 0,
+            "max_attempts": 2,
+            "created_at": "2026-10-30T12:00:00Z",
+            "updated_at": "2026-10-30T12:00:00Z",
+            "attempts": []
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "product.json#/WorkItemPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "work_fixture",
+            "task_id": "task_fixture",
+            "materialization_id": "materialization_fixture",
+            "application_id": "application_fixture",
+            "proposal_id": "proposal_fixture",
+            "step_id": "step_1",
+            "step_no": 1,
+            "kind": "request_join",
+            "state": "READY",
+            "depends_on": [],
+            "account_id": "cross-a",
+            "target_id": "target_fixture",
+            "authorization_version": 2,
+            "attempt_count": 0,
+            "max_attempts": 2,
+            "created_at": "2026-10-30T12:00:00Z",
+            "updated_at": "2026-10-30T12:00:00Z",
+            "attempts": []
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "req_product_fixture",
+        "next_cursor": null,
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "product.json#/WorkItemAttemptView",
+    "valid": true,
+    "value": {
+      "attempt_no": 1,
+      "lease_epoch": 1,
+      "execution_id": null,
+      "operation_id": null,
+      "execution_state": null,
+      "outcome": null,
+      "error_code": null,
+      "evidence_ref": null,
+      "observation_event_id": null,
+      "started_at": "2026-10-30T12:00:00Z",
+      "finished_at": null
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "product.json#/WorkItemAttemptView",
+    "valid": false,
+    "value": {
+      "attempt_no": 1,
+      "lease_epoch": 1,
+      "execution_id": null,
+      "operation_id": null,
+      "execution_state": null,
+      "outcome": null,
+      "error_code": null,
+      "evidence_ref": null,
+      "observation_event_id": null,
+      "started_at": "2026-10-30T12:00:00Z",
+      "finished_at": null,
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "product.json#/MaterializeRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 2,
+      "approval_ref": "ap_fixture",
+      "proposal_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "product.json#/MaterializeRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 2,
+      "approval_ref": "ap_fixture",
+      "proposal_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "tasks.json#/OrchestrationMode",
+    "valid": true,
+    "value": "proposal",
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "tasks.json#/OrchestrationMode",
+    "valid": false,
+    "value": "not_allowed",
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncProviderStatus",
+    "valid": true,
+    "value": {
+      "provider": "artex",
+      "configured": false,
+      "wired": false,
+      "writes_allowed": false
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncProviderStatus",
+    "valid": false,
+    "value": {
+      "provider": "artex",
+      "configured": false,
+      "wired": false,
+      "writes_allowed": false,
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncError",
+    "valid": true,
+    "value": {
+      "code": "fixture_value",
+      "message": "fixture_value",
+      "at": "2026-10-30T12:00:00Z"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncError",
+    "valid": false,
+    "value": {
+      "code": "fixture_value",
+      "message": "fixture_value",
+      "at": "2026-10-30T12:00:00Z",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncCheckpoint",
+    "valid": true,
+    "value": {
+      "source": "core.outbox",
+      "scope_key": "fixture_value",
+      "offset": 0,
+      "updated_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncCheckpoint",
+    "valid": false,
+    "value": {
+      "source": "core.outbox",
+      "scope_key": "fixture_value",
+      "offset": 0,
+      "updated_at": "2026-10-30T12:00:00Z",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncGraphStatus",
+    "valid": true,
+    "value": {
+      "graph_kind": "fact",
+      "bound": false,
+      "external_root": "fixture_value",
+      "sync_state": "unbound",
+      "task_version": 1,
+      "scope_revision": 1,
+      "graph_revision": 0,
+      "last_sync_at": "2026-10-30T12:00:00Z",
+      "sync_lag_seconds": 0,
+      "anchors": 0,
+      "external_nodes": 0,
+      "pending_outbox": 0,
+      "needs_reconcile_outbox": 0,
+      "failed_outbox": 0,
+      "last_error": {
+        "code": "fixture_value",
+        "message": "fixture_value",
+        "at": "2026-10-30T12:00:00Z"
+      },
+      "checkpoints": []
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncGraphStatus",
+    "valid": false,
+    "value": {
+      "graph_kind": "fact",
+      "bound": false,
+      "external_root": "fixture_value",
+      "sync_state": "unbound",
+      "task_version": 1,
+      "scope_revision": 1,
+      "graph_revision": 0,
+      "last_sync_at": "2026-10-30T12:00:00Z",
+      "sync_lag_seconds": 0,
+      "anchors": 0,
+      "external_nodes": 0,
+      "pending_outbox": 0,
+      "needs_reconcile_outbox": 0,
+      "failed_outbox": 0,
+      "last_error": {
+        "code": "fixture_value",
+        "message": "fixture_value",
+        "at": "2026-10-30T12:00:00Z"
+      },
+      "checkpoints": [],
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncStatus",
+    "valid": true,
+    "value": {
+      "workspace_id": "fixture_value",
+      "task_id": "fixture_value",
+      "generated_at": "2026-10-30T12:00:00Z",
+      "provider": {
+        "provider": "artex",
+        "configured": false,
+        "wired": false,
+        "writes_allowed": false
+      },
+      "graphs": [
+        {
+          "graph_kind": "fact",
+          "bound": false,
+          "external_root": "fixture_value",
+          "sync_state": "unbound",
+          "task_version": 1,
+          "scope_revision": 1,
+          "graph_revision": 0,
+          "last_sync_at": "2026-10-30T12:00:00Z",
+          "sync_lag_seconds": 0,
+          "anchors": 0,
+          "external_nodes": 0,
+          "pending_outbox": 0,
+          "needs_reconcile_outbox": 0,
+          "failed_outbox": 0,
+          "last_error": {
+            "code": "fixture_value",
+            "message": "fixture_value",
+            "at": "2026-10-30T12:00:00Z"
+          },
+          "checkpoints": []
+        },
+        {
+          "graph_kind": "fact",
+          "bound": false,
+          "external_root": "fixture_value",
+          "sync_state": "unbound",
+          "task_version": 1,
+          "scope_revision": 1,
+          "graph_revision": 0,
+          "last_sync_at": "2026-10-30T12:00:00Z",
+          "sync_lag_seconds": 0,
+          "anchors": 0,
+          "external_nodes": 0,
+          "pending_outbox": 0,
+          "needs_reconcile_outbox": 0,
+          "failed_outbox": 0,
+          "last_error": {
+            "code": "fixture_value",
+            "message": "fixture_value",
+            "at": "2026-10-30T12:00:00Z"
+          },
+          "checkpoints": []
+        }
+      ]
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncStatus",
+    "valid": false,
+    "value": {
+      "workspace_id": "fixture_value",
+      "task_id": "fixture_value",
+      "generated_at": "2026-10-30T12:00:00Z",
+      "provider": {
+        "provider": "artex",
+        "configured": false,
+        "wired": false,
+        "writes_allowed": false
+      },
+      "graphs": [
+        {
+          "graph_kind": "fact",
+          "bound": false,
+          "external_root": "fixture_value",
+          "sync_state": "unbound",
+          "task_version": 1,
+          "scope_revision": 1,
+          "graph_revision": 0,
+          "last_sync_at": "2026-10-30T12:00:00Z",
+          "sync_lag_seconds": 0,
+          "anchors": 0,
+          "external_nodes": 0,
+          "pending_outbox": 0,
+          "needs_reconcile_outbox": 0,
+          "failed_outbox": 0,
+          "last_error": {
+            "code": "fixture_value",
+            "message": "fixture_value",
+            "at": "2026-10-30T12:00:00Z"
+          },
+          "checkpoints": []
+        },
+        {
+          "graph_kind": "fact",
+          "bound": false,
+          "external_root": "fixture_value",
+          "sync_state": "unbound",
+          "task_version": 1,
+          "scope_revision": 1,
+          "graph_revision": 0,
+          "last_sync_at": "2026-10-30T12:00:00Z",
+          "sync_lag_seconds": 0,
+          "anchors": 0,
+          "external_nodes": 0,
+          "pending_outbox": 0,
+          "needs_reconcile_outbox": 0,
+          "failed_outbox": 0,
+          "last_error": {
+            "code": "fixture_value",
+            "message": "fixture_value",
+            "at": "2026-10-30T12:00:00Z"
+          },
+          "checkpoints": []
+        }
+      ],
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncStatusEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "workspace_id": "fixture_value",
+        "task_id": "fixture_value",
+        "generated_at": "2026-10-30T12:00:00Z",
+        "provider": {
+          "provider": "artex",
+          "configured": false,
+          "wired": false,
+          "writes_allowed": false
+        },
+        "graphs": [
+          {
+            "graph_kind": "fact",
+            "bound": false,
+            "external_root": "fixture_value",
+            "sync_state": "unbound",
+            "task_version": 1,
+            "scope_revision": 1,
+            "graph_revision": 0,
+            "last_sync_at": "2026-10-30T12:00:00Z",
+            "sync_lag_seconds": 0,
+            "anchors": 0,
+            "external_nodes": 0,
+            "pending_outbox": 0,
+            "needs_reconcile_outbox": 0,
+            "failed_outbox": 0,
+            "last_error": {
+              "code": "fixture_value",
+              "message": "fixture_value",
+              "at": "2026-10-30T12:00:00Z"
+            },
+            "checkpoints": []
+          },
+          {
+            "graph_kind": "fact",
+            "bound": false,
+            "external_root": "fixture_value",
+            "sync_state": "unbound",
+            "task_version": 1,
+            "scope_revision": 1,
+            "graph_revision": 0,
+            "last_sync_at": "2026-10-30T12:00:00Z",
+            "sync_lag_seconds": 0,
+            "anchors": 0,
+            "external_nodes": 0,
+            "pending_outbox": 0,
+            "needs_reconcile_outbox": 0,
+            "failed_outbox": 0,
+            "last_error": {
+              "code": "fixture_value",
+              "message": "fixture_value",
+              "at": "2026-10-30T12:00:00Z"
+            },
+            "checkpoints": []
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncStatusEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "workspace_id": "fixture_value",
+        "task_id": "fixture_value",
+        "generated_at": "2026-10-30T12:00:00Z",
+        "provider": {
+          "provider": "artex",
+          "configured": false,
+          "wired": false,
+          "writes_allowed": false
+        },
+        "graphs": [
+          {
+            "graph_kind": "fact",
+            "bound": false,
+            "external_root": "fixture_value",
+            "sync_state": "unbound",
+            "task_version": 1,
+            "scope_revision": 1,
+            "graph_revision": 0,
+            "last_sync_at": "2026-10-30T12:00:00Z",
+            "sync_lag_seconds": 0,
+            "anchors": 0,
+            "external_nodes": 0,
+            "pending_outbox": 0,
+            "needs_reconcile_outbox": 0,
+            "failed_outbox": 0,
+            "last_error": {
+              "code": "fixture_value",
+              "message": "fixture_value",
+              "at": "2026-10-30T12:00:00Z"
+            },
+            "checkpoints": []
+          },
+          {
+            "graph_kind": "fact",
+            "bound": false,
+            "external_root": "fixture_value",
+            "sync_state": "unbound",
+            "task_version": 1,
+            "scope_revision": 1,
+            "graph_revision": 0,
+            "last_sync_at": "2026-10-30T12:00:00Z",
+            "sync_lag_seconds": 0,
+            "anchors": 0,
+            "external_nodes": 0,
+            "pending_outbox": 0,
+            "needs_reconcile_outbox": 0,
+            "failed_outbox": 0,
+            "last_error": {
+              "code": "fixture_value",
+              "message": "fixture_value",
+              "at": "2026-10-30T12:00:00Z"
+            },
+            "checkpoints": []
+          }
+        ]
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphRootRequest",
+    "valid": true,
+    "value": {
+      "external_root": "fixture_value"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphRootRequest",
+    "valid": false,
+    "value": {
+      "external_root": "fixture_value",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanSummaryRef",
+    "valid": true,
+    "value": {
+      "account_id": "fixture_value",
+      "group_id": "12345",
+      "summary_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "summary_version": 1,
+      "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanSummaryRef",
+    "valid": false,
+    "value": {
+      "account_id": "fixture_value",
+      "group_id": "12345",
+      "summary_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "summary_version": 1,
+      "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanCandidate",
+    "valid": true,
+    "value": {
+      "candidate_id": "fixture_value",
+      "external_node_id": "fixture_value",
+      "target_external_id": "12345",
+      "text": "fixture_value",
+      "provenance": "inference",
+      "evidence_refs": []
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanCandidate",
+    "valid": false,
+    "value": {
+      "candidate_id": "fixture_value",
+      "external_node_id": "fixture_value",
+      "target_external_id": "12345",
+      "text": "fixture_value",
+      "provenance": "inference",
+      "evidence_refs": [],
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshot",
+    "valid": true,
+    "value": {
+      "snapshot_id": "fixture_value",
+      "workspace_id": "fixture_value",
+      "task_id": "fixture_value",
+      "graph_kind": "fact",
+      "provider": "artex",
+      "graph_revision": 0,
+      "task_version": 1,
+      "scope_revision": 1,
+      "authorization_revision": 1,
+      "model_version": "fixture_value",
+      "template_version": "fixture_value",
+      "summary_refs": [],
+      "anchor_ids": [],
+      "candidates": [],
+      "round": 1,
+      "max_rounds": 1,
+      "created_at": "2026-10-30T12:00:00Z",
+      "expires_at": "2026-10-30T12:00:00Z",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "open"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshot",
+    "valid": false,
+    "value": {
+      "snapshot_id": "fixture_value",
+      "workspace_id": "fixture_value",
+      "task_id": "fixture_value",
+      "graph_kind": "fact",
+      "provider": "artex",
+      "graph_revision": 0,
+      "task_version": 1,
+      "scope_revision": 1,
+      "authorization_revision": 1,
+      "model_version": "fixture_value",
+      "template_version": "fixture_value",
+      "summary_refs": [],
+      "anchor_ids": [],
+      "candidates": [],
+      "round": 1,
+      "max_rounds": 1,
+      "created_at": "2026-10-30T12:00:00Z",
+      "expires_at": "2026-10-30T12:00:00Z",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "open",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshotEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "snapshot_id": "fixture_value",
+        "workspace_id": "fixture_value",
+        "task_id": "fixture_value",
+        "graph_kind": "fact",
+        "provider": "artex",
+        "graph_revision": 0,
+        "task_version": 1,
+        "scope_revision": 1,
+        "authorization_revision": 1,
+        "model_version": "fixture_value",
+        "template_version": "fixture_value",
+        "summary_refs": [],
+        "anchor_ids": [],
+        "candidates": [],
+        "round": 1,
+        "max_rounds": 1,
+        "created_at": "2026-10-30T12:00:00Z",
+        "expires_at": "2026-10-30T12:00:00Z",
+        "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "open"
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshotEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "snapshot_id": "fixture_value",
+        "workspace_id": "fixture_value",
+        "task_id": "fixture_value",
+        "graph_kind": "fact",
+        "provider": "artex",
+        "graph_revision": 0,
+        "task_version": 1,
+        "scope_revision": 1,
+        "authorization_revision": 1,
+        "model_version": "fixture_value",
+        "template_version": "fixture_value",
+        "summary_refs": [],
+        "anchor_ids": [],
+        "candidates": [],
+        "round": 1,
+        "max_rounds": 1,
+        "created_at": "2026-10-30T12:00:00Z",
+        "expires_at": "2026-10-30T12:00:00Z",
+        "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "open"
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshotList",
+    "valid": true,
+    "value": {
+      "items": []
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshotList",
+    "valid": false,
+    "value": {
+      "items": [],
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshotListEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": []
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphPlanningSnapshotListEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": []
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncReconcileRequest",
+    "valid": true,
+    "value": {
+      "outcome": "applied",
+      "external_node_id": "fixture_value"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncReconcileRequest",
+    "valid": false,
+    "value": {
+      "outcome": "applied",
+      "external_node_id": "fixture_value",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncOutboxItem",
+    "valid": true,
+    "value": {
+      "workspace_id": "fixture_value",
+      "task_id": "fixture_value",
+      "id": "fixture_value",
+      "graph_kind": "fact",
+      "operation": "graph.pull",
+      "idempotency_key": "fixture_value",
+      "payload": {},
+      "payload_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scope": "fixture_value",
+      "sequence": 1,
+      "state": "pending",
+      "attempts": 0,
+      "max_attempts": 1,
+      "external_node_id": "fixture_value",
+      "last_error_code": "fixture_value",
+      "last_error": "fixture_value",
+      "next_attempt_at": "2026-10-30T12:00:00Z",
+      "created_at": "2026-10-30T12:00:00Z",
+      "updated_at": "2026-10-30T12:00:00Z"
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncOutboxItem",
+    "valid": false,
+    "value": {
+      "workspace_id": "fixture_value",
+      "task_id": "fixture_value",
+      "id": "fixture_value",
+      "graph_kind": "fact",
+      "operation": "graph.pull",
+      "idempotency_key": "fixture_value",
+      "payload": {},
+      "payload_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scope": "fixture_value",
+      "sequence": 1,
+      "state": "pending",
+      "attempts": 0,
+      "max_attempts": 1,
+      "external_node_id": "fixture_value",
+      "last_error_code": "fixture_value",
+      "last_error": "fixture_value",
+      "next_attempt_at": "2026-10-30T12:00:00Z",
+      "created_at": "2026-10-30T12:00:00Z",
+      "updated_at": "2026-10-30T12:00:00Z",
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncOutboxItemEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "workspace_id": "fixture_value",
+        "task_id": "fixture_value",
+        "id": "fixture_value",
+        "graph_kind": "fact",
+        "operation": "graph.pull",
+        "idempotency_key": "fixture_value",
+        "payload": {},
+        "payload_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "scope": "fixture_value",
+        "sequence": 1,
+        "state": "pending",
+        "attempts": 0,
+        "max_attempts": 1,
+        "external_node_id": "fixture_value",
+        "last_error_code": "fixture_value",
+        "last_error": "fixture_value",
+        "next_attempt_at": "2026-10-30T12:00:00Z",
+        "created_at": "2026-10-30T12:00:00Z",
+        "updated_at": "2026-10-30T12:00:00Z"
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      }
+    },
+    "description": "Scoped product value respects the closed authority boundary."
+  },
+  {
+    "schema_ref": "graph.json#/GraphSyncOutboxItemEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "workspace_id": "fixture_value",
+        "task_id": "fixture_value",
+        "id": "fixture_value",
+        "graph_kind": "fact",
+        "operation": "graph.pull",
+        "idempotency_key": "fixture_value",
+        "payload": {},
+        "payload_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "scope": "fixture_value",
+        "sequence": 1,
+        "state": "pending",
+        "attempts": 0,
+        "max_attempts": 1,
+        "external_node_id": "fixture_value",
+        "last_error_code": "fixture_value",
+        "last_error": "fixture_value",
+        "next_attempt_at": "2026-10-30T12:00:00Z",
+        "created_at": "2026-10-30T12:00:00Z",
+        "updated_at": "2026-10-30T12:00:00Z"
+      },
+      "meta": {
+        "request_id": "fixture_value",
+        "next_cursor": "fixture_value",
+        "has_more": false
+      },
+      "unapproved_field": "forbidden"
+    },
+    "description": "An unknown field or enum value cannot extend authority."
+  },
+  {
+    "schema_ref": "runtime.json#/OperatorRuntimeEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "schema_version": 21,
+        "environment": "fixture",
+        "development_operations": true,
+        "worker": {"enabled": false, "id": "off", "poll_ms": 0, "batch": 0, "transport": "off"},
+        "flags": {"proposal_execution": true, "login": true, "model": true},
+        "model": {"configured": true, "enabled": true, "provider_id": "fixture-openai", "model_id": "planning-fixture", "prompt_version": "planning.v1", "last_request": null, "max_concurrency": 1, "timeout_seconds": 10},
+        "limits": {"max_candidates": 5000, "max_total_external_attempts": 10000}
+      },
+      "meta": {"request_id": "runtime_fixture", "server_time": "2026-10-30T12:00:00Z"}
+    },
+    "description": "Sanitized fixture runtime diagnostics contain no endpoint or secret."
+  },
+  {
+    "schema_ref": "runtime.json#/OperatorRuntimeEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "schema_version": 21,
+        "environment": "fixture",
+        "development_operations": true,
+        "worker": {"enabled": false, "id": "off", "poll_ms": 0, "batch": 0, "transport": "off"},
+        "flags": {"proposal_execution": true, "login": true, "model": true},
+        "model": {"configured": true, "enabled": true, "provider_id": "fixture-openai", "model_id": "planning-fixture", "prompt_version": "planning.v1", "last_request": null, "max_concurrency": 1, "timeout_seconds": 10, "api_key": "forbidden"},
+        "limits": {"max_candidates": 5000, "max_total_external_attempts": 10000}
+      },
+      "meta": {"request_id": "runtime_fixture", "server_time": "2026-10-30T12:00:00Z"}
+    },
+    "description": "Credential material is forbidden even if another field set is valid."
+  }
+]

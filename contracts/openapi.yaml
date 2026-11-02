@@ -1,0 +1,825 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "QQ Automation Task and Bridge API",
+    "version": "1.0.0",
+    "description": "P0-01 normative contract. Contracts precede implementations. P0-12 and later live QQ behavior remain separately approval-gated. submitted, pending and unknown never count as success; any effect that may still occur retains its goal slot and target claim, including after timeout or 24 hours. Retry or account reassignment requires authoritative proof of no effect."
+  },
+  "x-contract-decisions": {
+    "plugin_id": "napcat-plugin-cleaner",
+    "strict_group_acquire_candidate_source": "fixed_import_only",
+    "pending_unknown_timeout": "retain_slot_and_claim_until_authoritative_resolution",
+    "character_mvp_isolation": "one_runtime_and_database_per_character_enabled_account",
+    "napcat_login": "console_backend_proxy_only",
+    "writer_switch": "read_only_shadow_then_stop_drain_reconcile_single_owner",
+    "audit_truth": "postgresql_persistent_event_and_operation_ledger",
+    "artex_source_copy": "license_review_required_before_any_copy",
+    "model_and_runtime_evidence": "installed_versions_and_readback_only"
+  },
+  "x-ref-policy": "All schema refs are local files under contracts/schemas. Remote, absolute, parent-traversing and symlink-escaping refs are forbidden.",
+  "tags": [
+    { "name": "Accounts", "description": "Accounts and account-control projections." },
+    { "name": "Tasks", "description": "Task creation, status, event, and control operations." },
+    { "name": "Capabilities", "description": "Verified adapter capabilities per account." },
+    { "name": "Runtime", "description": "Authenticated runtime liveness and observations." },
+    { "name": "Bridge", "description": "Persistent execution and read-only reconciliation operations." },
+    { "name": "Chat", "description": "P0-15 text-only chat triggers, permits and active-speaker policy. Chat permits are independent of task permits and grant no group-management action." },
+    { "name": "Models", "description": "Authenticated bounded model requests; model output cannot grant execution permission." },
+    { "name": "Summaries", "description": "Runtime Summary.v1 ingest and read-only GroupContext projection. Context is untrusted reference data; permits and the daily budget gate remain authoritative." },
+    { "name": "Graph Sync", "description": "Durable ARTEX fact/goal synchronization, bounded planning snapshots, and explicit reconciliation." },
+    { "name": "Operator", "description": "Read-only runtime diagnostics and scoped account/group reports." },
+    { "name": "NapCat Plugin", "description": "Actual local plugin registration ID. Server-side adapter only. Live use requires the separate P0-12/P0-13 approval gates." }
+  ],
+  "paths": {
+    "/v1/operator/runtime": {
+      "get": {
+        "operationId": "getOperatorRuntime",
+        "summary": "Read bounded runtime, schema, worker and model readiness diagnostics",
+        "tags": ["Operator"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "responses": {
+          "200": { "description": "Sanitized diagnostics; no provider URL, API key, token or credential material.", "content": { "application/json": { "schema": { "$ref": "./schemas/runtime.json#/OperatorRuntimeEnvelope" } } } },
+          "401": { "$ref": "#/components/responses/ContractError" },
+          "403": { "$ref": "#/components/responses/ContractError" },
+          "503": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/groups/{group_id}/context": {
+      "parameters": [
+        { "name": "account_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } },
+        { "name": "group_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/QQId" } }
+      ],
+      "get": {
+        "operationId": "getOperatorGroupContextReport",
+        "summary": "Read stored GroupContext without runtime impersonation",
+        "tags": ["Operator", "Summaries"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [
+          { "name": "summary_id", "in": "query", "required": false, "schema": { "type": "string", "pattern": "^[0-9a-f]{64}$" } },
+          { "name": "summary_version", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1 } }
+        ],
+        "responses": {
+          "200": { "description": "Read-only newest live Summary or exact pinned version; workspace/account scopes enforced.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GroupContextReportEnvelope" } } } },
+          "401": { "$ref": "#/components/responses/ContractError" },
+          "403": { "$ref": "#/components/responses/ContractError" },
+          "404": { "$ref": "#/components/responses/ContractError" },
+          "405": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{task_id}/graph-sync": {"parameters": [{"name": "task_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "get": {"operationId": "getGraphSyncStatus", "summary": "Durable ARTEX graph-sync projection; never contacts ARTEX", "tags": ["Graph Sync"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "responses": {"200": {"description": "Per-graph sync state, outbox counters, checkpoints and provider wiring.", "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphSyncStatusEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "500": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/tasks/{task_id}/graph-sync/roots/{graph_kind}": {"parameters": [{"name": "task_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}, {"name": "graph_kind", "in": "path", "required": true, "schema": {"type": "string", "enum": ["fact", "goal"]}}], "put": {"operationId": "bindTaskGraphRoot", "summary": "Bind one graph kind to one external ARTEX task id; explicit and idempotent", "description": "Creates or replays the explicit root binding. Rebinding to a different external root is refused once the task has sync state for that kind, and one external root cannot back two local tasks. A goal binding requires writes to be enabled.", "tags": ["Graph Sync"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "parameters": [{"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 1, "maxLength": 128}, "description": "Reusing the key with a different body is IDEMPOTENCY_CONFLICT."}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphRootRequest"}}}}, "responses": {"200": {"description": "The binding was created or replayed; body is the full status projection.", "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphSyncStatusEnvelope"}}}}, "400": {"$ref": "#/components/responses/ContractError"}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "500": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/tasks/{task_id}/graph-sync/planning-snapshots": {"parameters": [{"name": "task_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "get": {"operationId": "listGraphPlanningSnapshots", "summary": "Newest 20 bounded planning snapshots for a task", "tags": ["Graph Sync"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "responses": {"200": {"description": "Snapshot list, newest first.", "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphPlanningSnapshotListEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "500": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}, "post": {"operationId": "createGraphPlanningSnapshot", "summary": "Build one bounded planning snapshot from the current fact graph, Summary versions and anchors", "description": "Reads ARTEX once, then revalidates the basis inside the writing transaction. It never enqueues an action and never calls the sender; candidates are inputs for proposal validation only.", "tags": ["Graph Sync"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "parameters": [{"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 1, "maxLength": 128}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "additionalProperties": false}}}}, "responses": {"201": {"description": "The stored snapshot; a replay returns the identical snapshot without spending a round.", "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphPlanningSnapshotEnvelope"}}}}, "400": {"$ref": "#/components/responses/ContractError"}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "429": {"$ref": "#/components/responses/ContractError"}, "500": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/tasks/{task_id}/graph-sync/planning-snapshots/{snapshot_id}": {"parameters": [{"name": "task_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}, {"name": "snapshot_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "get": {"operationId": "getGraphPlanningSnapshot", "summary": "Read one planning snapshot (state may already be stale/expired/consumed)", "tags": ["Graph Sync"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "responses": {"200": {"description": "The snapshot.", "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphPlanningSnapshotEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "500": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/tasks/{task_id}/graph-sync/outbox/{item_id}/reconcile": {"parameters": [{"name": "task_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}, {"name": "item_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "post": {"operationId": "reconcileGraphSyncOutboxItem", "summary": "Resolve one ambiguous goal write by readback; never resends the mutation", "description": "Only a needs_reconcile item can be reconciled, and only with a claim the provider's current goal list verifies. A repeated request replays the stored result.", "tags": ["Graph Sync"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "parameters": [{"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "minLength": 1, "maxLength": 128}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphSyncReconcileRequest"}}}}, "responses": {"200": {"description": "The reconciled outbox item (sent or canceled).", "content": {"application/json": {"schema": {"$ref": "./schemas/graph.json#/GraphSyncOutboxItemEnvelope"}}}}, "400": {"$ref": "#/components/responses/ContractError"}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "500": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/login/status": {"get": {"operationId": "getLoginStatus", "summary": "Provider mode and login session limits", "tags": ["Accounts"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "responses": {"200": {"description": "Login provider status.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginStatusEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/accounts/{account_id}/login-sessions": {"parameters": [{"name": "account_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "get": {"operationId": "listLoginSessions", "summary": "List durable login sessions for an account", "tags": ["Accounts"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "responses": {"200": {"description": "Login session list.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginSessionPageEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}, "post": {"operationId": "createLoginSession", "summary": "Create a scoped CREATED login session", "tags": ["Accounts"], "security": [{"OperatorSession": [], "CsrfHeader": []}, {"OperatorBearer": []}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "additionalProperties": false}}}}, "responses": {"201": {"description": "Created login session.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginSessionEnvelope"}}}}, "400": {"$ref": "#/components/responses/ContractError"}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}, "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}, {"$ref": "#/components/parameters/CsrfToken"}]}},
+    "/v1/login-sessions/{session_id}": {"parameters": [{"name": "session_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "get": {"operationId": "getLoginSession", "summary": "Read durable login session state (no provider call, no write)", "tags": ["Accounts"], "security": [{"OperatorSession": []}, {"OperatorBearer": []}], "responses": {"200": {"description": "Login session.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginSessionEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}}},
+    "/v1/login-sessions/{session_id}/qr": {"parameters": [{"name": "session_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "post": {"operationId": "refreshLoginQR", "summary": "Issue or refresh the short-lived QR image (generation fence)", "tags": ["Accounts"], "security": [{"OperatorSession": [], "CsrfHeader": []}, {"OperatorBearer": []}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginGenerationRequest"}}}}, "responses": {"200": {"description": "Login session with short-lived QR.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginSessionEnvelope"}}}}, "400": {"$ref": "#/components/responses/ContractError"}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "502": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}, "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}, {"$ref": "#/components/parameters/CsrfToken"}]}},
+    "/v1/login-sessions/{session_id}/poll": {"parameters": [{"name": "session_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "post": {"operationId": "pollLoginSession", "summary": "Poll provider state; fenced durable transition", "tags": ["Accounts"], "security": [{"OperatorSession": [], "CsrfHeader": []}, {"OperatorBearer": []}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginGenerationRequest"}}}}, "responses": {"200": {"description": "Login session after the poll.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginSessionEnvelope"}}}}, "400": {"$ref": "#/components/responses/ContractError"}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "502": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}, "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}, {"$ref": "#/components/parameters/CsrfToken"}]}},
+    "/v1/login-sessions/{session_id}/cancel": {"parameters": [{"name": "session_id", "in": "path", "required": true, "schema": {"$ref": "./schemas/common.json#/Id"}}], "post": {"operationId": "cancelLoginSession", "summary": "Cancel a login session; terminal and fence-bumping", "tags": ["Accounts"], "security": [{"OperatorSession": [], "CsrfHeader": []}, {"OperatorBearer": []}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "additionalProperties": false}}}}, "responses": {"200": {"description": "Cancelled login session.", "content": {"application/json": {"schema": {"$ref": "./schemas/login.json#/LoginSessionEnvelope"}}}}, "401": {"$ref": "#/components/responses/ContractError"}, "403": {"$ref": "#/components/responses/ContractError"}, "404": {"$ref": "#/components/responses/ContractError"}, "409": {"$ref": "#/components/responses/ContractError"}, "503": {"$ref": "#/components/responses/ContractError"}}, "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}, {"$ref": "#/components/parameters/CsrfToken"}]}},
+    "/v1/tasks/{id}/orchestration": {
+      "post": {
+        "operationId": "setTaskOrchestrationMode",
+        "summary": "Set task orchestration mode while quiescent",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/product.json#/OrchestrationModeRequest" } } } },
+        "responses": {
+          "202": { "description": "Audited mode change; active attempts or reservations prohibit switching.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/plan-proposals/{proposal_id}/materialize": {
+      "post": {
+        "operationId": "materializePlanProposal",
+        "summary": "Materialize approved proposal into persistent kernel work",
+        "description": "Explicit proposal-mode command gated by proposal-execution. Validates approval, digest, authorization revision, scope, budget, expiry and dependencies in the local transaction. Creates immutable applications and fenced work items; sends nothing. Legacy apply remains intent-only.",
+        "tags": ["Tasks", "Models"],
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "name": "proposal_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/product.json#/MaterializeRequest" } } } },
+        "responses": {
+          "202": { "description": "Durable materialization accepted. All external work still passes Reserve, permit and bridge gates.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/work-items": {
+      "get": {
+        "operationId": "listTaskWorkItems",
+        "summary": "Read exact proposal work and execution trace",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/Cursor" }, { "$ref": "#/components/parameters/Limit" }],
+        "responses": {
+          "200": { "description": "Work items and their causal attempt/execution references.", "content": { "application/json": { "schema": { "$ref": "./schemas/product.json#/WorkItemPageEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/accounts": {
+      "get": {
+        "operationId": "listAccounts",
+        "summary": "List accounts",
+        "tags": ["Accounts"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/Cursor" }, { "$ref": "#/components/parameters/Limit" }],
+        "responses": {
+          "200": { "description": "Account page.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/AccountPageEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/accounts/{id}/controls": {
+      "post": {
+        "operationId": "controlAccount",
+        "summary": "Control account",
+        "tags": ["Accounts"],
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/common.json#/AccountControlRequest" } } } },
+        "responses": {
+          "202": { "description": "Control request accepted; not proof of an external effect.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/capabilities": {
+      "get": {
+        "operationId": "listCapabilities",
+        "summary": "List capabilities",
+        "tags": ["Capabilities"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/Cursor" }, { "$ref": "#/components/parameters/Limit" }],
+        "responses": {
+          "200": { "description": "Only verified capabilities may be enabled. Unknown capabilities are unsupported.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/CapabilityPageEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks": {
+      "get": {
+        "operationId": "listTasks",
+        "summary": "List tasks",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/Cursor" }, { "$ref": "#/components/parameters/Limit" }],
+        "responses": {
+          "200": { "description": "Workspace-scoped task page with authoritative outcome counters.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/TaskPageEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      },
+      "post": {
+        "operationId": "createTask",
+        "summary": "Create task",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }, { "TaskEntryCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }, { "$ref": "#/components/parameters/TaskEntryAccount" }, { "$ref": "#/components/parameters/TaskEntrySender" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/CreateTaskRequest" } } }, "description": "Strict group.acquire requires a non-empty explicit fixed candidate import. Keyword search is not an implicit source." },
+        "responses": {
+          "201": { "description": "Task created or accepted for validation.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/TaskEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}": {
+      "get": {
+        "operationId": "getTask",
+        "summary": "Get task",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }, { "TaskEntryCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/TaskEntryAccount" }, { "$ref": "#/components/parameters/TaskEntrySender" }],
+        "responses": {
+          "200": { "description": "Authoritative current task state and counters.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/TaskEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/subtasks": {
+      "get": {
+        "operationId": "listSubtasks",
+        "summary": "List task subtasks",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/Cursor" }, { "$ref": "#/components/parameters/Limit" }],
+        "responses": {
+          "200": { "description": "Subtask page.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/SubtaskPageEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/results": {
+      "get": {
+        "operationId": "listTaskResults",
+        "summary": "List task results",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/Cursor" }, { "$ref": "#/components/parameters/Limit" }],
+        "responses": {
+          "200": { "description": "Only evidence-backed, valid membership results count toward the goal.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ResultPageEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/events": {
+      "get": {
+        "operationId": "streamOrListTaskEvents",
+        "summary": "List task events",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/ResourceId" },
+          { "$ref": "#/components/parameters/Cursor" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "name": "Last-Event-ID", "in": "header", "required": false, "schema": { "type": "string", "minLength": 1, "maxLength": 128 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor page or SSE projection of the persistent, monotonically sequenced event log. GET task remains authoritative.",
+            "content": {
+              "application/json": { "schema": { "$ref": "./schemas/tasks.json#/TaskEventPageEnvelope" } },
+              "text/event-stream": { "schema": { "type": "string" } }
+            }
+          },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/controls": {
+      "post": {
+        "operationId": "controlTask",
+        "summary": "Control task",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }, { "TaskEntryCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }, { "$ref": "#/components/parameters/TaskEntryAccount" }, { "$ref": "#/components/parameters/TaskEntrySender" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/common.json#/TaskControlRequest" } } } },
+        "responses": {
+          "202": { "description": "Control request accepted. Pause/cancel do not revoke a dispatched external action.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/reconcile": {
+      "post": {
+        "operationId": "reconcileTask",
+        "summary": "Request task reconciliation",
+        "tags": ["Tasks"],
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/common.json#/ReconcileRequest" } } } },
+        "responses": {
+          "202": { "description": "Read-only reconciliation queued; it does not replay the write operation.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/graph": {
+      "get": {
+        "operationId": "getTaskGraph",
+        "summary": "Get task graph projection",
+        "tags": ["Tasks"],
+        "x-read-side-effects": "controlled_lazy_projection",
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "description": "BBA-owned, derived task/fact graph. The projection is refreshed lazily under the task row lock, so this is a controlled write-amplified read, not a zero-write read. It neither creates nor advances an execution, and it is not an ARTEX connection or an external graph import.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/TaskGraphEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/plan-proposals": {
+      "post": {
+        "operationId": "requestPlanProposal",
+        "summary": "Request a plan proposal",
+        "tags": ["Tasks", "Models"],
+        "x-implementation-stage": "P0-17",
+        "x-feature-enabled-in-p0": false,
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/PlanProposalRequest" } } } },
+        "responses": {
+          "202": { "description": "Proposal request accepted; never applies actions.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/plan-proposals/{proposal_id}": {
+      "get": {
+        "operationId": "getPlanProposal",
+        "summary": "Get a plan proposal",
+        "tags": ["Tasks", "Models"],
+        "x-feature-enabled-in-p0": false,
+        "security": [{ "OperatorSession": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "name": "proposal_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }],
+        "responses": {
+          "200": { "description": "Durable proposal state, digest and expected task version/scope for operator review. Reading changes no version, approves nothing and calls no adapter. Runtime credentials are forbidden on this route.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/PlanProposalEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/plan-proposals/{proposal_id}/approve": {
+      "post": {
+        "operationId": "approvePlanProposal",
+        "summary": "Approve a plan proposal",
+        "tags": ["Tasks", "Models"],
+        "x-feature-enabled-in-p0": false,
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "name": "proposal_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/PlanProposalApprovalRequest" } } } },
+        "responses": {
+          "202": { "description": "Approval bound to the durable proposal; the task version is unchanged and nothing is sent. Idempotency is keyed by principal, method, path and Idempotency-Key; the same key with a different body is IDEMPOTENCY_CONFLICT.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/PlanProposalApprovalEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/tasks/{id}/plan-proposals/{proposal_id}/apply": {
+      "post": {
+        "operationId": "applyPlanProposal",
+        "summary": "Record approved proposal intent",
+        "tags": ["Tasks", "Models"],
+        "x-implementation-stage": "P0-17",
+        "x-feature-enabled-in-p0": false,
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "name": "proposal_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/PlanApplyRequest" } } } },
+        "responses": {
+          "202": { "description": "Approved legacy intent recorded in the application ledger; creates no work item, execution, permit or claim. Explicit materialize is the separate proposal-mode execution command.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/runtimes/{id}/heartbeats": {
+      "post": {
+        "operationId": "postRuntimeHeartbeat",
+        "summary": "Post runtime heartbeat",
+        "tags": ["Runtime"],
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/common.json#/HeartbeatRequest" } } } },
+        "responses": {
+          "202": { "description": "Monotonic runtime liveness/capability projection accepted.", "content": { "application/json": { "schema": { "$ref": "./schemas/tasks.json#/HeartbeatEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/observations/{event_id}": {
+      "put": {
+        "operationId": "putObservation",
+        "summary": "Put observation",
+        "tags": ["Runtime"],
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "name": "event_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/Observation" } } } },
+        "responses": {
+          "202": { "description": "Durably accepted into inbox. Not a claim that the reducer has applied it.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ObservationEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/executions/{id}/dispatch-permit": {
+      "post": {
+        "operationId": "issueDispatchPermit",
+        "summary": "Issue dispatch permit",
+        "tags": ["Runtime", "Bridge"],
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }, { "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/DispatchPermitRequest" } } } },
+        "responses": {
+          "200": { "description": "Stable one-time permit; a duplicate request cannot extend expiry or issue another permit.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/DispatchPermitEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/chat-triggers": {
+      "post": {
+        "operationId": "registerChatTrigger",
+        "summary": "Register chat trigger",
+        "tags": ["Runtime", "Chat"],
+        "x-implementation-stage": "P0-15",
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatTriggerRequest" } } } },
+        "responses": {
+          "201": { "description": "New durable trigger, or an exact replay returning the stored trigger with 200 instead of 201.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatTriggerEnvelope" } } } },
+          "200": { "description": "Exact idempotent replay of an existing trigger; no identity or deadline was changed.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatTriggerEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/chat-context": {
+      "get": {
+        "operationId": "getChatContext",
+        "summary": "Get chat context",
+        "tags": ["Runtime", "Chat"],
+        "x-implementation-stage": "P0-15",
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AccountIdQuery" },
+          { "$ref": "#/components/parameters/ConversationKindQuery" },
+          { "$ref": "#/components/parameters/ConversationIdQuery" }
+        ],
+        "responses": {
+          "200": { "description": "Account self-id, group active-speaker lease or private binding epoch, chat policy and managed self-id deny list.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatContextEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/group-summaries": {
+      "post": {
+        "operationId": "ingestGroupSummary",
+        "summary": "Store one group summary version",
+        "tags": ["Runtime", "Summaries"],
+        "security": [{ "RuntimeCredential": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/GroupSummaryIngestRequest" } } },
+          "description": "Idempotency identity is account plus summary_id plus the payload digest; no Idempotency-Key header is read on this route. The runtime credential must carry a workspace, runtime id and owner epoch, and the account must be in its scope."
+        },
+        "responses": {
+          "201": { "description": "New immutable Summary version stored for the caller's own account/group.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/GroupSummaryIngestEnvelope" } } } },
+          "200": { "description": "Exact replay: same summary_id and payload digest, so the stored version is returned unchanged. A different payload under the same summary_id is IDEMPOTENCY_CONFLICT.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/GroupSummaryIngestEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/group-context": {
+      "get": {
+        "operationId": "getGroupContext",
+        "summary": "Get read-only group context",
+        "tags": ["Runtime", "Summaries"],
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AccountIdQuery" },
+          { "$ref": "#/components/parameters/GroupIdQuery" },
+          { "$ref": "#/components/parameters/SummaryIdQuery" },
+          { "$ref": "#/components/parameters/SummaryVersionQuery" }
+        ],
+        "responses": {
+          "200": { "description": "Untrusted reference context. The query key set is closed: only account_id, group_id, summary_id and summary_version are accepted, each at most once. With no summary_id the newest live version is projected; with summary_id an exact positive summary_version is required and an unknown or expired version is a 404. No live Summary degrades to the chat-policy projection with privacy_class 'none'.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/GroupContextEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/chat-send-permits": {
+      "post": {
+        "operationId": "issueChatSendPermit",
+        "summary": "Issue chat send permit",
+        "tags": ["Runtime", "Chat"],
+        "x-implementation-stage": "P0-15",
+        "x-feature-enabled-in-p0": true,
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatPermitRequest" } } } },
+        "responses": {
+          "200": { "description": "Short-lived text-only issued permit in a separate chat action family; a duplicate request cannot extend expiry or issue another permit. It grants no task or group-management action.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatPermitEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/chat-send-permits/{permit_id}/consume": {
+      "post": {
+        "operationId": "consumeChatSendPermit",
+        "summary": "Consume chat send permit",
+        "tags": ["Runtime", "Chat"],
+        "x-implementation-stage": "P0-15",
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ChatPermitId" }, { "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatPermitConsumeRequest" } } } },
+        "responses": {
+          "200": { "description": "Permit consumed exactly once; caller may perform at most one adapter call with the permitted text. A second consume is rejected.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatPermitEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/internal/chat-send-permits/{permit_id}/outcome": {
+      "post": {
+        "operationId": "recordChatSendOutcome",
+        "summary": "Record chat send outcome",
+        "tags": ["Runtime", "Chat"],
+        "x-implementation-stage": "P0-15",
+        "security": [{ "RuntimeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ChatPermitId" }, { "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatSendOutcomeRequest" } } } },
+        "responses": {
+          "201": { "description": "Delivery outcome recorded once. sent may carry the adapter message id or null when the adapter returns no receipt; unknown is terminal and is never resent.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatSendOutcomeEnvelope" } } } },
+          "200": { "description": "Exact outcome replay; the stored outcome is returned unchanged.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatSendOutcomeEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/chat-policy": {
+      "put": {
+        "operationId": "setChatPolicy",
+        "summary": "Set account chat policy",
+        "tags": ["Accounts", "Chat"],
+        "x-implementation-stage": "P0-15",
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ChatAccountId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatPolicyRequest" } } } },
+        "responses": {
+          "200": { "description": "Current trusted chat policy for the account; enabling chat never authorizes a specific send.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ChatPolicyEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/groups/{group_id}/speaker-lease": {
+      "put": {
+        "operationId": "setSpeakerLease",
+        "summary": "Set group active speaker lease",
+        "tags": ["Chat"],
+        "x-implementation-stage": "P0-15",
+        "security": [{ "OperatorSession": [], "CsrfHeader": [] }, { "OperatorBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ChatGroupId" }, { "$ref": "#/components/parameters/IdempotencyKey" }, { "$ref": "#/components/parameters/CsrfToken" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/GroupSpeakerLeaseRequest" } } } },
+        "responses": {
+          "200": { "description": "Trusted active-speaker lease. Speaker changes must advance the binding epoch; no send is authorized by this call.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/GroupSpeakerLeaseEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/executions/{operation_id}": {
+      "put": {
+        "operationId": "putBridgeOperation",
+        "summary": "Put bridge operation",
+        "tags": ["Bridge"],
+        "security": [{ "BridgeCredential": [] }],
+        "parameters": [{ "name": "operation_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ExecutionRequest" } } } },
+        "responses": {
+          "202": { "description": "Durably accepted operation; same ID and digest return the existing state, never redispatch.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/OperationEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      },
+      "get": {
+        "operationId": "getBridgeOperation",
+        "summary": "Get bridge operation",
+        "tags": ["Bridge"],
+        "security": [{ "BridgeCredential": [] }],
+        "parameters": [{ "name": "operation_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } }],
+        "responses": {
+          "200": { "description": "Persistent operation ledger state. Missing in-memory state never authorizes a resend.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/OperationEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/observations/query": {
+      "post": {
+        "operationId": "queryExternalObservations",
+        "summary": "Query external observations",
+        "tags": ["Bridge"],
+        "security": [{ "BridgeCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ObservationQueryRequest" } } } },
+        "responses": {
+          "200": { "description": "Bounded read-only external fact lookup; must not repeat the original write.", "content": { "application/json": { "schema": { "$ref": "./schemas/bridge.json#/ObservationQueryEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/v1/model-requests": {
+      "post": {
+        "operationId": "createModelRequest",
+        "summary": "Create model request",
+        "tags": ["Models"],
+        "x-implementation-stage": "P0-17",
+        "x-feature-enabled-in-p0": false,
+        "security": [{ "ModelWorkloadCredential": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/ModelRequest" } } } },
+        "responses": {
+          "202": { "description": "Bounded model request accepted; model output has no inherited service permission.", "content": { "application/json": { "schema": { "$ref": "./schemas/models.json#/ModelEnvelope" } } } },
+          "default": { "$ref": "#/components/responses/ContractError" }
+        }
+      }
+    },
+    "/api/Plugin/ext/napcat-plugin-cleaner/search-group": {
+      "post": {
+        "operationId": "searchNapCatGroups",
+        "summary": "Search plugin groups",
+        "tags": ["NapCat Plugin"],
+        "x-implementation-stage": "P0-12",
+        "x-feature-enabled-in-p0": false,
+        "x-origin-policy": "Configured NapCat WebUI origin; loopback or approved private network only. Server-side bridge calls only; never browser-direct.",
+        "security": [{ "NapCatWebUICredential": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/plugin.json#/PluginSearchRequest" } } } },
+        "responses": {
+          "200": { "description": "One bounded search response. This plugin endpoint has no cursor; it is not the strict acquire default provider.", "content": { "application/json": { "schema": { "$ref": "./schemas/plugin.json#/PluginSearchResponse" } } } },
+          "default": { "description": "WebUI authentication or plugin failure; response bodies are not membership evidence." }
+        }
+      }
+    },
+    "/api/Plugin/ext/napcat-plugin-cleaner/join-group": {
+      "post": {
+        "operationId": "requestNapCatGroupJoin",
+        "summary": "Request plugin group join",
+        "tags": ["NapCat Plugin"],
+        "x-implementation-stage": "P0-13",
+        "x-feature-enabled-in-p0": false,
+        "x-live-qq-approval-required": true,
+        "x-origin-policy": "Configured NapCat WebUI origin; loopback or approved private network only. Server-side bridge calls only; never browser-direct.",
+        "security": [{ "NapCatWebUICredential": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas/plugin.json#/PluginJoinRequest" } } } },
+        "responses": {
+          "200": { "description": "One adapter response. submitted/pending/unknown do not confirm membership. Ambiguous transport outcome is never replayed.", "content": { "application/json": { "schema": { "$ref": "./schemas/plugin.json#/PluginJoinResponse" } } } },
+          "default": { "description": "WebUI authentication or plugin failure; any post-dispatch ambiguity must be recorded unknown." }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MaterializeRequest": {"$ref":"./schemas/product.json#/MaterializeRequest"},
+      "OperatorRuntimeEnvelope": { "$ref": "./schemas/runtime.json#/OperatorRuntimeEnvelope" },
+      "OperatorRuntime": { "$ref": "./schemas/runtime.json#/OperatorRuntime" },
+      "RuntimeMeta": { "$ref": "./schemas/runtime.json#/RuntimeMeta" },
+      "GraphSyncProviderStatus": {"$ref":"./schemas/graph.json#/GraphSyncProviderStatus"},
+      "GraphSyncError": {"$ref":"./schemas/graph.json#/GraphSyncError"},
+      "GraphSyncCheckpoint": {"$ref":"./schemas/graph.json#/GraphSyncCheckpoint"},
+      "GraphSyncGraphStatus": {"$ref":"./schemas/graph.json#/GraphSyncGraphStatus"},
+      "GraphSyncStatus": {"$ref":"./schemas/graph.json#/GraphSyncStatus"},
+      "GraphSyncStatusEnvelope": {"$ref":"./schemas/graph.json#/GraphSyncStatusEnvelope"},
+      "GroupContextReportEnvelope": { "$ref": "./schemas/models.json#/GroupContextEnvelope" },
+      "GraphRootRequest": {"$ref":"./schemas/graph.json#/GraphRootRequest"},
+      "GraphPlanSummaryRef": {"$ref":"./schemas/graph.json#/GraphPlanSummaryRef"},
+      "GraphPlanCandidate": {"$ref":"./schemas/graph.json#/GraphPlanCandidate"},
+      "GraphPlanningSnapshot": {"$ref":"./schemas/graph.json#/GraphPlanningSnapshot"},
+      "GraphPlanningSnapshotEnvelope": {"$ref":"./schemas/graph.json#/GraphPlanningSnapshotEnvelope"},
+      "GraphPlanningSnapshotList": {"$ref":"./schemas/graph.json#/GraphPlanningSnapshotList"},
+      "GraphPlanningSnapshotListEnvelope": {"$ref":"./schemas/graph.json#/GraphPlanningSnapshotListEnvelope"},
+      "GraphSyncReconcileRequest": {"$ref":"./schemas/graph.json#/GraphSyncReconcileRequest"},
+      "GraphSyncOutboxItem": {"$ref":"./schemas/graph.json#/GraphSyncOutboxItem"},
+      "GraphSyncOutboxItemEnvelope": {"$ref":"./schemas/graph.json#/GraphSyncOutboxItemEnvelope"},
+      "WorkItemAttemptView": {"$ref":"./schemas/product.json#/WorkItemAttemptView"},
+      "LoginSessionState": { "$ref": "./schemas/login.json#/LoginSessionState" },
+      "LoginSessionFailureReason": { "$ref": "./schemas/login.json#/LoginSessionFailureReason" },
+      "LoginSessionNextAction": { "$ref": "./schemas/login.json#/LoginSessionNextAction" },
+      "LoginProviderMode": { "$ref": "./schemas/login.json#/LoginProviderMode" },
+      "LoginStatus": { "$ref": "./schemas/login.json#/LoginStatus" },
+      "LoginStatusEnvelope": { "$ref": "./schemas/login.json#/LoginStatusEnvelope" },
+      "LoginGenerationRequest": { "$ref": "./schemas/login.json#/LoginGenerationRequest" },
+      "LoginSessionIdentity": { "$ref": "./schemas/login.json#/LoginSessionIdentity" },
+      "LoginSessionProjection": { "$ref": "./schemas/login.json#/LoginSessionProjection" },
+      "LoginSession": { "$ref": "./schemas/login.json#/LoginSession" },
+      "LoginSessionPage": { "$ref": "./schemas/login.json#/LoginSessionPage" },
+      "LoginSessionEnvelope": { "$ref": "./schemas/login.json#/LoginSessionEnvelope" },
+      "LoginSessionPageEnvelope": { "$ref": "./schemas/login.json#/LoginSessionPageEnvelope" },
+      "OrchestrationMode": { "$ref": "./schemas/tasks.json#/OrchestrationMode" },
+      "OrchestrationModeRequest": { "$ref": "./schemas/product.json#/OrchestrationModeRequest" },
+      "WorkItemView": { "$ref": "./schemas/product.json#/WorkItemView" },
+      "WorkItemPageEnvelope": { "$ref": "./schemas/product.json#/WorkItemPageEnvelope" },
+      "Id": { "$ref": "./schemas/common.json#/Id" },
+      "QQId": { "$ref": "./schemas/common.json#/QQId" },
+      "DecimalSequence": { "$ref": "./schemas/common.json#/DecimalSequence" },
+      "Digest": { "$ref": "./schemas/common.json#/Digest" },
+      "UTCDateTime": { "$ref": "./schemas/common.json#/UTCDateTime" },
+      "RequestMeta": { "$ref": "./schemas/common.json#/RequestMeta" },
+      "Error": { "$ref": "./schemas/common.json#/Error" },
+      "ErrorEnvelope": { "$ref": "./schemas/common.json#/ErrorEnvelope" },
+      "Target": { "$ref": "./schemas/common.json#/Target" },
+      "Pagination": { "$ref": "./schemas/common.json#/Pagination" },
+      "Receipt": { "$ref": "./schemas/common.json#/Receipt" },
+      "Account": { "$ref": "./schemas/common.json#/Account" },
+      "AccountIdentityStatus": { "$ref": "./schemas/common.json#/AccountIdentityStatus" },
+      "AccountIdentitySource": { "$ref": "./schemas/common.json#/AccountIdentitySource" },
+      "AccountIdentity": { "$ref": "./schemas/common.json#/AccountIdentity" },
+      "AccountIdentityPage": { "$ref": "./schemas/common.json#/AccountIdentityPage" },
+      "CapabilityAction": { "$ref": "./schemas/common.json#/CapabilityAction" },
+      "Capability": { "$ref": "./schemas/common.json#/Capability" },
+      "CapabilityPage": { "$ref": "./schemas/common.json#/CapabilityPage" },
+      "AccountControlRequest": { "$ref": "./schemas/common.json#/AccountControlRequest" },
+      "TaskControlRequest": { "$ref": "./schemas/common.json#/TaskControlRequest" },
+      "VersionRequest": { "$ref": "./schemas/common.json#/VersionRequest" },
+      "ReconcileRequest": { "$ref": "./schemas/common.json#/ReconcileRequest" },
+      "HeartbeatRequest": { "$ref": "./schemas/common.json#/HeartbeatRequest" },
+      "HeartbeatReceipt": { "$ref": "./schemas/common.json#/HeartbeatReceipt" },
+      "TaskState": { "$ref": "./schemas/tasks.json#/TaskState" },
+      "ExecutionMode": { "$ref": "./schemas/tasks.json#/ExecutionMode" },
+      "Goal": { "$ref": "./schemas/tasks.json#/Goal" },
+      "FixedCandidate": { "$ref": "./schemas/tasks.json#/FixedCandidate" },
+      "CandidateSource": { "$ref": "./schemas/tasks.json#/CandidateSource" },
+      "TaskLimits": { "$ref": "./schemas/tasks.json#/TaskLimits" },
+      "CreateTaskRequest": { "$ref": "./schemas/tasks.json#/CreateTaskRequest" },
+      "Task": { "$ref": "./schemas/tasks.json#/Task" },
+      "Subtask": { "$ref": "./schemas/tasks.json#/Subtask" },
+      "SubtaskPage": { "$ref": "./schemas/tasks.json#/SubtaskPage" },
+      "Result": { "$ref": "./schemas/tasks.json#/Result" },
+      "ResultPage": { "$ref": "./schemas/tasks.json#/ResultPage" },
+      "TaskEvent": { "$ref": "./schemas/tasks.json#/TaskEvent" },
+      "TaskEventPage": { "$ref": "./schemas/tasks.json#/TaskEventPage" },
+      "TaskEnvelope": { "$ref": "./schemas/tasks.json#/TaskEnvelope" },
+      "ReceiptEnvelope": { "$ref": "./schemas/tasks.json#/ReceiptEnvelope" },
+      "AccountPageEnvelope": { "$ref": "./schemas/tasks.json#/AccountPageEnvelope" },
+      "CapabilityPageEnvelope": { "$ref": "./schemas/tasks.json#/CapabilityPageEnvelope" },
+      "SubtaskPageEnvelope": { "$ref": "./schemas/tasks.json#/SubtaskPageEnvelope" },
+      "ResultPageEnvelope": { "$ref": "./schemas/tasks.json#/ResultPageEnvelope" },
+      "TaskEventPageEnvelope": { "$ref": "./schemas/tasks.json#/TaskEventPageEnvelope" },
+      "HeartbeatEnvelope": { "$ref": "./schemas/tasks.json#/HeartbeatEnvelope" },
+      "Action": { "$ref": "./schemas/bridge.json#/Action" },
+      "EffectCertainty": { "$ref": "./schemas/bridge.json#/EffectCertainty" },
+      "Disposition": { "$ref": "./schemas/bridge.json#/Disposition" },
+      "ExecutionState": { "$ref": "./schemas/bridge.json#/ExecutionState" },
+      "JoinParams": { "$ref": "./schemas/bridge.json#/JoinParams" },
+      "SearchParams": { "$ref": "./schemas/bridge.json#/SearchParams" },
+      "MembershipParams": { "$ref": "./schemas/bridge.json#/MembershipParams" },
+      "JoinObservationParams": { "$ref": "./schemas/bridge.json#/JoinObservationParams" },
+      "SendTextParams": { "$ref": "./schemas/bridge.json#/SendTextParams" },
+      "ExecutionRequest": { "$ref": "./schemas/bridge.json#/ExecutionRequest" },
+      "Operation": { "$ref": "./schemas/bridge.json#/Operation" },
+      "OperationEnvelope": { "$ref": "./schemas/bridge.json#/OperationEnvelope" },
+      "Observation": { "$ref": "./schemas/bridge.json#/Observation" },
+      "ObservationReceipt": { "$ref": "./schemas/bridge.json#/ObservationReceipt" },
+      "ObservationEnvelope": { "$ref": "./schemas/bridge.json#/ObservationEnvelope" },
+      "ObservationQueryRequest": { "$ref": "./schemas/bridge.json#/ObservationQueryRequest" },
+      "ObservationQueryResult": { "$ref": "./schemas/bridge.json#/ObservationQueryResult" },
+      "ObservationQueryEnvelope": { "$ref": "./schemas/bridge.json#/ObservationQueryEnvelope" },
+      "DispatchPermitRequest": { "$ref": "./schemas/bridge.json#/DispatchPermitRequest" },
+      "DispatchPermit": { "$ref": "./schemas/bridge.json#/DispatchPermit" },
+      "DispatchPermitEnvelope": { "$ref": "./schemas/bridge.json#/DispatchPermitEnvelope" },
+      "ChatPermitRequest": { "$ref": "./schemas/bridge.json#/ChatPermitRequest" },
+      "ChatPermit": { "$ref": "./schemas/bridge.json#/ChatPermit" },
+      "ChatPermitEnvelope": { "$ref": "./schemas/bridge.json#/ChatPermitEnvelope" },
+      "ChatTriggerRequest": { "$ref": "./schemas/bridge.json#/ChatTriggerRequest" },
+      "ChatTrigger": { "$ref": "./schemas/bridge.json#/ChatTrigger" },
+      "ChatTriggerEnvelope": { "$ref": "./schemas/bridge.json#/ChatTriggerEnvelope" },
+      "ChatContext": { "$ref": "./schemas/bridge.json#/ChatContext" },
+      "ChatContextEnvelope": { "$ref": "./schemas/bridge.json#/ChatContextEnvelope" },
+      "ChatPolicyRequest": { "$ref": "./schemas/bridge.json#/ChatPolicyRequest" },
+      "ChatPolicy": { "$ref": "./schemas/bridge.json#/ChatPolicy" },
+      "ChatPolicyEnvelope": { "$ref": "./schemas/bridge.json#/ChatPolicyEnvelope" },
+      "GroupSpeakerLeaseRequest": { "$ref": "./schemas/bridge.json#/GroupSpeakerLeaseRequest" },
+      "GroupSpeakerLease": { "$ref": "./schemas/bridge.json#/GroupSpeakerLease" },
+      "GroupSpeakerLeaseEnvelope": { "$ref": "./schemas/bridge.json#/GroupSpeakerLeaseEnvelope" },
+      "ChatPermitConsumeRequest": { "$ref": "./schemas/bridge.json#/ChatPermitConsumeRequest" },
+      "ChatSendOutcomeRequest": { "$ref": "./schemas/bridge.json#/ChatSendOutcomeRequest" },
+      "ChatSendOutcome": { "$ref": "./schemas/bridge.json#/ChatSendOutcome" },
+      "ChatSendOutcomeEnvelope": { "$ref": "./schemas/bridge.json#/ChatSendOutcomeEnvelope" },
+      "PlanProposalRequest": { "$ref": "./schemas/models.json#/PlanProposalRequest" },
+      "PlanApplyRequest": { "$ref": "./schemas/models.json#/PlanApplyRequest" },
+      "PlanStep": { "$ref": "./schemas/models.json#/PlanStep" },
+      "PlanProposal": { "$ref": "./schemas/models.json#/PlanProposal" },
+      "IntentDraft": { "$ref": "./schemas/models.json#/IntentDraft" },
+      "Summary": { "$ref": "./schemas/models.json#/Summary" },
+      "ModelRequest": { "$ref": "./schemas/models.json#/ModelRequest" },
+      "ModelResponse": { "$ref": "./schemas/models.json#/ModelResponse" },
+      "ModelEnvelope": { "$ref": "./schemas/models.json#/ModelEnvelope" },
+      "GroupSummaryIngestRequest": { "$ref": "./schemas/models.json#/GroupSummaryIngestRequest" },
+      "GroupSummaryIngestResponse": { "$ref": "./schemas/models.json#/GroupSummaryIngestResponse" },
+      "GroupSummaryIngestEnvelope": { "$ref": "./schemas/models.json#/GroupSummaryIngestEnvelope" },
+      "GroupContextTopic": { "$ref": "./schemas/models.json#/GroupContextTopic" },
+      "GroupContext": { "$ref": "./schemas/models.json#/GroupContext" },
+      "GroupContextEnvelope": { "$ref": "./schemas/models.json#/GroupContextEnvelope" },
+      "PlanProposalApprovalRequest": { "$ref": "./schemas/models.json#/PlanProposalApprovalRequest" },
+      "PlanProposalApprovalReceipt": { "$ref": "./schemas/models.json#/PlanProposalApprovalReceipt" },
+      "PlanProposalApprovalEnvelope": { "$ref": "./schemas/models.json#/PlanProposalApprovalEnvelope" },
+      "PlanProposalView": { "$ref": "./schemas/models.json#/PlanProposalView" },
+      "PlanProposalBasis": { "$ref": "./schemas/models.json#/PlanProposalBasis" },
+      "PlanProposalEnvelope": { "$ref": "./schemas/models.json#/PlanProposalEnvelope" },
+      "TaskGraphAnchor": { "$ref": "./schemas/models.json#/TaskGraphAnchor" },
+      "TaskGraphNode": { "$ref": "./schemas/models.json#/TaskGraphNode" },
+      "TaskGraphFact": { "$ref": "./schemas/models.json#/TaskGraphFact" },
+      "TaskGraphEdge": { "$ref": "./schemas/models.json#/TaskGraphEdge" },
+      "TaskGraph": { "$ref": "./schemas/models.json#/TaskGraph" },
+      "TaskGraphEnvelope": { "$ref": "./schemas/models.json#/TaskGraphEnvelope" },
+      "PluginSearchRequest": { "$ref": "./schemas/plugin.json#/PluginSearchRequest" },
+      "PluginGroup": { "$ref": "./schemas/plugin.json#/PluginGroup" },
+      "PluginSearchResponse": { "$ref": "./schemas/plugin.json#/PluginSearchResponse" },
+      "PluginJoinRequest": { "$ref": "./schemas/plugin.json#/PluginJoinRequest" },
+      "PluginJoinResponse": { "$ref": "./schemas/plugin.json#/PluginJoinResponse" }
+    },
+    "securitySchemes": {
+      "OperatorSession": { "type": "apiKey", "in": "cookie", "name": "artex_token", "description": "Existing console operator session cookie; HttpOnly, Secure, SameSite. Browser mutations additionally require X-CSRF-Token. QQ login is a separate backend-proxied control plane; this cookie contains no NapCat credential." },
+      "OperatorBearer": { "type": "http", "scheme": "bearer", "bearerFormat": "opaque", "description": "Trusted CLI operator authentication; never send credentials in query strings." },
+      "TaskEntryCredential": { "type": "http", "scheme": "bearer", "bearerFormat": "opaque", "description": "Per-runtime task-entry service identity. Permitted only for task creation, current task status, and pause/cancel. Every request must include the originating QQ account ID and sender ID from the authenticated platform event; the Task Engine verifies the runtime/account binding and configured sender-to-principal/account mapping. It grants no account administration, capability enumeration, reconciliation, result/evidence access, plan access, start/resume, or QQ action authority." },
+      "CsrfHeader": { "type": "apiKey", "in": "header", "name": "X-CSRF-Token", "description": "Required in conjunction with OperatorSession on every browser mutation; validated against the operator session by the backend." },
+      "RuntimeCredential": { "type": "http", "scheme": "bearer", "bearerFormat": "opaque", "description": "Per-runtime service credential, bound to assigned account/workspace and owner epoch." },
+      "BridgeCredential": { "type": "http", "scheme": "bearer", "bearerFormat": "opaque", "description": "Per-bridge service credential, bound to runtime/account and allowed action family." },
+      "ModelWorkloadCredential": { "type": "http", "scheme": "bearer", "bearerFormat": "opaque", "description": "Workload identity with model operation and budget scope; cannot invoke QQ writes." },
+      "NapCatWebUICredential": { "type": "http", "scheme": "bearer", "bearerFormat": "opaque", "description": "Short-lived credential exchanged server-side from the NapCat WebUI token. Secrets must never enter browser storage, model context, or ordinary logs." }
+    },
+    "parameters": {
+      "ResourceId": { "name": "id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } },
+      "Cursor": { "name": "cursor", "in": "query", "required": false, "schema": { "type": "string", "minLength": 1, "maxLength": 512 } },
+      "Limit": { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 } },
+      "TaskEntryAccount": { "name": "X-QQ-Account-ID", "in": "header", "required": false, "x-required-with-security": "TaskEntryCredential", "description": "Required with TaskEntryCredential. The task-entry runtime inserts the QQ account that received the authenticated platform event; clients cannot supply this as command text. Backend verifies it belongs to the calling runtime and allowed task scope.", "schema": { "$ref": "./schemas/common.json#/QQId" } },
+      "TaskEntrySender": { "name": "X-QQ-Sender-ID", "in": "header", "required": false, "x-required-with-security": "TaskEntryCredential", "description": "Required with TaskEntryCredential. The task-entry runtime inserts the sender ID from authenticated event context; backend verifies its configured principal/account mapping and never trusts a nickname.", "schema": { "$ref": "./schemas/common.json#/QQId" } },
+      "IdempotencyKey": { "name": "Idempotency-Key", "in": "header", "required": true, "schema": { "type": "string", "minLength": 1, "maxLength": 128 } },
+      "CsrfToken": { "name": "X-CSRF-Token", "in": "header", "required": false, "description": "Required with cookie-authenticated browser mutations; not required for bearer-authenticated CLI or machine calls.", "schema": { "type": "string", "minLength": 16, "maxLength": 512 } },
+      "ChatPermitId": { "name": "permit_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } },
+      "ChatAccountId": { "name": "account_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } },
+      "ChatGroupId": { "name": "group_id", "in": "path", "required": true, "schema": { "$ref": "./schemas/common.json#/QQId" } },
+      "AccountIdQuery": { "name": "account_id", "in": "query", "required": true, "schema": { "$ref": "./schemas/common.json#/Id" } },
+      "ConversationKindQuery": { "name": "conversation_kind", "in": "query", "required": true, "schema": { "type": "string", "enum": ["group", "private"] } },
+      "ConversationIdQuery": { "name": "conversation_id", "in": "query", "required": true, "schema": { "$ref": "./schemas/common.json#/QQId" } },
+      "GroupIdQuery": { "name": "group_id", "in": "query", "required": true, "schema": { "$ref": "./schemas/common.json#/QQId" } },
+      "SummaryIdQuery": { "name": "summary_id", "in": "query", "required": false, "description": "Exact stored Summary.v1 id, 64 lowercase hex characters. Omit to read the newest live version for the account/group.", "schema": { "type": "string", "pattern": "^[0-9a-f]{64}$", "maxLength": 64 } },
+      "SummaryVersionQuery": { "name": "summary_version", "in": "query", "required": false, "description": "Exact stored version number. Required together with summary_id and must be positive; supplying it without summary_id is a validation error, never an implicit newest-version read.", "schema": { "type": "integer", "minimum": 1 } }
+    },
+    "responses": {
+      "ContractError": { "description": "Contract error; retryable describes delivery of the same idempotent HTTP request only and never authorizes replay of a QQ action.", "content": { "application/json": { "schema": { "$ref": "./schemas/common.json#/ErrorEnvelope" } } } }
+    }
+  }
+}
