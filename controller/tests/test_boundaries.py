@@ -15,7 +15,7 @@ class BoundaryTests(unittest.IsolatedAsyncioTestCase):
             root = Path(tmp)
             repo, sha = fixture(root)
             store = Store(root/'state'/'controller.sqlite3')
-            task = store.submit({'kind':'simulation','base_sha':sha,'write_set':['src']})
+            task = store.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src']})
             observer = Controller(Settings(root/'state',repo))
             try:
                 result = await observer.call('bba_task_cancel',{'task_id':task['id']})
@@ -23,7 +23,7 @@ class BoundaryTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(store.get(task['id'])['state'],'QUEUED')
             finally:
                 await observer.close()
-            spec = {'kind':'simulation','base_sha':sha,'write_set':[str(n)+'x'*254 for n in range(32)]}
+            spec = {'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':[str(n)+'x'*254 for n in range(32)]}
             original = store.submit(spec)
             self.assertEqual(original['spec'], spec)
 
@@ -35,7 +35,7 @@ class BoundaryTests(unittest.IsolatedAsyncioTestCase):
             try:
                 ids = []
                 for writes in (['src'],['docs']):
-                    r = await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'write_set':writes,'behavior':'cancel'})
+                    r = await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':writes,'behavior':'cancel'})
                     ids.append(r['data']['task']['id'])
                 for _ in range(150):
                     if all(c.store.latest_session(t) for t in ids): break

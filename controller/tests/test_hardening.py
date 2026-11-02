@@ -28,7 +28,7 @@ class HardeningTests(unittest.IsolatedAsyncioTestCase):
             c = Controller(settings)
             try:
                 with self.assertRaises(Conflict): Controller(settings)
-                r = await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'write_set':['src'],'rework_failures':3})
+                r = await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src'],'rework_failures':3})
                 tid = r['data']['task']['id']
                 result = await c.call('bba_task_wait',{'task_id':tid,'timeout_ms':1000})
                 self.assertEqual(result['data']['task']['state'],'PAUSED')

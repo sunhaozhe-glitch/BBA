@@ -16,7 +16,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
             repo, sha = fixture(root)
             state = root/'state'
             s = Store(state/'controller.sqlite3')
-            t = s.submit({'kind':'simulation','base_sha':sha,'write_set':['src']})
+            t = s.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src']})
             s.claim(t['id'])
             c = Controller(Settings(state,repo,fixture_authorized=True))
             try:
@@ -37,7 +37,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
             repo, sha = fixture(root)
             state = root/'state'
             s = Store(state/'controller.sqlite3')
-            task = s.submit({'kind':'simulation','base_sha':sha,'write_set':['src']})
+            task = s.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src']})
             c = Controller(Settings(state,repo))
             try:
                 await c.call('bba_task_list',{})

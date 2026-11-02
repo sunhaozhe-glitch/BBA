@@ -38,7 +38,7 @@ PYTHONPATH=controller/src python3 -m bba_controller \
 
 | 工具 | 输入 | 成功 data |
 |---|---|---|
-| bba_task_submit | kind=simulation、base_sha；可选 write_set、dependencies、behavior、rework_failures、model_policy_ref | task |
+| bba_task_submit | request_id、kind=simulation、base_sha；可选 write_set、dependencies、behavior、rework_failures、model_policy_ref | task |
 | bba_task_status | task_id | task |
 | bba_task_wait | task_id、timeout_ms 0..1000 | task、timed_out |
 | bba_task_cancel | task_id | task |
@@ -49,6 +49,12 @@ PYTHONPATH=controller/src python3 -m bba_controller \
 任务 ID 为 32 位小写十六进制，base SHA 为 40 位小写十六进制。工具不接受 repo、prompt、argv、mode、模型或授权参数。write_set 只能是规范相对路径；拒绝绝对路径、父目录、.git、symlink、控制字符和 shell 特殊字符。未知写集 null/省略阻止所有重叠执行；空数组代表明确无写集。依赖必须已经存在且全部 SUCCEEDED 才可领取。只有相同任务 ID 才能访问相应记录；本地进程授权覆盖其整个状态库，不实现多租户认证。
 
 错误码：INVALID_ARGUMENT（schema）、PERMISSION_DENIED（启动权限/路径）、NOT_FOUND（任务/工具）、CONFLICT（状态/CAS/配额/owner）、LIMIT_EXCEEDED（请求或结果字节/并发）、UNKNOWN（传输不确定）、INTERNAL_ERROR（安全通用错误，不回显原始 payload）。没有自动 retry。
+
+## NO SHIP 修复合同
+
+submit 必填 request_id（1–128 位 ASCII 字母数字及 _ . : -，首位字母数字）。同一状态库内同 ID 同参数返回原任务，同 ID 异参数返回 CONFLICT；不同 ID 可创建相同内容任务。丢响应重试必须保留原 ID。请求身份、参数摘要与 task 在同一 SQLite 事务提交；摘要只检测冲突，不作为去重身份。旧任务仍可查询，不自动补造请求身份。
+
+模拟器通过统一 Supervisor 固定为可信绝对脚本，以 Python -I -S 启动，正常与恢复均不从 worktree 导入包或 sitecustomize。Git 只接受最小仓库配置白名单，危险或未知 local 配置拒绝，local bare origin 同样检查。启动路径先拒绝 symlink 再规范化，state/worktree 与保护仓库必须互不包含。详细取舍与回归覆盖见 docs/no-ship-remediation.md；原历史自测记录不代表本修复已完成独审或 CI。
 
 ## 状态机和恢复
 

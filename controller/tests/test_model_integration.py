@@ -18,7 +18,7 @@ class ModelIntegrationTests(unittest.IsolatedAsyncioTestCase):
             c=Controller(Settings(root/'state',repo,fixture_authorized=True,model_config=config))
             try:
                 for ref,expected in [('simulation-default@1','mock-local-builder'),('review-only@1','mock-local-reviewer')]:
-                    result=await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'write_set':['src'],'model_policy_ref':ref})
+                    result=await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src'],'model_policy_ref':ref})
                     tid=result['data']['task']['id']
                     result=await c.call('bba_task_wait',{'task_id':tid,'timeout_ms':1000})
                     self.assertEqual(result['data']['task']['state'],'SUCCEEDED')
@@ -27,9 +27,9 @@ class ModelIntegrationTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(evidence['calls'][0]['outcome'],'SUCCEEDED')
                     self.assertEqual(evidence['budget']['spent_units'],1)
                     self.assertEqual(evidence['snapshot']['policy']['id'],ref.split('@')[0])
-                denied=await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'model_policy_ref':'advanced@1'})
+                denied=await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'model_policy_ref':'advanced@1'})
                 self.assertEqual(denied['error']['code'],'PERMISSION_DENIED')
-                upgrade=await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'model_budget':9999})
+                upgrade=await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'model_budget':9999})
                 self.assertEqual(upgrade['error']['code'],'INVALID_ARGUMENT')
             finally:
                 await c.close()
@@ -40,7 +40,7 @@ class ModelIntegrationTests(unittest.IsolatedAsyncioTestCase):
             repo,sha=fixture(root)
             c=Controller(Settings(root/'state',repo,fixture_authorized=True))
             try:
-                r=await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'behavior':'hang'})
+                r=await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'behavior':'hang'})
                 tid=r['data']['task']['id']
                 await c.call('bba_task_wait',{'task_id':tid,'timeout_ms':1000})
                 model=(await c.call('bba_task_evidence',{'task_id':tid}))['data']['model']

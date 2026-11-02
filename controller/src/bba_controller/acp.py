@@ -6,6 +6,7 @@ from pathlib import Path
 import signal
 import subprocess
 import threading
+import sys
 
 from .evidence import redact, summary
 from .worktrees import no_symlinks
@@ -47,6 +48,21 @@ class Supervisor:
     def __init__(self, argv, cwd, agent_dir, record, *, simulation=False, metadata_authorized=False, fixture_catalog=None):
         if not simulation and not metadata_authorized:
             raise PermissionError('real ACP startup requires separate startup metadata authority')
+        # Simulation identity is fixed by this installed package, never by cwd.
+        # -I ignores Python environment/cwd; -S prevents site customization.
+        # The peer is a standalone stdlib-only script, so no import bootstrap is needed.
+        if simulation:
+            legacy = [sys.executable, '-m', 'bba_controller.sim_peer']
+            supplied = list(argv)
+            suffix = supplied[len(legacy):]
+            if supplied[:len(legacy)] != legacy or (suffix and
+                    (len(suffix) != 2 or suffix[0] != '--behavior' or
+                     suffix[1] not in {'success','reverse','hang','exit','malformed','overflow','cancel'})):
+                raise PermissionError('unapproved simulation executable')
+            peer_script = no_symlinks(Path(__file__).absolute().parent/'sim_peer.py')
+            if not peer_script.is_file():
+                raise PermissionError('trusted simulation script missing')
+            argv = [sys.executable, '-I', '-S', str(peer_script), *suffix]
         self.simulation = simulation
         self.record_callback = record
         self.cwd = no_symlinks(cwd)

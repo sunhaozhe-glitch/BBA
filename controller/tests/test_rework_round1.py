@@ -27,7 +27,7 @@ class ReworkTests(unittest.IsolatedAsyncioTestCase):
         self.addAsyncCleanup(self.c.close)
 
     async def submit(self, behavior='success', writes=None, **extra):
-        result = await self.c.call('bba_task_submit', {'kind':'simulation', 'base_sha':self.sha,
+        result = await self.c.call('bba_task_submit', {'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex, 'base_sha':self.sha,
                                   'write_set':writes or ['src'], 'behavior':behavior, **extra})
         self.assertTrue(result['ok'], result)
         return result['data']['task']['id']
@@ -90,7 +90,7 @@ class ReworkTests(unittest.IsolatedAsyncioTestCase):
         selected = [e for e in self.c.store.events(tid,limit=1000) if e['kind']=='model_selected']
         self.assertEqual(selected[0]['data']['profile_ref'], 'mock-local-builder@2')
         # Direct API compatibility is accepted only when the name is unambiguous.
-        t = self.c.store.submit({'kind':'simulation','write_set':['unit']}, self.c.models.snapshot())
+        t = self.c.store.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'write_set':['unit']}, self.c.models.snapshot())
         self.c.store.claim(t['id'])
         self.c.store.session(t['id'], 'sim-unit', 'simulation')
         with self.assertRaises(ModelDenied):
@@ -111,7 +111,7 @@ class ReworkTests(unittest.IsolatedAsyncioTestCase):
     async def test_f2_terminal_cleanup_crash_is_reconcilable(self):
         # A terminal outcome persisted before cleanup is still an occupied execution.
         snapshot = self.c.models.snapshot()
-        task = self.c.store.submit({'kind':'simulation','write_set':['crash']},snapshot)
+        task = self.c.store.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'write_set':['crash']},snapshot)
         tid = task['id']
         self.c.store.claim(tid,cleanup_required=True)
         peer = Supervisor([sys.executable,'-m','bba_controller.sim_peer'], self.repo,
@@ -173,7 +173,7 @@ class ReworkTests(unittest.IsolatedAsyncioTestCase):
         original_spawn = subprocess.Popen
         def spawn(*args, **kwargs):
             proc = original_spawn(*args, **kwargs)
-            if '-m' in args[0] and 'bba_controller.sim_peer' in args[0]:
+            if any(str(arg).endswith('/bba_controller/sim_peer.py') for arg in args[0]):
                 spawned.append(proc)
             return proc
         def broken_record(*args):

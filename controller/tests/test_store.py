@@ -19,7 +19,7 @@ class StoreTests(unittest.TestCase):
         self.s = Store(self.db, slots=2)
 
     def task(self, paths=None, deps=None):
-        return self.s.submit({'kind': 'simulation', 'write_set': paths, 'dependencies': deps or []})
+        return self.s.submit({'kind': 'simulation', 'request_id':__import__('uuid').uuid4().hex, 'write_set': paths, 'dependencies': deps or []})
 
     def test_atomic_events_cas_and_duplicate_content(self):
         t = self.task(['src'])

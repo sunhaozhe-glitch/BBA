@@ -25,7 +25,7 @@ class Round2Tests(unittest.IsolatedAsyncioTestCase):
     def owned_peers(self):
         peers = []
         for i in range(2):
-            tid = self.c.store.submit({'kind':'simulation', 'base_sha':self.sha,
+            tid = self.c.store.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex, 'base_sha':self.sha,
                                       'write_set':[str(i)]}, self.c.models.snapshot())['id']
             self.assertTrue(self.c.store.claim(tid, cleanup_required=True))
             peer = Supervisor([sys.executable, '-m', 'bba_controller.sim_peer'], self.repo,
@@ -35,7 +35,7 @@ class Round2Tests(unittest.IsolatedAsyncioTestCase):
         return peers
 
     async def submit(self, **extra):
-        response = await self.c.call('bba_task_submit', {'kind':'simulation', 'base_sha':self.sha,
+        response = await self.c.call('bba_task_submit', {'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex, 'base_sha':self.sha,
                                      'write_set':['task'], **extra})
         self.assertTrue(response['ok'], response)
         return response['data']['task']['id']

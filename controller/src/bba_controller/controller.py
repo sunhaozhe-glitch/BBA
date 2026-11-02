@@ -35,10 +35,12 @@ class Settings:
             raise ValueError('invalid startup mode')
         if self.mode == 'DEVELOPMENT' and not self.development_authorized:
             raise PermissionError('DEVELOPMENT requires startup-side authority')
-        no_symlinks(self.state_dir)
-        no_symlinks(self.repository)
-        if Path(self.state_dir).absolute() == Path(self.repository).absolute() or Path(self.repository).absolute() in Path(self.state_dir).absolute().parents:
-            raise BoundaryError('state must be outside protected repository')
+        state = no_symlinks(self.state_dir)
+        repository = no_symlinks(self.repository)
+        if state == repository or repository in state.parents or state in repository.parents:
+            raise BoundaryError('state and protected repository must be disjoint')
+        object.__setattr__(self, 'state_dir', state)
+        object.__setattr__(self, 'repository', repository)
 
 
 class Controller:
@@ -219,9 +221,13 @@ class Controller:
             if operation == 'submit':
                 if not self.settings.fixture_authorized:
                     return self.error('PERMISSION_DENIED','OBSERVE permits no protected repository writes')
-                self.worktrees.validate_write_set(arguments.get('write_set'))
-                snapshot = self.models.snapshot(arguments.get('model_policy_ref','simulation-default@1'))
-                data = {'task':self.store.submit(arguments,policy_snapshot=snapshot)}
+                previous = self.store.replay_submission(arguments)
+                if previous is not None:
+                    data = {'task':previous}
+                else:
+                    self.worktrees.validate_write_set(arguments.get('write_set'))
+                    snapshot = self.models.snapshot(arguments.get('model_policy_ref','simulation-default@1'))
+                    data = {'task':self.store.submit(arguments,policy_snapshot=snapshot)}
             elif operation == 'list':
                 limit, offset = arguments.get('limit',50), arguments.get('offset',0)
                 tasks = self.store.list(limit+1, offset)
