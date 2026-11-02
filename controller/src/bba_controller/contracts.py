@@ -23,7 +23,7 @@ OUTPUT = {'$schema':'https://json-schema.org/draft/2020-12/schema','type':'objec
     obj({'ok':{'const':False},'error':obj({'code':{'enum':ERROR_CODES},'message':{'type':'string','maxLength':256}}, ['code','message'])}, ['ok','error'])]}
 
 TOOLS = {
-    'bba_task_submit': obj({'request_id':{'type':'string','pattern':'^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$'},'kind':{'const':'simulation'},'base_sha':SHA,'write_set':{'anyOf':[{'type':'null'},{'type':'array','maxItems':32,'uniqueItems':True,'items':{'type':'string','maxLength':256}}]},
+    'bba_task_submit': obj({'request_id':{'type':'string','pattern':'^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$','not':{'pattern':'[^A-Za-z0-9_.:-]'}},'kind':{'const':'simulation'},'base_sha':SHA,'write_set':{'anyOf':[{'type':'null'},{'type':'array','maxItems':32,'uniqueItems':True,'items':{'type':'string','maxLength':256}}]},
                             'dependencies':{'type':'array','maxItems':32,'uniqueItems':True,'items':ID},
                             'behavior':{'enum':['success','hang','exit','cancel','malformed','overflow']},'rework_failures':{'type':'integer','minimum':0,'maximum':3},
                             'model_policy_ref':{'type':'string','pattern':'^[a-z0-9][a-z0-9-]{0,63}@[1-9][0-9]{0,5}$'}}, ['request_id','kind','base_sha']),

@@ -105,17 +105,30 @@ class Store:
             if count + reserve > 2000:
                 raise Conflict('insufficient ordinary audit capacity before process launch')
 
+    def replay_submission(self, spec):
+        """Read an existing identity before consulting mutable new-task prerequisites."""
+        canonical_spec = hashlib.sha256(json.dumps(spec, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        with self.connection() as c:
+            return self._replay_submission(c, spec.get('request_id'), canonical_spec)
+
+    def _replay_submission(self, c, request_id, canonical_spec):
+        if request_id is None:
+            return None
+        previous = c.execute('SELECT canonical_spec,task_id FROM submit_requests WHERE request_id=?', (request_id,)).fetchone()
+        if previous is None:
+            return None
+        if previous[0] != canonical_spec:
+            raise Conflict('request identity reused with different parameters')
+        return self._get(c, previous[1])
+
     def submit(self, spec, policy_snapshot=None):
         request_id = spec.get('request_id')
         # Internal Store callers may omit identity; the public MCP contract requires it.
         canonical_spec = hashlib.sha256(json.dumps(spec, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
         with self.tx() as c:
-            if request_id is not None:
-                previous = c.execute('SELECT canonical_spec,task_id FROM submit_requests WHERE request_id=?', (request_id,)).fetchone()
-                if previous:
-                    if previous[0] != canonical_spec:
-                        raise Conflict('request identity reused with different parameters')
-                    return self._get(c, previous[1])
+            previous = self._replay_submission(c, request_id, canonical_spec)
+            if previous is not None:
+                return previous
             if c.execute("SELECT count(*) FROM tasks WHERE state NOT IN ('SUCCEEDED','FAILED','CANCELLED')").fetchone()[0] >= 100:
                 raise Conflict('queue full')
             for dep in spec.get('dependencies', []):

@@ -221,9 +221,13 @@ class Controller:
             if operation == 'submit':
                 if not self.settings.fixture_authorized:
                     return self.error('PERMISSION_DENIED','OBSERVE permits no protected repository writes')
-                self.worktrees.validate_write_set(arguments.get('write_set'))
-                snapshot = self.models.snapshot(arguments.get('model_policy_ref','simulation-default@1'))
-                data = {'task':self.store.submit(arguments,policy_snapshot=snapshot)}
+                previous = self.store.replay_submission(arguments)
+                if previous is not None:
+                    data = {'task':previous}
+                else:
+                    self.worktrees.validate_write_set(arguments.get('write_set'))
+                    snapshot = self.models.snapshot(arguments.get('model_policy_ref','simulation-default@1'))
+                    data = {'task':self.store.submit(arguments,policy_snapshot=snapshot)}
             elif operation == 'list':
                 limit, offset = arguments.get('limit',50), arguments.get('offset',0)
                 tasks = self.store.list(limit+1, offset)
