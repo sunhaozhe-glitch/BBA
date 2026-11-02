@@ -35,4 +35,4 @@
 - 四类新类型的执行链本身（含 group.analyze 与 Summary/Collector 的接线、chat 与 permit 链的任务化桥接、好友动作的真实 adapter 验证）未实现，属明确 unsupported。
 - UI 支持矩阵为展示层常量；运行期 per-account 能力仍走现有 `/v1/capabilities` 投影，未新增运行期联动。
 - 本切片不做计划任务（QQ-04）与资产 CRM（QQ-05）；QQ-04 依赖本切片的类型持久化（request_payload 派生）与封闭枚举，调度语义（时区、下次执行、重启补偿、重叠幂等）在下一批。
-- 独立验收需复核：持久化决策（request_payload 派生，无新 migration，head 25 未动）、`bash tools/contract.sh check` 与 generate 输出、`bash tools/kernel.sh test-all` 原始日志、前端源码与嵌入副本一致性。另请知：AGENTS.md 第 88 行 “当前 SchemaHead() 为 24” 已滞后（0016 后为 25），该文件受保护未改，提请父级处理。
+- 独立验收需复核：持久化决策（request_payload 派生，无新 migration，head 25 未动）、`bash tools/contract.sh check` 与 generate 输出、`bash tools/kernel.sh test-all` 原始日志、前端源码与嵌入副本一致性。历史交接曾报告旧版 AGENTS 的 head 数字滞后；该陈述已在 PR #2（`4d648beed7e7be07ee0c738aed0456790cce267b`）移除，不再是待处理缺陷。本矩阵的 head 25 是 QQ-03 切片基线快照，不是未来当前值；涉库工作按 AGENTS 第 7 节重新核对源码、binary 和数据库。

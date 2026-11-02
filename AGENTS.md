@@ -466,7 +466,7 @@ bash tools/product-acceptance.sh release-check --package <evidence-directory>
 
 每次开发前以当前分支为准复核，以下是长期易错点：
 
-1. **Schema 版本冲突：** 历史 `AGENTS.md` 曾写 schema head 24，而 QQ-03 矩阵记录 head 25。必须从当前 migrations、`SchemaHead()`、server/bridge gate、migration tests 和隔离 DB 核实；历史 24 已是过期文档快照，不作为悬案阻塞工作；不照抄旧数字。
+1. **Schema 版本核对：** 当前 `SchemaHead()` 以 migration 源码和当前 binary 的实际结果为准。开始涉库工作时重新核对 migrations、`SchemaHead()`、server/bridge gate、迁移测试及隔离数据库，不在长期指南中固定当前 head。区分当前 migration head、主服务最低启动版本、Bridge 精确 head 门与历史证据版本；它们不是同一个值，不应机械替换为相同数字。
 2. **B7 主路由：** 当前 GitHub `main` 的主服务已有对话/通知相关装配证据；后续是对当前提交做增量复核，不得沿用过期任务书声称完全未装配。每次仍须检查实际 `main.go`、resolver/API surface、handler、feature flags 和前端消费者。
 3. **Agent 能力：** 已有 Agent/Skill/Model 绑定、provider 调用和搜索上下文；不等于完整多步工具执行 Agent Runtime。新增需求应明确具体缺口，不得低估或夸大。
 4. **任务类型：** QQ-03 矩阵当前把四种新任务类型的执行标为 unsupported；“可识别/创建/读回”不等于可执行。
