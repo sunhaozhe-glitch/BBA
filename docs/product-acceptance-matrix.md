@@ -68,7 +68,7 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 | ID | 目标 | 当前源码证据 | 本轮目标/验收证据 | 当前判定 |
 |---|---|---|---|---|
 | QQ-01 | ARTEX 风格仪表盘；QQ 在线/离线/异常/总数；资产节点显示明确意向客户数；删除流量交互、活动流、发现、流量状态码 | `backend/cmd/taskengine-server/product/app.js` 已消费账号概览；资产数仍为待接入占位，删除项需以 DOM/API 复核 | dashboard API 和页面在 fixture 中读同一持久投影；过期/未知不伪装离线；客户去重计数有证据 | 部分实现，未验收 |
-| QQ-02 | 对话双视图：Agent 线程 + 按 QQ 账号/群/私聊隔离的收件箱；QQ 出站先做草稿、规则/许可回执 | 当前 `ChatRuntimeHandler`、`ChatPermitRuntimeHandler` 是 runtime 发送边界；产品页仍显示 Agent/QQ 双标签待接入 | [`docs/sol-bba-qq-b7-dual-dialogue-notify-20261101.md`](sol-bba-qq-b7-dual-dialogue-notify-20261101.md) 的事件→持久化→API→前端→草稿链；禁止真实 writer | 首轮实施目标 |
+| QQ-02 | 双对话：Agent 线程与 QQ 收件箱；出站仅草稿/规则回执 | `operator_conversation.go`、migration 0016、主服务装配及 `frontend/app.js` 已有消费者 | 见下方 B7 分项矩阵；以当前提交增量验收，不重复旧任务书 | 已实现并接线部分基础链，完整独立实跑待验收；不含完整 Agent run 或真实 QQ |
 | QQ-03 | 任务覆盖加群、分析群、聊天、客户加我/我加客户 | 当前 Task Engine 有任务生命周期和历史 `group.acquire` 契约；尚无 QQ 业务全类型的独立消费者证据 | 每种类型有显式 schema、能力检查、审批/permit 绑定、unknown 与不重发测试 | 工程切片已交付（离线 fixture，作者自测）；决策矩阵见 [`docs/qq03-task-type-matrix.md`](qq03-task-type-matrix.md)，待独立验收 |
 | QQ-04 | 计划任务复用任务引擎，支持时区、下次执行、重启补偿、重叠幂等 | 产品入口存在，后端/前端完整消费者未形成 | 计划持久化、调度回执、任务生成和重启/重叠测试 | 未接线 |
 | QQ-05 | 资产表示明确意向客户；QQ 标识、来源、证据、规则版本、时间和归属可审计 | 产品资产入口为待接入；当前没有可引用的客户证据链 | 意向去重、证据撤销、人工修正和 dashboard 计数回读；明确意向即计数，好友关系单独记录 | 未接线 |
@@ -77,7 +77,7 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 | QQ-08 | MCP 接入 ChatLuna、Character、group-analysis，区分仓库、插件和 MCP endpoint | 产品入口仍待接入；仓库 URL 本身不是 endpoint 或已安装能力 | 连接/版本/能力/健康状态可读，未配置时 fail closed；fixture 不冒充在线安装 | 未接线 |
 | QQ-09 | Skill 设计为版本化 QQ 运营流程：群分析、意向识别、关键词策略、聊天辅助、客户跟进 | 当前 Skill 是配置/版本管理，未绑定 QQ 业务对象 | Skill 只能产生受 schema/权限约束的建议；每次运行绑定规则/工具/版本，不授予权限 | 设计待实施 |
 | QQ-10 | 工具目录来自 NapCat 原生 API，目录、schema、运行 capability、调用授权分离 | `product/tools.json` 只是嵌入只读目录；尚无已验证 NapCat adapter/调用链 | fixture 能力声明、参数校验、permit/bridge/observation 回执；真实调用另行授权 | 目录存在，运行时未接线 |
-| QQ-11 | 通知推送沿用现有形态，但接 QQ 入站、草稿、拦截、任务和结果事件 | 产品入口为待接入；现有 outbox/inbox 不是 operator 通知 API | 本轮至少可读事件投影、workspace/账号隔离、去重和已读状态；不发送外部通知 | 首轮实施目标 |
+| QQ-11 | QQ 入站/草稿等本地通知，未来扩任务/客户事件 | `operator_notification`、handler 与 `loadNotify/notifyRender` 已接线 | 见 B7-04/05/06；其余事件源与外部推送分别验收 | 本地投影部分实现/接线；完整验收待执行，外部推送未授权 |
 | QQ-12 | 拦截规则从命令拦截改为关键词/模式拦截，作用于最终出站文本 | `content_rules`/`content_review` 和前端配置/试跑已有；需确认所有 writer 都经过最终检查 | 单段文本规则版本、命中证据、阻断不发 permit；任何直连 writer 回归失败 | fixture 部分通过，需扩大消费者覆盖 |
 | QQ-13 | 审批记录覆盖任务、草稿、规则、工具和外部效果 | 现有 proposal/content review 路径分开；产品页有内容审批 | 每条审批绑定 payload digest、scope/version、决策和最终回执；批准不等于发送成功 | 部分实现 |
 | QQ-14 | 日志沿用，但必须能关联 QQ 账号、会话、任务、工具和通知，不回显凭据/原文 | 当前有运行日志/审计表，但 QQ operator 查询面未形成 | 只读分页、脱敏、request/event correlation 和失败状态可回读 | 未接线 |
@@ -86,3 +86,30 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 ### 已确认的外部范围
 
 本轮仅允许代码、migration、fixture 和离线验收。任何测试都不得登录 QQ、发送消息、加群、加好友、启动真实 NapCat/ARTEX/6300、写生产数据库、安装在线 MCP 或调用付费模型。fixture、静态注册表、作者报告和菜单存在都只能支持工程层结论，不能支持真实 QQ 或发布结论。
+
+## B7 当前基础链分项核对（2026-11-02）
+
+本节覆盖上方 QQ-02、QQ-11 的过期“待接入”描述，不改写历史 S1–S6/B4/B6 证据。源码核对基线为 `4d648beed7e7be07ee0c738aed0456790cce267b`，本次只改文档；migration 源码 head=25，不代表本次打开或验收了数据库。
+
+证据口径：下表“源码审读”由 Sol 对当前文件执行，仅为本轮源码核对，不主张独立于历史实现作者；独立审查/独立实跑均 NOT_REVIEWED/NOT_RUN，也不是 GitHub approval。列出的永久测试经阅读确认存在，不因存在就标 PASS。原作者历史 B7 报告未在本次按行重新核销，作者验证一律记“历史报告存在，当前分项 NOT_VERIFIED”；历史未绑定当前 commit 的结果不补造为当前证据。当前基线的 [PR #2 CI](https://github.com/sunhaozhe-glitch/BBA/actions/runs/41391966815) 全绿，只证明对应 contracts/backend/character 作业范围，不是产品浏览器或 live QQ 验收。
+
+下表的实现/接线结论仅限所列路径；所有行均为 `NOT_RELEASED`，受控 live/production 均 `NOT_RUN`。独立运行验收在下一任务按当前提交补证。
+
+| ID / 验收项 | 当前实现与实际消费者 | 永久测试 / 可定位证据 | 作者验证 | 本轮独立审读 / 独立实跑 | 尚需验收 |
+|---|---|---|---|---|---|
+| B7-01 Agent 线程基础 | `operator_conversation.go` 的 `agentMessage`、`messages`；0016 的 conversation/message 表；前端线程消息 POST/GET。基础持久化接线，未启动模型 run | `TestConversationSourceBoundary` 检查 Agent 消息不进入 QQ 出站或生成 permit | 历史报告存在，当前分项 NOT_VERIFIED | 源码确认路径；实跑 NOT_RUN | 线程创建/读取、跨 workspace 读写、重复/并发请求、刷新与错误；不由 QQ draft 隔离测试代替 Agent 线程隔离验收 |
+| B7-02 QQ Inbox | runtime 入站 `ingestEvent`，conversation/message GET，前端 `loadChat/loadChatMsgs`；按 workspace/account/kind/external ID 建会话。API 有 limit/cursor 与 next_cursor | `TestInboxEventIdempotency`、`TestConversationSourceBoundary`、`TestUnscopedOperatorSeesSeededRows`：同事件重放/异 digest、来源边界与稳定读取 | 历史报告存在，当前分项 NOT_VERIFIED | 源码确认路径；实跑 NOT_RUN | 多账号/群/私聊与跨 workspace 完整隔离；并发入站；跨页无漏重；消息明细 account scope；runtime→真实 QQ 接入未验收 |
+| B7-03 QQ Draft | `createDraft/getDraft` 与前端 draft POST；记录 digest/rules_version/decision/evidence，回执 `send_permit=absent`，无 writer 调用 | `TestDraftContentRuleAndPermitBoundary`、`TestConversationWorkspaceAccountIsolation`：阻断、零 permit、跨 workspace draft 读取拒绝 | 历史报告存在，当前分项 NOT_VERIFIED | 源码确认路径；实跑 NOT_RUN | 正常/阻断/unsupported 回执、重复与并发、账号范围、UI 刷新/错误；不宣称草稿具备已发送效果或真实 permit 发放 |
+| B7-04 本地 Notifications | Agent/inbox/draft 事务投影，event_key 去重；列表 limit/cursor，已读 version CAS；前端 GET/mark POST；local_only | `TestNotificationProjectionIdempotencyAndReadCAS`、`TestInboxEventIdempotency`、`TestUnscopedOperatorSeesSeededRows` | 历史报告存在，当前分项 NOT_VERIFIED | 源码确认路径；实跑 NOT_RUN | 并发已读、跨账号读/更新隔离、跨 conversation 同 event_id、分页/刷新/错误；尚不覆盖任务/CRM 全部事件、订阅重试或外部推送 |
+| B7-05 主服务装配/鉴权 | main.go 初始化 OperatorConversationHandler；resolver.go 的 serverAPISurface 与 operatorConversationAuth 分发 operator/runtime | `TestServerAPISurfaceRoutesOperatorConversations`、`TestConversationAndNotificationHTTPAuth`、`TestInboxEventIdempotency`；前者是委派测试，不等于真实主进程端到端 | 历史报告存在，当前分项 NOT_VERIFIED | 源码确认已装配；实跑 NOT_RUN | 真实 binary+resolver+隔离 DB 的授权/未授权、runtime/operator 互斥与 account scope；不能以 route 存在判全链通过 |
+| B7-06 前端消费者 | `frontend/app.js` 的 loadChat/renderChat/bindChatForm/loadChatMsgs/loadNotify/notifyRender 使用实际 API；本轮比对 app.js 与 embed 字节一致 | `tests/product/test_b7_manual_fixture_launcher.py` 为 launcher 测试资产；不等于浏览器断言已运行 | 历史报告存在，当前分项 NOT_VERIFIED | 源码和 app.js 同步检查通过；浏览器实跑 NOT_RUN | 实际 HTTP、登录/退出/切会话迟到响应、权限、刷新、空/错态、完整翻页与三屏；当前首屏请求不能证明 next_cursor 已消费 |
+| B7-07 Agent 完整运行 | 现有 model/provider 与 Proposal 管线独立存在；agentMessage 只存入站消息，无 thread-to-run/model dispatch。完整运行 PARTIAL / NOT_WIRED_TO_THREAD | 现有模型/Proposal 测试不能替代 thread→run→step→工具结果的端到端证明 | 完整运行无本次可核销证据 | 源码确认边界；完整链 NOT_RUN | 按 AGENTS M5 单列多步/停止/恢复/工具授权/幂等，基础消息通过不自动升级此行 |
+
+### 下一轮 B7 增量独立验收
+
+从新的最新 main 锁定 commit/build/schema，用隔离 fixture 执行上表现有测试和真实服务/浏览器链，逐行记录命令、退出码、原始证据与缺口；优先核验 account scope、分页、并发/重放与会话切换。不重复实现已有 handler。任何发现的缺陷单独复现、修复、验证，不能凭本次审读标全项 PASS。始终不登录/发送/加群/好友，不调用付费模型，不接生产数据库。
+
+### CI 与仓库治理核对（2026-11-02 快照）
+
+- 当前 `.github/workflows/ci.yml`：contracts（合同/TS/前端语法/插件）、backend（隔离 Go race/build）、character（build/typecheck/test）。未独立覆盖 Collector、完整产品浏览器、frontend/embed 一致性。本轮仅补文档；这三项增强作为独立 CI PR，路径条件设计需避免必需检查被跳过后永久 pending，不混入业务 PR。
+- 通过 GitHub API 查询 `repos/sunhaozhe-glitch/BBA/branches/main` 返回 `protected=false`，`repos/sunhaozhe-glitch/BBA/rulesets` 返回空数组。当前未启用 main 分支保护/ruleset，并非“已核实启用”或“尚未核实”。没有仓库强制的 approval/required check 门禁不等于可绕过 AGENTS 的 PR/最新 CI 规则。本轮不修改仓库设置；未来启用审批/禁止绕过前需确定实际审查者及治理策略，避免单人仓库无法合并。
