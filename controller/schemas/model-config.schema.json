@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999999
+          },
+          "provider": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+          },
+          "is_local": {
+            "type": "boolean"
+          },
+          "simulation": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "model_role": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "builder",
+                "reviewer",
+                "advisor",
+                "planner",
+                "judge",
+                "summarizer",
+                "memory",
+                "commit",
+                "title",
+                "compaction"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "provider",
+          "is_local",
+          "simulation",
+          "enabled",
+          "model_role"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "policies": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999999
+          },
+          "provider_allowlist": {
+            "type": "array",
+            "maxItems": 32,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+            }
+          },
+          "model_role": {
+            "type": "object",
+            "propertyNames": {
+              "enum": [
+                "builder",
+                "reviewer",
+                "advisor",
+                "planner",
+                "judge",
+                "summarizer",
+                "memory",
+                "commit",
+                "title",
+                "compaction"
+              ]
+            },
+            "additionalProperties": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}@[1-9][0-9]{0,5}$"
+              }
+            }
+          },
+          "default_profile": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}@[1-9][0-9]{0,5}$"
+          },
+          "default_role": {
+            "enum": [
+              "builder",
+              "reviewer",
+              "advisor",
+              "planner",
+              "judge",
+              "summarizer",
+              "memory",
+              "commit",
+              "title",
+              "compaction"
+            ]
+          },
+          "model_budget": {
+            "type": "object",
+            "properties": {
+              "limit_units": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000
+              },
+              "unit": {
+                "const": "simulation-credit"
+              }
+            },
+            "required": [
+              "limit_units",
+              "unit"
+            ],
+            "additionalProperties": false
+          },
+          "fallback_policy": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "const": "deny"
+              },
+              "approved_edges": {
+                "type": "array",
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "mode",
+              "approved_edges"
+            ],
+            "additionalProperties": false
+          },
+          "switch_policy": {
+            "const": "explicit-authorized-role-only"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "provider_allowlist",
+          "model_role",
+          "default_profile",
+          "default_role",
+          "model_budget",
+          "fallback_policy",
+          "switch_policy"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "profiles",
+    "policies"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,33 @@
+name: Controller
+on:
+  pull_request:
+    paths:
+      - 'controller/**'
+      - '.github/workflows/controller.yml'
+      - 'docs/adr/controller-phase1.md'
+  push:
+    branches: [main]
+    paths:
+      - 'controller/**'
+      - '.github/workflows/controller.yml'
+      - 'docs/adr/controller-phase1.md'
+permissions:
+  contents: read
+jobs:
+  controller:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Install pinned controller dependencies
+        run: python -m pip install mcp==2.3.0 jsonschema==4.26.0
+      - name: Isolated unittest and real stdio MCP fixture integration
+        env:
+          PYTHONPATH: controller/src
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 -m unittest discover -s controller/tests -v
+      - name: Whitespace
+        run: git diff --check

@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+
+# Local execution history and probe packages stay private; publish reports only.
+docs/evidence/

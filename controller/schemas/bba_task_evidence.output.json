@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{32}$"
+                },
+                "state": {
+                  "enum": [
+                    "QUEUED",
+                    "RUNNING",
+                    "UNKNOWN",
+                    "PAUSED",
+                    "SUCCEEDED",
+                    "FAILED",
+                    "CANCELLED"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "spec": {
+                  "type": "object"
+                },
+                "reworks": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3
+                },
+                "created": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "state",
+                "version",
+                "spec",
+                "reworks",
+                "created"
+              ],
+              "additionalProperties": false
+            },
+            "events": {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "seq": {
+                    "type": "integer"
+                  },
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{32}$"
+                  },
+                  "task_id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{32}$"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "object"
+                  },
+                  "created": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "seq",
+                  "id",
+                  "task_id",
+                  "kind",
+                  "data",
+                  "created"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "artifacts": {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{32}$"
+                  },
+                  "task_id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{32}$"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "object"
+                  },
+                  "created": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "task_id",
+                  "kind",
+                  "data",
+                  "created"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "session": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{32}$"
+                    },
+                    "task_id": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{32}$"
+                    },
+                    "session_id": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "peer": {
+                      "enum": [
+                        "simulation",
+                        "real-metadata-only"
+                      ]
+                    },
+                    "created": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "task_id",
+                    "session_id",
+                    "peer",
+                    "created"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "next_cursor": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "model": {
+              "type": "object",
+              "properties": {
+                "snapshot": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "budget": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "calls": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              },
+              "required": [
+                "snapshot",
+                "budget",
+                "calls"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "task",
+            "events",
+            "artifacts",
+            "session",
+            "next_cursor",
+            "model"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "const": false
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "enum": [
+                "INVALID_ARGUMENT",
+                "PERMISSION_DENIED",
+                "NOT_FOUND",
+                "CONFLICT",
+                "LIMIT_EXCEEDED",
+                "UNKNOWN",
+                "INTERNAL_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "ok",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

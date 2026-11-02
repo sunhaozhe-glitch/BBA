@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{32}$"
+                },
+                "state": {
+                  "enum": [
+                    "QUEUED",
+                    "RUNNING",
+                    "UNKNOWN",
+                    "PAUSED",
+                    "SUCCEEDED",
+                    "FAILED",
+                    "CANCELLED"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "spec": {
+                  "type": "object"
+                },
+                "reworks": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3
+                },
+                "created": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "state",
+                "version",
+                "spec",
+                "reworks",
+                "created"
+              ],
+              "additionalProperties": false
+            },
+            "restored": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "task",
+            "restored"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "const": false
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "enum": [
+                "INVALID_ARGUMENT",
+                "PERMISSION_DENIED",
+                "NOT_FOUND",
+                "CONFLICT",
+                "LIMIT_EXCEEDED",
+                "UNKNOWN",
+                "INTERNAL_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "ok",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
