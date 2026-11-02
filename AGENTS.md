@@ -4,6 +4,16 @@
 >
 > **重要：** 本文件不是生产部署授权，也不代表任何功能已经通过真实 QQ、真实模型、MCP 或发布验收。每轮工作都必须从当前分支源码核实，不得把历史报告当作当前事实。
 
+<!-- omh:agent-instructions:begin -->
+## ARTEX 风格 Web UI 入口与同步约定
+
+- 用户确认的产品 UI 是 `/product/` 下的深色 QQ 私域运营控制台；不要误启 astra-handoffs 的早期 Python ui-preview。源码已经属于本仓库，不应重复导入或创建第二套前端。
+- 唯一源码是 `frontend/`；Go embed 副本在 `backend/cmd/taskengine-server/product/`。生成命令 `python3 tools/build-product.py`，语法检查 `node --check frontend/app.js`，同步后检查 `git diff --exit-code -- frontend backend/cmd/taskengine-server/product`。本次同步中以上命令均亲跑退出 0；完整 Go/业务验收不由这些检查替代。
+- 页面及工具目录的生成源、许可证、现有本机开发实例入口和启动限制见 `docs/artex-web-ui.md`。保留 `frontend/NOTICE` 和 licenses；不手改生成副本。
+- 同步 PR 只包含源码、必要生成资源及文档；不要提交 build/dev-stack、console-token、DSN、数据库或运行日志。恢复界面不授予 worker、真实 QQ、模型调用、迁移或合并权限。
+- 仓库当前跟踪的 Agent 规则入口是根 `AGENTS.md`，供遵循该约定的 Codex/Hermes 等代理读取；若新增子目录规则，编辑前须重新盘点并核对作用域。
+<!-- omh:agent-instructions:end -->
+
 ## 1. 产品目标
 
 BBA 的长期目标是一个完整的 QQ AI 运营平台：运营人员在统一控制台管理多个 QQ 账号、群聊和客户；Agent 根据运营目标分析信息、生成计划和建议；在明确授权、审批和能力约束下，通过受控运行时执行允许的动作；所有消息、任务、客户证据、审批和执行结果形成可追溯记录。
