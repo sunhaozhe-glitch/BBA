@@ -17,7 +17,7 @@ class ModelGateTests(unittest.IsolatedAsyncioTestCase):
             repo,sha=fixture(root)
             c=Controller(Settings(root/'state',repo,fixture_authorized=True))
             try:
-                r=await c.call('bba_task_submit',{'kind':'simulation','base_sha':sha,'model_policy_ref':'simulation-review@1'})
+                r=await c.call('bba_task_submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'model_policy_ref':'simulation-review@1'})
                 self.assertTrue(r['ok'])
                 tid=r['data']['task']['id']
                 result=await c.call('bba_task_wait',{'task_id':tid,'timeout_ms':1000})

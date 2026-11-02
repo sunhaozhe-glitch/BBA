@@ -1,6 +1,7 @@
 """SQLite WAL fact store. Transactions fence projections, events and slots."""
 from contextlib import contextmanager
 import json
+import hashlib
 from pathlib import Path
 import sqlite3
 import time
@@ -46,6 +47,7 @@ class Store:
                 CREATE TABLE IF NOT EXISTS repository_binding(singleton INTEGER PRIMARY KEY CHECK(singleton=1), identity TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY, state TEXT NOT NULL, version INTEGER NOT NULL, spec TEXT NOT NULL, reworks INTEGER NOT NULL DEFAULT 0, created REAL NOT NULL);
                 CREATE TABLE IF NOT EXISTS task_events(seq INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT UNIQUE NOT NULL, task_id TEXT NOT NULL REFERENCES tasks(id), kind TEXT NOT NULL, data TEXT NOT NULL, created REAL NOT NULL);
+                CREATE TABLE IF NOT EXISTS submit_requests(request_id TEXT PRIMARY KEY, canonical_spec TEXT NOT NULL, task_id TEXT UNIQUE NOT NULL REFERENCES tasks(id));
                 CREATE TABLE IF NOT EXISTS execution_sessions(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), session_id TEXT NOT NULL, peer TEXT NOT NULL, created REAL NOT NULL);
                 CREATE TABLE IF NOT EXISTS task_artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), kind TEXT NOT NULL, data TEXT NOT NULL, created REAL NOT NULL);
                 CREATE TABLE IF NOT EXISTS scheduler_slots(task_id TEXT PRIMARY KEY REFERENCES tasks(id), acquired REAL NOT NULL);
@@ -104,7 +106,16 @@ class Store:
                 raise Conflict('insufficient ordinary audit capacity before process launch')
 
     def submit(self, spec, policy_snapshot=None):
+        request_id = spec.get('request_id')
+        # Internal Store callers may omit identity; the public MCP contract requires it.
+        canonical_spec = hashlib.sha256(json.dumps(spec, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
         with self.tx() as c:
+            if request_id is not None:
+                previous = c.execute('SELECT canonical_spec,task_id FROM submit_requests WHERE request_id=?', (request_id,)).fetchone()
+                if previous:
+                    if previous[0] != canonical_spec:
+                        raise Conflict('request identity reused with different parameters')
+                    return self._get(c, previous[1])
             if c.execute("SELECT count(*) FROM tasks WHERE state NOT IN ('SUCCEEDED','FAILED','CANCELLED')").fetchone()[0] >= 100:
                 raise Conflict('queue full')
             for dep in spec.get('dependencies', []):
@@ -112,6 +123,8 @@ class Store:
                     raise Conflict('dependency missing')
             task = uid()
             c.execute('INSERT INTO tasks VALUES(?,?,?,?,0,?)', (task, 'QUEUED', 1, json.dumps(redact(spec)), time.time()))
+            if request_id is not None:
+                c.execute('INSERT INTO submit_requests VALUES(?,?,?)', (request_id, canonical_spec, task))
             if policy_snapshot is not None:
                 c.execute('INSERT INTO task_model_policy VALUES(?,?)',(task,json.dumps(policy_snapshot,sort_keys=True)))
                 c.execute('INSERT INTO model_budget VALUES(?,?,0,0)',(task,policy_snapshot['policy']['model_budget']['limit_units']))

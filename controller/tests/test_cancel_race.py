@@ -14,7 +14,7 @@ class CancelRaceTests(unittest.IsolatedAsyncioTestCase):
             repo,sha=fixture(root)
             c=Controller(Settings(root/'state',repo,fixture_authorized=True))
             try:
-                task=c.store.submit({'kind':'simulation','base_sha':sha,'write_set':['src']})
+                task=c.store.submit({'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src']})
                 c.store.claim(task['id'])
                 result=await c.call('bba_task_cancel',{'task_id':task['id']})
                 self.assertTrue(result['ok'])

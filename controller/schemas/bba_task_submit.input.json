@@ -1,6 +1,7 @@
 {
   "type": "object",
   "properties": {
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
     "kind": {
       "const": "simulation"
     },
@@ -54,6 +55,7 @@
     }
   },
   "required": [
+    "request_id",
     "kind",
     "base_sha"
   ],

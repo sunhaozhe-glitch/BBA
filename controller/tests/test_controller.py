@@ -26,7 +26,7 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         return result
 
     def spec(self, behavior='success', writes=None):
-        return {'kind':'simulation','base_sha':self.sha,'write_set':writes or ['src'], 'behavior':behavior}
+        return {'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':self.sha,'write_set':writes or ['src'], 'behavior':behavior}
 
     async def test_seven_tools_schemas_and_lifecycle_evidence(self):
         self.assertEqual(len(TOOLS), 7)

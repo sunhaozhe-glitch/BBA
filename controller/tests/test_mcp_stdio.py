@@ -33,7 +33,7 @@ class MCPStdioTests(unittest.IsolatedAsyncioTestCase):
                         data = result.structured_content
                         validate(data,output_for('bba_task_'+name))
                         return data
-                    tid = (await call('submit',{'kind':'simulation','base_sha':sha,'write_set':['src']}))['data']['task']['id']
+                    tid = (await call('submit',{'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'base_sha':sha,'write_set':['src']}))['data']['task']['id']
                     result = await call('wait',{'task_id':tid,'timeout_ms':1000})
                     self.assertEqual(result['data']['task']['state'],'SUCCEEDED')
                     self.assertEqual((await call('status',{'task_id':tid}))['data']['task']['id'],tid)

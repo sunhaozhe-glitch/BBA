@@ -18,7 +18,7 @@ class ModelPolicyTests(unittest.TestCase):
         self.router=ModelRouter(self.store,self.config)
 
     def task(self, policy='simulation-default@1'):
-        spec={'kind':'simulation','write_set':['src']}
+        spec={'kind':'simulation', 'request_id':__import__('uuid').uuid4().hex,'write_set':['src']}
         t=self.store.submit(spec,policy_snapshot=self.router.snapshot(policy))
         self.store.claim(t['id'])
         self.store.session(t['id'],'sim-session','simulation')

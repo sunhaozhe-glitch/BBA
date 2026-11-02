@@ -35,10 +35,12 @@ class Settings:
             raise ValueError('invalid startup mode')
         if self.mode == 'DEVELOPMENT' and not self.development_authorized:
             raise PermissionError('DEVELOPMENT requires startup-side authority')
-        no_symlinks(self.state_dir)
-        no_symlinks(self.repository)
-        if Path(self.state_dir).absolute() == Path(self.repository).absolute() or Path(self.repository).absolute() in Path(self.state_dir).absolute().parents:
-            raise BoundaryError('state must be outside protected repository')
+        state = no_symlinks(self.state_dir)
+        repository = no_symlinks(self.repository)
+        if state == repository or repository in state.parents or state in repository.parents:
+            raise BoundaryError('state and protected repository must be disjoint')
+        object.__setattr__(self, 'state_dir', state)
+        object.__setattr__(self, 'repository', repository)
 
 
 class Controller:
