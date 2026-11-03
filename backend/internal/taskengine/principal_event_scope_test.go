@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -79,6 +80,17 @@ func TestPrincipalEventScopeLifecycle(t *testing.T) {
 				t.Fatalf("conflict %d %s", conflict.Code, conflict.Body.String())
 			}
 			checkCounts(1)
+			if draft {
+				for _, altered := range []string{
+					strings.Replace(body, "scope_chat", "another_chat", 1),
+					strings.Replace(body, "private", "group", 1),
+				} {
+					if got := request(a, "shared", altered); got.Code != 409 {
+						t.Fatalf("changed resource reused ledger key: %d %s", got.Code, got.Body.String())
+					}
+				}
+				checkCounts(1)
+			}
 			second := request(b, "shared", body)
 			if second.Code != 201 || second.Body.String() == first.Body.String() {
 				t.Fatalf("second principal %d %s", second.Code, second.Body.String())

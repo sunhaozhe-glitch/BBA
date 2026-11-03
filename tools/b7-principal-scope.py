@@ -57,6 +57,11 @@ def main():
              '-w','/work/backend','golang:1.26','go','build','-trimpath','-o',f'/out/{label}', './cmd/taskengine-server'])
     try:
         build(root, 'server')
+        if not (args.legacy_source / '.git').exists():
+            raise RuntimeError('legacy source must be an existing isolated git worktree')
+        legacy_sha = run(['git', '-C', str(args.legacy_source), 'rev-parse', 'HEAD']).strip()
+        legacy_diff = run(['git', '-C', str(args.legacy_source), 'diff', '--binary'])
+        (out / 'legacy-source.patch').write_text(legacy_diff)
         build(args.legacy_source, 'legacy-server')
         with socket.socket() as dbsock:
             dbsock.bind(('127.0.0.1', 0)); dbport = dbsock.getsockname()[1]
@@ -147,7 +152,7 @@ def main():
         stop();start('server')
         for path,body in paths: assert request('alice',path,'scope-key',body)[0]==401
         assert counts()==final
-        result=dict(status='PASS',executor='Hermes AUTHOR_SELF_TEST',injected_responses=False,sha=run(['git','rev-parse','HEAD']).strip(),schema_head=sql('SELECT max(version) FROM core.schema_version'),binary_sha256=hashlib.sha256((out/'server').read_bytes()).hexdigest(),legacy_binary_sha256=hashlib.sha256((out/'legacy-server').read_bytes()).hexdigest(),counts=final,outcomes=outcomes,fixture_boundary='network-none PostgreSQL, loopback server, no model/provider/writer configured')
+        result=dict(status='PASS',executor='Hermes AUTHOR_SELF_TEST',injected_responses=False,sha=run(['git','rev-parse','HEAD']).strip(),schema_head=sql('SELECT max(version) FROM core.schema_version'),legacy_sha=legacy_sha,legacy_diff_sha256=hashlib.sha256(legacy_diff.encode()).hexdigest(),binary_sha256=hashlib.sha256((out/'server').read_bytes()).hexdigest(),legacy_binary_sha256=hashlib.sha256((out/'legacy-server').read_bytes()).hexdigest(),counts=final,outcomes=outcomes,fixture_boundary='loopback-published isolated PostgreSQL, loopback server, no model/provider/writer configured')
         (out/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
     finally:
         if proc is not None:
