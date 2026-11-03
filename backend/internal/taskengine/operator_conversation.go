@@ -217,6 +217,16 @@ func (h *operatorConversationHTTP) messages(w http.ResponseWriter, r *http.Reque
 	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"items": items, "next_cursor": next}})
 }
 
+// operatorRequestEventID encodes the durable ledger identity, not message text.
+// JSON array framing avoids ambiguous concatenation; the versioned digest fits
+// core.id and separates operator requests from raw runtime inbox event IDs.
+// Conversation/account scope is enforced by the owning conversation row; Draft
+// resource fields remain part of the ledger request digest (not a new key).
+func operatorRequestEventID(a Actor, r *http.Request) string {
+	identity, _ := json.Marshal([]string{"operator-request-v1", a.WorkspaceID, a.PrincipalID, r.Method, r.URL.Path, r.Header.Get("Idempotency-Key")})
+	return "opreq:v1:" + ChatTextDigest(string(identity))
+}
+
 func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.Request, a Actor, id string) {
 	if id == "" || strings.Contains(id, "/") {
 		thWriteError(w, r, problem(taskCodeValidation))
@@ -273,11 +283,11 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 			return er
 		}
 		mid = newID("msg")
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'agent','inbound','received',$4,$5,$6,$7)`, a.WorkspaceID, mid, id, b.Body, d, r.Header.Get("Idempotency-Key"), seq)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'agent','inbound','received',$4,$5,$6,$7)`, a.WorkspaceID, mid, id, b.Body, d, operatorRequestEventID(a, r), seq)
 		if er != nil {
 			return er
 		}
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+id+":"+r.Header.Get("Idempotency-Key"), mid, id)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+operatorRequestEventID(a, r), mid, id)
 		if er != nil {
 			return er
 		}
@@ -378,7 +388,7 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 		if state == "unsupported" {
 			state = "blocked"
 		}
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'qq','outbound_draft',$4,$5,$6,$7,$8)`, a.WorkspaceID, msgID, conv, state, b.Body, bodyDigest, r.Header.Get("Idempotency-Key"), seq)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'qq','outbound_draft',$4,$5,$6,$7,$8)`, a.WorkspaceID, msgID, conv, state, b.Body, bodyDigest, operatorRequestEventID(a, r), seq)
 		if er != nil {
 			return er
 		}
