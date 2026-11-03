@@ -47,7 +47,7 @@ def main():
             raise RuntimeError(f'command {index} failed: {p.returncode}')
         return p.stdout
     def sql(query):
-        return run(['docker', 'exec', name, 'psql', '-h', '/fixture', '-U', 'bba_fixture', '-d', 'bba_fixture', '-v', 'ON_ERROR_STOP=1', '-Atc', query]).strip()
+        return run(['docker', 'exec', name, 'psql', '-h', '/var/run/postgresql', '-U', 'bba_fixture', '-d', 'bba_fixture', '-v', 'ON_ERROR_STOP=1', '-Atc', query]).strip()
     def build(source, label):
         run(['docker','run','--rm','--network','none','--user',f'{os.getuid()}:{os.getgid()}',
              '-v',str(source)+':/work','-v',str(out)+':/out','-e','HOME=/out/scratch/home',
@@ -58,17 +58,19 @@ def main():
     try:
         build(root, 'server')
         build(args.legacy_source, 'legacy-server')
-        run(['docker','run','-d','--rm','--network','none','--name',name,'--label','bba.stage1='+name,
-             '--tmpfs','/var/lib/postgresql/data:rw','-v',str(sockdir)+':/fixture',
+        with socket.socket() as dbsock:
+            dbsock.bind(('127.0.0.1', 0)); dbport = dbsock.getsockname()[1]
+        run(['docker','run','-d','--rm','--network','bridge','--name',name,'--label','bba.stage1='+name,
+             '--tmpfs','/var/lib/postgresql/data:rw','-p',f'127.0.0.1:{dbport}:5432',
              '-e','POSTGRES_USER=bba_fixture','-e','POSTGRES_DB=bba_fixture','-e','POSTGRES_HOST_AUTH_METHOD=trust',
-             'postgres:16-bookworm','postgres','-c',"listen_addresses=''",'-c','unix_socket_directories=/fixture','-c','unix_socket_permissions=0777'])
+             'postgres:16-bookworm'])
         for _ in range(150):
-            p = subprocess.run(['docker','exec',name,'psql','-h','/fixture','-U','bba_fixture','-d','bba_fixture','-Atc','SELECT 1'],capture_output=True)
+            p = subprocess.run(['docker','exec',name,'psql','-h','/var/run/postgresql','-U','bba_fixture','-d','bba_fixture','-Atc','SELECT 1'],capture_output=True)
             if p.returncode == 0: break
             time.sleep(.2)
         else: raise RuntimeError('PostgreSQL readiness timeout')
         for migration in sorted((root/'backend/internal/taskengine/migrations').glob('*.sql')):
-            run(['docker','exec','-i',name,'psql','-h','/fixture','-U','bba_fixture','-d','bba_fixture','-v','ON_ERROR_STOP=1'],input=migration.read_text())
+            run(['docker','exec','-i',name,'psql','-h','/var/run/postgresql','-U','bba_fixture','-d','bba_fixture','-v','ON_ERROR_STOP=1'],input=migration.read_text())
         sql("INSERT INTO core.workspace(id) VALUES('scope_ws'); INSERT INTO core.principal(workspace_id,id) VALUES('scope_ws','alice'),('scope_ws','bob'); INSERT INTO core.account(workspace_id,id,runtime_id,adapter_instance_id) VALUES('scope_ws','scope_account','fake_runtime','fake_adapter')")
         tokens = {p: secrets.token_hex(32) for p in ['alice','bob']}
         resolver = out/'resolver.json'
@@ -76,7 +78,7 @@ def main():
         with socket.socket() as s:
             s.bind(('127.0.0.1',0)); port=s.getsockname()[1]
         origin=f'http://127.0.0.1:{port}'
-        env=dict(os.environ,BBA_TASKENGINE_DSN=f'postgres://bba_fixture@/bba_fixture?host={sockdir}&sslmode=disable',TMPDIR=str(scratch))
+        env=dict(os.environ,BBA_TASKENGINE_DSN=f'postgres://bba_fixture@127.0.0.1:{dbport}/bba_fixture?sslmode=disable',TMPDIR=str(scratch))
         def stop():
             nonlocal proc
             if proc is not None:
