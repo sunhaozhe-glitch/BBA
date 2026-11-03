@@ -260,7 +260,7 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 		if er != nil {
 			return er
 		}
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+id+":"+r.Header.Get("Idempotency-Key"), mid, id)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+id+":"+r.Header.Get("Idempotency-Key"), mid, id)
 		return er
 	})
 	if e != nil {
@@ -349,7 +349,7 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 		if er != nil {
 			return er
 		}
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(workspace_id,event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "draft:"+draftID, "qq.draft.created", draftID, b.AccountID, conv, "QQ draft review: "+decision)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "draft:"+draftID, "qq.draft.created", draftID, b.AccountID, conv, "QQ draft review: "+decision)
 		return er
 	})
 	if e != nil {
@@ -434,7 +434,7 @@ func (h *operatorConversationHTTP) ingestEvent(w http.ResponseWriter, r *http.Re
 		if _, er := tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'qq','inbound','received',$4,$5,$6,$7)`, a.WorkspaceID, messageID, conv, b.Body, digest, b.EventID, seq); er != nil {
 			return er
 		}
-		_, er := tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary,evidence_ref) VALUES($1,$2,$3,'qq.message.inbound',$4,$5,$6,'QQ inbox event received',$7) ON CONFLICT(workspace_id,event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "inbox:"+b.EventID, messageID, b.AccountID, conv, "sha256:"+digest)
+		_, er := tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary,evidence_ref) VALUES($1,$2,$3,'qq.message.inbound',$4,$5,$6,'QQ inbox event received',$7) ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "inbox:"+b.EventID, messageID, b.AccountID, conv, "sha256:"+digest)
 		return er
 	})
 	if err != nil {
