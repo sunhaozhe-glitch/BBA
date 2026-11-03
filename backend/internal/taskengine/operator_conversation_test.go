@@ -12,6 +12,7 @@ import (
 
 func conversationActor() Actor {
 	a := fixtureActor()
+	a.OwnerEpoch = 1
 	a.Permissions["conversation.read"] = true
 	a.Permissions["conversation.write"] = true
 	a.Permissions["notification.read"] = true

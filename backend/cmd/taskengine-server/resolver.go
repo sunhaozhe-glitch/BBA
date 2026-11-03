@@ -352,6 +352,7 @@ func operatorConversationAuth(operator func(*http.Request) (taskengine.Actor, er
 			WorkspaceID: runtimeActor.WorkspaceID,
 			PrincipalID: runtimeActor.RuntimeID,
 			RuntimeID:   runtimeActor.RuntimeID,
+			OwnerEpoch:  runtimeActor.OwnerEpoch,
 			AccountIDs:  append([]string(nil), runtimeActor.AccountIDs...),
 			Permissions: map[string]bool{"chat.trigger": true, "conversation.write": true},
 		}, nil

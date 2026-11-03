@@ -133,6 +133,7 @@ func digest(value any) (string, error) {
 
 type Actor struct {
 	WorkspaceID, PrincipalID, RuntimeID, SenderID string
+	OwnerEpoch                                    int64
 	AccountIDs                                    []string
 	Permissions                                   map[string]bool
 }

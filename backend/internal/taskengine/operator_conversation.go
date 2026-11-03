@@ -381,10 +381,9 @@ func (h *operatorConversationHTTP) getDraft(w http.ResponseWriter, r *http.Reque
 // the write transaction: the account row must name this runtime as its current
 // owner and a persisted credential row must exist for this
 // workspace/runtime/account, be active, and sit at the account's current owner
-// epoch. The operator Actor carries no epoch claim, so the credential is
-// compared against persisted account state; the shared locks on both rows keep
-// a revocation or epoch rotation from landing between this proof and the
-// writes that follow in the same transaction.
+// epoch, and the epoch claim carried by the presented token must match both.
+// Shared locks on both rows keep a revocation or epoch rotation from landing
+// between this proof and writes in the same transaction.
 func operatorVerifyRuntimeCredential(ctx context.Context, tx pgx.Tx, a Actor, accountID string) error {
 	if a.RuntimeID == "" {
 		return problem("RESOURCE_NOT_FOUND")
@@ -405,7 +404,7 @@ func operatorVerifyRuntimeCredential(ctx context.Context, tx pgx.Tx, a Actor, ac
 		}
 		return err
 	}
-	if accountRuntime != a.RuntimeID || !active || credentialEpoch != accountEpoch {
+	if accountRuntime != a.RuntimeID || !active || a.OwnerEpoch <= 0 || a.OwnerEpoch != accountEpoch || credentialEpoch != accountEpoch {
 		return problem("RESOURCE_NOT_FOUND")
 	}
 	return nil
