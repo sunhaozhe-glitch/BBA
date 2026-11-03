@@ -87,6 +87,25 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 
 本轮仅允许代码、migration、fixture 和离线验收。任何测试都不得登录 QQ、发送消息、加群、加好友、启动真实 NapCat/ARTEX/6300、写生产数据库、安装在线 MCP 或调用付费模型。fixture、静态注册表、作者报告和菜单存在都只能支持工程层结论，不能支持真实 QQ 或发布结论。
 
+## B7 2026-11-03 隔离增量验收（PARTIAL / NO_SHIP）
+
+本轮 main 为 `5e44e86b175de2563b25ef71b4aace64e8f8a9ff`，schema 源码 head=25、migration tail=`0016_qq_conversations.sql`。组合候选包含 #9/#10（共同包含 #8），schema/隔离 DB head=26、tail=`0017_operator_notification_scope.sql`。轮换独立修复提交 `5df521968726ede616a612c486a4e253cdb68aab` 基于 #10；组合修复 `cfc08c86a0cb07f2d94b8d708ff24ddb19eb811f`。所有结论仅离线 fixture，未发布。
+
+验证者/实现者均为 Hermes（MOP 非付费路由未建立，未派发；不是独立于实现作者的第三方审查）。原始证据根：`.work/b7-audit-20261103-150312/`，完整说明见该目录 `REPORT.md`。Go 容器 go1.26.10，Node 容器 v22.23.4。修复 binary 的精确 SHA256 见 `evidence/binary-provenance.json`，浏览器运行时源码随后仅 gofmt，不能把旧构建宣称为最终提交逐字重建。
+
+| 项目 | 实现/接线 | 本轮结果与证据 | 未覆盖风险 |
+|---|---|---|---|
+| 轮换撤销 | resolver OwnerEpoch 传入 Actor，事务锁内核对签发 epoch | PASS（限定）：`http-fixture-8e7036/independent-http-green.json`；旧 token 重放/新事件/并发拒绝，副作用不增，重启保持；`http-fixture-4665e8/rotation-lock-evidence.json` 锁屏障与 active 撤销 | 未做第三方独立审查及移除修复的变异对照 |
+| Agent/Draft 精确重放 | 复用持久 idempotency，principal/conversation 锁；基础前端接线 | PASS（限定）：17 项 HTTP、`evidence/replay-final-exit.json`=0，Draft 正常/blocked/unsupported/读取、并发重放、异 body 409、零 permit | 全部 workspace/principal/account 组合及响应丢失网络故障未穷尽；跨 principal 相同 key 的消息 event_id 唯一性仍需专项复审 |
+| B7-02 Inbox | 既有 handler + runtime epoch fence | PARTIAL：旧身份拒绝、事件重放、真实 HTTP、61 条并发 Agent 消息分页读取无漏重；`http-fixture-4665e8/pagination-real-http.json` | Inbox 多 workspace/account 并发及分页期间新增事件稳定性未完整验证；offset cursor 不能视为并发快照 |
+| B7-05 主进程 | 实际 binary+resolver+隔离 PostgreSQL | PASS（限定）：runtime/operator 互斥、reader 403、missing 404、DB stop 后 5xx/恢复、服务重启；17 项 HTTP 证据 | 多 workspace/account 的完整真实 binary 授权矩阵尚缺 |
+| B7-06 消费者 | 分页全部消费；消息和提交迟到响应 fence；源/嵌入同步 | PARTIAL：`browser-green-r3/assertions.json` 13 项全过（真实 HTTP）；`browser-boundaries/assertions.json` 8 项全过（含注入）；三屏截图存在 | 视觉工具接口报错，BLOCKED，未实际审读截图；注入分页不等于真实大列表 UI；通知 CAS 迟到回执仍需复审 |
+| main 既有 B7 回归 | 独立 main checkout | PASS（既有测试范围）：`evidence/main-final-r2-exit.json`=0 | 不覆盖候选修复，不可表述 main 已修复 |
+| 组合完整 Go race | `bash tools/kernel.sh test-all` | PASS：`evidence/combined-full-exit.json`=0；taskengine 102.631s | 不替代浏览器、真实 QQ、第三方评审或当前 head CI |
+| migration 26 兼容 | 通知唯一索引改变，binary SQL 必须匹配 schema | FAIL（混跑）：`evidence/migration-compatibility.json` 两方向 EXPLAIN 都退出3 | 必须协调停写/升级，不能旧新 binary/schema 任意滚动混跑 |
+
+PR #8/#9/#10 本轮读取均 OPEN、各 head contracts/backend/character 成功、reviews=0，详见 `evidence/pr-latest.json`。本轮新增提交尚未推送，无 hosted CI，不合并。历史失败日志全部保留；setup 失败不计为产品 RED。
+
 ## B7 当前基础链分项核对（2026-11-02）
 
 本节覆盖上方 QQ-02、QQ-11 的过期“待接入”描述，不改写历史 S1–S6/B4/B6 证据。源码核对基线为 `4d648beed7e7be07ee0c738aed0456790cce267b`，本次只改文档；migration 源码 head=25，不代表本次打开或验收了数据库。
