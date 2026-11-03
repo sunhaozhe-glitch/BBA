@@ -239,17 +239,33 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 	d := ChatTextDigest(b.Body)
 	ctx := r.Context()
 	var mid string
+	var response map[string]any
 	e := h.store.tx(ctx, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `SELECT id FROM core.principal WHERE workspace_id=$1 AND id=$2 FOR UPDATE`, a.WorkspaceID, a.PrincipalID); err != nil {
+			return err
+		}
+		rec, found, err := taskReadIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, r.Method, r.URL.Path, r.Header.Get("Idempotency-Key"))
+		if err != nil {
+			return err
+		}
+		if found {
+			if rec.digest != d {
+				return problem(taskCodeIdempotency)
+			}
+			return json.Unmarshal(rec.response, &response)
+		}
 		_, er := tx.Exec(ctx, `INSERT INTO core.operator_conversation(workspace_id,id,kind,conversation_kind,conversation_id) VALUES($1,$2,'agent','agent',$2) ON CONFLICT DO NOTHING`, a.WorkspaceID, id)
 		if er != nil {
 			return er
 		}
 		var kind, ck, cid string
 		var account *string
-		if er = tx.QueryRow(ctx, `SELECT kind,conversation_kind,conversation_id,account_id FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2`, a.WorkspaceID, id).Scan(&kind, &ck, &cid, &account); er != nil {
+		if er = tx.QueryRow(ctx, `SELECT kind,conversation_kind,conversation_id,account_id FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2 FOR UPDATE`, a.WorkspaceID, id).Scan(&kind, &ck, &cid, &account); er != nil {
 			return er
 		}
-		if kind != "agent" || ck != "agent" || cid != id || account != nil {
+		// Workspace/account/kind are immutable; legacy Agent display identifiers may
+		// differ from the internal conversation row ID.
+		if kind != "agent" || ck != "agent" || account != nil {
 			return problem("RESOURCE_NOT_FOUND")
 		}
 		var seq int64
@@ -262,14 +278,18 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 			return er
 		}
 		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+id+":"+r.Header.Get("Idempotency-Key"), mid, id)
-		return er
+		if er != nil {
+			return er
+		}
+		response = map[string]any{"data": map[string]any{"id": mid, "conversation_id": id, "source": "agent", "direction": "inbound", "delivery_state": "received", "body_digest": d, "send_permit": "absent"}}
+		return taskWriteIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, r.Method, r.URL.Path, r.Header.Get("Idempotency-Key"), d, mid, response)
 	})
 	if e != nil {
 		thWriteError(w, r, e)
 		return
 	}
 	w.WriteHeader(201)
-	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": mid, "conversation_id": id, "source": "agent", "direction": "inbound", "delivery_state": "received", "body_digest": d, "send_permit": "absent"}})
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Request, a Actor) {
@@ -297,7 +317,23 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 	var rulesVersion int64
 	var evidence []byte
 	bodyDigest := ChatTextDigest(b.Body)
+	requestBytes, _ := json.Marshal(b)
+	requestDigest := ChatTextDigest(string(requestBytes))
+	var response map[string]any
 	e := h.store.tx(ctx, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `SELECT id FROM core.principal WHERE workspace_id=$1 AND id=$2 FOR UPDATE`, a.WorkspaceID, a.PrincipalID); err != nil {
+			return err
+		}
+		rec, found, err := taskReadIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, r.Method, r.URL.Path, r.Header.Get("Idempotency-Key"))
+		if err != nil {
+			return err
+		}
+		if found {
+			if rec.digest != requestDigest {
+				return problem(taskCodeIdempotency)
+			}
+			return json.Unmarshal(rec.response, &response)
+		}
 		var exists bool
 		if er := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM core.account WHERE workspace_id=$1 AND id=$2)`, a.WorkspaceID, b.AccountID).Scan(&exists); er != nil {
 			return er
@@ -311,7 +347,7 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 		if er != nil {
 			return er
 		}
-		if er = tx.QueryRow(ctx, `SELECT id,kind,account_id,conversation_id FROM core.operator_conversation WHERE workspace_id=$1 AND kind='qq' AND account_id=$2 AND conversation_kind=$3 AND conversation_id=$4`, a.WorkspaceID, b.AccountID, b.ConversationKind, b.ConversationID).Scan(&conv, &kind, &account, &external); er != nil {
+		if er = tx.QueryRow(ctx, `SELECT id,kind,account_id,conversation_id FROM core.operator_conversation WHERE workspace_id=$1 AND kind='qq' AND account_id=$2 AND conversation_kind=$3 AND conversation_id=$4 FOR UPDATE`, a.WorkspaceID, b.AccountID, b.ConversationKind, b.ConversationID).Scan(&conv, &kind, &account, &external); er != nil {
 			return er
 		}
 		if kind != "qq" || account != b.AccountID || external != b.ConversationID {
@@ -351,14 +387,18 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 			return er
 		}
 		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "draft:"+draftID, "qq.draft.created", draftID, b.AccountID, conv, "QQ draft review: "+decision)
-		return er
+		if er != nil {
+			return er
+		}
+		response = map[string]any{"data": map[string]any{"id": draftID, "message_id": msgID, "payload_digest": bodyDigest, "rules_version": rulesVersion, "decision": decision, "evidence": json.RawMessage(evidence), "send_permit": "absent", "version": 1}}
+		return taskWriteIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, r.Method, r.URL.Path, r.Header.Get("Idempotency-Key"), requestDigest, draftID, response)
 	})
 	if e != nil {
 		thWriteError(w, r, e)
 		return
 	}
 	w.WriteHeader(201)
-	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": draftID, "message_id": msgID, "payload_digest": bodyDigest, "rules_version": rulesVersion, "decision": decision, "evidence": json.RawMessage(evidence), "send_permit": "absent", "version": 1}})
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (h *operatorConversationHTTP) getDraft(w http.ResponseWriter, r *http.Request, a Actor, id string) {

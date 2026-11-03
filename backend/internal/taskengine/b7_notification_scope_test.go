@@ -65,7 +65,9 @@ func TestB7NotificationScopedEventIdentity(t *testing.T) {
 	if first.Code != http.StatusCreated {
 		t.Fatalf("account one ingest status=%d body=%s", first.Code, first.Body.String())
 	}
+	runtime.RuntimeID = "runtime_b7_b"
 	second := b7IngestPost(h, runtime, sameEventTwoAccounts)
+	runtime.RuntimeID = "runtime_b7_a"
 	if second.Code != http.StatusCreated {
 		t.Fatalf("account two ingest status=%d body=%s", second.Code, second.Body.String())
 	}
