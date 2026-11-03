@@ -283,3 +283,90 @@ func TestUnscopedOperatorSeesSeededRows(t *testing.T) {
 		t.Fatalf("unscoped draft read status=%d body=%s", got.Code, got.Body.String())
 	}
 }
+
+// TestConversationAgentAppendOnExistingQQID pins the trust-domain boundary the
+// existing source test leaves open: an agent thread id is attacker-controlled,
+// so an operator must never be able to append a source=agent message onto a
+// pre-existing QQ conversation by addressing its id directly. Validation of
+// kind, account ownership and conversation identity happens server-side inside
+// the transaction, the denial uses the established RESOURCE_NOT_FOUND code to
+// avoid leaking the other domain, and a denied append leaves no message,
+// notification or permit rows. Legitimate agent-thread creation, workspace
+// scoping and runtime identity refusal stay intact.
+func TestConversationAgentAppendOnExistingQQID(t *testing.T) {
+	s := fixtureStore(t)
+	seedAccount(t, s, "account_b7", "runtime_b7", 1)
+	h := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return conversationActor(), nil })
+	scoped := conversationActor()
+	scoped.AccountIDs = []string{"account_b7"}
+	scopedHandler := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return scoped, nil })
+	runtime := conversationActor()
+	runtime.RuntimeID = "runtime_b7"
+	runtime.Permissions["chat.trigger"] = true
+	runtime.AccountIDs = []string{"account_b7"}
+	runtimeHandler := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
+	groupConv := jsonPath(t, conversationRequest(runtimeHandler, http.MethodPost, "/v1/operator/qq-inbox/events", `{"account_id":"account_b7","conversation_kind":"group","conversation_id":"group_p0_boundary","event_id":"evt_p0_group","body":"group text"}`, runtime), "conversation_id")
+	privateConv := jsonPath(t, conversationRequest(runtimeHandler, http.MethodPost, "/v1/operator/qq-inbox/events", `{"account_id":"account_b7","conversation_kind":"private","conversation_id":"qq_user_p0_boundary","event_id":"evt_p0_private","body":"private text"}`, runtime), "conversation_id")
+	attackGroup := conversationRequest(h, http.MethodPost, "/v1/operator/agent-threads/"+groupConv+"/messages", `{"body":"agent append onto existing group"}`, conversationActor())
+	if attackGroup.Code != http.StatusNotFound || !strings.Contains(attackGroup.Body.String(), "RESOURCE_NOT_FOUND") {
+		t.Fatalf("existing QQ group id attack status=%d body=%s", attackGroup.Code, attackGroup.Body.String())
+	}
+	attackPrivate := conversationRequest(h, http.MethodPost, "/v1/operator/agent-threads/"+privateConv+"/messages", `{"body":"agent append onto existing private"}`, conversationActor())
+	if attackPrivate.Code != http.StatusNotFound || !strings.Contains(attackPrivate.Body.String(), "RESOURCE_NOT_FOUND") {
+		t.Fatalf("existing QQ private id attack status=%d body=%s", attackPrivate.Code, attackPrivate.Body.String())
+	}
+	attackScoped := conversationRequest(scopedHandler, http.MethodPost, "/v1/operator/agent-threads/"+groupConv+"/messages", `{"body":"scoped agent append attempt"}`, scoped)
+	if attackScoped.Code != http.StatusNotFound || !strings.Contains(attackScoped.Body.String(), "RESOURCE_NOT_FOUND") {
+		t.Fatalf("account-scoped operator append attempt status=%d body=%s", attackScoped.Code, attackScoped.Body.String())
+	}
+	runtimePost := conversationRequest(runtimeHandler, http.MethodPost, "/v1/operator/agent-threads/thread_p0_runtime/messages", `{"body":"runtime must not post agent messages"}`, runtime)
+	if runtimePost.Code != http.StatusUnauthorized || !strings.Contains(runtimePost.Body.String(), "UNAUTHENTICATED") {
+		t.Fatalf("runtime identity on agent thread path status=%d body=%s", runtimePost.Code, runtimePost.Body.String())
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_conversation WHERE workspace_id='ws_fixture' AND id='thread_p0_runtime'`); rows != 0 {
+		t.Fatalf("refused runtime identity must leave no conversation, got %d", rows)
+	}
+	legit := conversationRequest(h, http.MethodPost, "/v1/operator/agent-threads/thread_p0_legit/messages", `{"body":"legitimate agent instruction"}`, conversationActor())
+	if legit.Code != http.StatusCreated {
+		t.Fatalf("legitimate agent thread creation status=%d body=%s", legit.Code, legit.Body.String())
+	}
+	legitScoped := conversationRequest(scopedHandler, http.MethodPost, "/v1/operator/agent-threads/thread_p0_scoped/messages", `{"body":"scoped legitimate agent instruction"}`, scoped)
+	if legitScoped.Code != http.StatusCreated {
+		t.Fatalf("account-scoped legitimate agent thread creation status=%d body=%s", legitScoped.Code, legitScoped.Body.String())
+	}
+	if _, err := s.Pool.Exec(context.Background(), `INSERT INTO core.workspace(id) VALUES('ws_p0_other'); INSERT INTO core.principal(workspace_id,id) VALUES('ws_p0_other','principal_p0_other'); INSERT INTO core.account(workspace_id,id,runtime_id,adapter_instance_id) VALUES('ws_p0_other','account_p0_other','runtime_p0_other','adapter_p0_other')`); err != nil {
+		t.Fatal(err)
+	}
+	other := conversationActor()
+	other.WorkspaceID = "ws_p0_other"
+	other.PrincipalID = "principal_p0_other"
+	otherHandler := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return other, nil })
+	otherLegit := conversationRequest(otherHandler, http.MethodPost, "/v1/operator/agent-threads/thread_p0_legit/messages", `{"body":"other workspace may create its own thread"}`, other)
+	if otherLegit.Code != http.StatusCreated {
+		t.Fatalf("workspace isolation must keep creation legitimate, status=%d body=%s", otherLegit.Code, otherLegit.Body.String())
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_message WHERE workspace_id='ws_p0_other' AND conversation_id='thread_p0_legit'`); rows != 1 {
+		t.Fatalf("cross-workspace creation lost its own message row, got %d", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_message WHERE workspace_id='ws_fixture' AND conversation_id='thread_p0_legit'`); rows != 1 {
+		t.Fatalf("cross-workspace write appended to the fixture workspace row, got %d", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_message WHERE workspace_id='ws_fixture' AND conversation_id=$1 AND source='qq'`, groupConv); rows != 1 {
+		t.Fatalf("QQ group conversation must hold only its inbound event, got %d rows", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_message WHERE workspace_id='ws_fixture' AND conversation_id=$1 AND source='qq'`, privateConv); rows != 1 {
+		t.Fatalf("QQ private conversation must hold only its inbound event, got %d rows", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_message WHERE workspace_id='ws_fixture' AND source='agent'`); rows != 2 {
+		t.Fatalf("denied appends must leave no agent message rows, got %d in the fixture workspace", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_type='agent.message'`); rows != 2 {
+		t.Fatalf("denied appends must leave no notification projections, got %d in the fixture workspace", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_p0_other' AND event_type='agent.message'`); rows != 1 {
+		t.Fatalf("the legitimate cross-workspace creation lost its notification, got %d", rows)
+	}
+	if rows := scalarInt(t, s, `SELECT count(*) FROM core.chat_send_permit`); rows != 0 {
+		t.Fatalf("agent thread writes must not create QQ permits, got %d", rows)
+	}
+}

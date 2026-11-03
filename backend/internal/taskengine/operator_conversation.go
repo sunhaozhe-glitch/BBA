@@ -243,6 +243,14 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 		if er != nil {
 			return er
 		}
+		var kind, ck, cid string
+		var account *string
+		if er = tx.QueryRow(ctx, `SELECT kind,conversation_kind,conversation_id,account_id FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2`, a.WorkspaceID, id).Scan(&kind, &ck, &cid, &account); er != nil {
+			return er
+		}
+		if kind != "agent" || ck != "agent" || cid != id || account != nil {
+			return problem("RESOURCE_NOT_FOUND")
+		}
 		var seq int64
 		if er = tx.QueryRow(ctx, `SELECT COALESCE(max(seq),0)+1 FROM core.operator_message WHERE workspace_id=$1 AND conversation_id=$2`, a.WorkspaceID, id).Scan(&seq); er != nil {
 			return er
