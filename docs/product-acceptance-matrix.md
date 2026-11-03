@@ -87,6 +87,19 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 
 本轮仅允许代码、migration、fixture 和离线验收。任何测试都不得登录 QQ、发送消息、加群、加好友、启动真实 NapCat/ARTEX/6300、写生产数据库、安装在线 MCP 或调用付费模型。fixture、静态注册表、作者报告和菜单存在都只能支持工程层结论，不能支持真实 QQ 或发布结论。
 
+## B7 阶段 1 principal 请求作用域（2026-11-03，PARTIAL / BLOCKED / NO_SHIP）
+
+本节仅覆盖组合依赖快照 `8f916059ed3261770b31f7ed2bdf196b3e1ae75e` 后的本阶段增量；main 仍为 `5e44e86b175de2563b25ef71b4aace64e8f8a9ff`，不能将下列结果归于 main。设计/完整命令、退出码、日志、风险见 `docs/b7-stage1/REPORT.md`；本地原始证据根 `.work/b7-stage1-20261103-162442/`，不提交 binary/凭据/历史证据包。
+
+| 能力 | 实现状态 | 接线状态 | 验证身份 | 环境 | 验收 | 版本、构建、schema、证据 | 发布状态/风险 |
+|---|---|---|---|---|---|---|---|
+| Agent/Draft 跨 principal 同 key 与通知去重 | IMPLEMENTED | WIRED_TO_CONSUMER | AUTHOR_SELF_TEST | ISOLATED_FIXTURE | PASS（限定代码版本） | RED `3155faf`、`RED-permanent.json` exit1；GREEN `3155faf`+diff 摘要 `GREEN-target.json` exit0；生产改动后 `e17950f` `test-all-1.json` exit0；schema26 | NOT_RELEASED；不是第三方审查 |
+| 同 principal 精确 replay/body conflict、并发、零许可 | IMPLEMENTED | WIRED_TO_CONSUMER | AUTHOR_SELF_TEST | ISOLATED_FIXTURE | PASS（限定代码版本） | `TestPrincipalEventScopeLifecycle`，原断言未降低；消息/通知/Draft/ledger/permit 计数，`GREEN-target.log`；最终 HEAD 以 `FINAL-*.json` 绑定 | NOT_RELEASED；未穷尽全部 scope HTTP 组合 |
+| 历史 event_id/旧 binary 请求、丢失响应、服务重启后 replay | IMPLEMENTED | WIRED_TO_CONSUMER | AUTHOR_SELF_TEST | ISOLATED_FIXTURE | PASS（限定代码版本） | `e17950f` `HTTP-2.json` exit0；`http-2/result.json` 为 binary SHA256/schema26/真实 HTTP 响应；计数12消息/12通知/6Draft/零许可；无注入 | NOT_RELEASED；旧 schema25 与依赖26不保证混跑 |
+| 合同与已有回归 | IMPLEMENTED | WIRED_TO_CONSUMER | AUTHOR_SELF_TEST | CONTRACT | PASS（限定代码版本） | `e17950f` `contract-2.json` exit0；test-all exit0；operator endpoints 尚未列于 OpenAPI，合同绿色不补足该缺口 | NOT_RELEASED；最终文档 HEAD 另跑 |
+| 第三方独立复审/独立执行 | IMPLEMENTED | WIRED_TO_CONSUMER | NOT_REVIEWED | ISOLATED_FIXTURE | BLOCKED | MOP施工0；未建立不付费无云回退路由；Hermes为作者和执行者 | NOT_RELEASED / NO_SHIP |
+| main/live/真实 QQ/ARTEX/本阶段浏览器 | PARTIAL | PARTIAL | NOT_REVIEWED | PRODUCTION | NOT_RUN | 没有该范围证据；本阶段无前端改动 | NOT_RELEASED |
+
 ## B7 2026-11-03 隔离增量验收（PARTIAL / NO_SHIP）
 
 本轮 main 为 `5e44e86b175de2563b25ef71b4aace64e8f8a9ff`，schema 源码 head=25、migration tail=`0016_qq_conversations.sql`。组合候选包含 #9/#10（共同包含 #8），schema/隔离 DB head=26、tail=`0017_operator_notification_scope.sql`。轮换独立修复提交 `5df521968726ede616a612c486a4e253cdb68aab` 基于 #10；组合修复 `cfc08c86a0cb07f2d94b8d708ff24ddb19eb811f`。所有结论仅离线 fixture，未发布。
