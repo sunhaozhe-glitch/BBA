@@ -2,6 +2,8 @@
 
 Run: python3 -m unittest tests.product.test_b7_manual_fixture_launcher -v
 """
+import ast
+import re
 import importlib.util
 import json
 import os
@@ -94,6 +96,38 @@ class OwnershipTest(unittest.TestCase):
 
     def test_pid_must_belong_to_this_fixture_binary(self):
         self.assertFalse(LAUNCHER.guard_owned_pid(os.getpid(), "/nonexistent/output/bin/taskengine-server"))
+
+
+class RuntimeSeedConsistencyTest(unittest.TestCase):
+    def test_resolver_runtime_has_current_seeded_owner_and_credential(self):
+        # Parse only public identity literals; never evaluate token expressions.
+        tree = ast.parse((ROOT / "tools/b7-manual-fixture.py").read_text())
+        runtime = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Dict):
+                continue
+            fields = {k.value: v for k, v in zip(node.keys, node.values)
+                      if isinstance(k, ast.Constant) and isinstance(k.value, str)}
+            if "runtime_id" in fields and "account_ids" in fields:
+                runtime.append({key: ast.literal_eval(fields[key])
+                                for key in ("workspace_id", "runtime_id", "owner_epoch", "account_ids")})
+        self.assertTrue(runtime, "resolver must declare a fixture runtime")
+        seed = (ROOT / "tools/b7-manual-fixture-seed.sql").read_text()
+        credentials = re.search(r"INSERT INTO core.runtime_credentials\([^;]+?VALUES(.*?);", seed, re.S)
+        self.assertIsNotNone(credentials, "seed must persist runtime credentials")
+        principals = re.search(r"INSERT INTO core.principal\([^;]+?VALUES(.*?);", seed, re.S)
+        accounts = re.search(r"INSERT INTO core.account\([^;]+?VALUES(.*?);", seed, re.S)
+        self.assertIsNotNone(principals)
+        self.assertIsNotNone(accounts)
+        for item in runtime:
+            ws, rid, epoch = item["workspace_id"], item["runtime_id"], item["owner_epoch"]
+            self.assertIn(f"('{ws}','{rid}')", principals[1], "runtime principal anchor missing")
+            self.assertEqual(epoch, 1, "seed account owner_epoch uses DDL default 1")
+            self.assertTrue(item["account_ids"])
+            for account in item["account_ids"]:
+                self.assertIn(f"('{ws}','{account}','{rid}',", accounts[1], "resolver is not current account owner")
+                self.assertIn(f"('{ws}','{rid}','{account}',{epoch},true,false)", credentials[1],
+                              "resolver needs an active, non-authoritative persisted credential")
 
 
 class NoLiveConstraintTest(unittest.TestCase):

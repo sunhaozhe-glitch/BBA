@@ -213,8 +213,8 @@ def cmd_start(output, env=None):
             {"token_sha256": sha256_hex(tokens["reader"]), "workspace_id": "b7fix-ws",
              "principal_id": "op-b7fix-reader", "permissions": ["conversation.read", "notification.read"]},
             {"token_sha256": sha256_hex(tokens["runtime"]), "workspace_id": "b7fix-ws",
-             "runtime_id": "rt-b7fix", "owner_epoch": 1,
-             "account_ids": ["acct-qq-1", "acct-qq-2"]},
+             "runtime_id": "rt-b7fix-2", "owner_epoch": 1,
+             "account_ids": ["acct-qq-2"]},
         ]
     }
     resolver_file = out / "resolver.json"

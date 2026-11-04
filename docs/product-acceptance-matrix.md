@@ -177,3 +177,35 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 | 边界差异 | UTF-8 字节上限另以描述记录；通知 read 省略/null→false；Inbox 幂等头仅非空、按 event_id 去重；输入 offset 有上限但输出 next_cursor 可能超过它；GET 历史 evidence 为任意 JSON | 独立 contract 回归检查结构；完整生成含 Go/TS smoke | 字节执行边界、并发/崩溃恢复、浏览器完整消费及外部效果；JSON Schema 字符限额不替代实际字节检查 |
 
 本节是稳定合同导航，不核销历史 B7-01 至 B7-07 的其他待验收项；不构成 controlled live、浏览器、完整 M1、M5 Agent run、CI 或发布通过证明。实现作者命令/退出码、未提交输入摘要与主代理独立复验各保留本轮范围和身份，发布仍为 `NOT_RELEASED`。
+
+
+## M1 B7 浏览器增量验收（2026-11-04）
+
+基线为 main `a25ea659a1796f2de3f095773afc3bf1beba4ae9`；本轮仅维护测试/验收记录，不修改产品实现、Go、DDL、权限或依赖。源码、测试和服务构建身份/摘要、命令/退出码、原始日志及截图保存在本机忽略目录 `evals/results/m1-b7-browser-20261104/`。基线工作树与后续测试补丁分开记录，提交后以本轮 PR head/输入摘要核对；本文不补造历史执行身份。
+
+| 范围 | 本轮结果与证据边界 | 尚未核销 |
+|---|---|---|
+| 请求作用域/迟到回执 | `tests/product/chat-request-scope.test.cjs` 主代理独立执行21项通过；切会话、A→B→A、迟到成功/401/500、刷新、退出、当前视图错误；fixture 分页信封改为真实 `data.next_cursor` | 测试内 HTTP fixture；不是 Go 授权/持久化/真实外部调用证明 |
+| 双对话/草稿/通知 UI | `tools/b7-chat-notify-browser.cjs` 主代理独立执行39项通过（1440/768/375）；两处恒真断言已替换为可失败的表单/错误态检查 | 浏览器内 API fixture；不证明真实 QQ 发送、完整分页或生产效果 |
+| 真实服务 UI | 新 PostgreSQL16/schema26 + 当前 Go binary + 文件 resolver；原样 smoke 13项中 runtime 入站404保留为失败，测试种子身份修正后13项通过，主代理在全新实例独立重跑通过（`independent-runtime/result.json`），输入摘要未漂移 | 不代表生产/QQ接入、所有并发与恢复 |
+| 增强调查 | 主代理全新实例独立执行11项采证检查，4个产品问题均复现；真实浏览器通知CAS409/刷新恢复、reader403/零写、空会话；辅助API分页/read:false、runtime撤权、零执行事实；缺陷复现与功能通过分开 | 调查工具 exit0不代表M1通过；通知迟到与分页见下表 |
+| fixture 启动器 | `python3 -m unittest tests.product.test_b7_manual_fixture_launcher -v` 补runtime种子一致性回归后主代理独立执行10项通过 | 纯函数守护，不替代服务生命周期清理/数据库验收 |
+
+本轮保留原样基线与 mutation 证据：旧恒真断言会放过注入的错误，修正后拒绝；分页信封修正只消除测试 oracle 漂移，不意味着前端已消费 cursor。Go API 的分页/通知 CAS/read:false 辅助执行与浏览器层证据分开。
+
+当前 `frontend/app.js` 中 conversations/messages/notifications 仍固定读取首页；未核销完整 M1 或多步 Agent run。真实 QQ、模型、MCP、ARTEX 与 production 均 `NOT_RUN`，发布 `NOT_RELEASED`。最新 CI 仅支持其实际作业范围，浏览器不在常驻 CI；本轮 CI 和审查结果按 PR 最新 head 核对。
+
+### 本轮确认问题与后续顺序
+
+| 优先级 / ID | 可复现触发与当前行为 | 后续独立 PR 验收门 |
+|---|---|---|
+| P2 / notification-navigation | 标记已读 POST 已在 Go 提交200，浏览器消费响应前切到对话；迟到回执调用 loadNotify(state.seq)，把对话页改成通知加载态，route守卫随后阻止渲染 | 为通知 mutation/read 增加 session/route/request generation 守卫；旧视图成功/403/401/超时与登出均不得污染新页；已提交写不得伪装取消 |
+| P2 / message-pagination | 51条Agent消息持久化，API首页50条且next_cursor=50，API第二页含seq1；页面无后续页入口且不消费cursor | 独立前端分页PR，三种列表分别消费data.next_cursor；无漏重/迟到响应/刷新/空错态与有限加载 |
+| P2 / notification-pagination | 51条同类通知持久化，API尾页可读；页面只显示首页，最旧合成项不可见 | 与消息/会话分页统一处理，但不复制Task的meta分页协议 |
+| P3 / authenticated-header | 已认证且真实API已加载，对话页header仍显示“尚未连接” | 按真实请求/会话状态更新文案，不能误表示QQ在线或外部能力 |
+
+`tests/product/b7-real-service-acceptance.cjs` 是当前基线调查/缺口复现工具，`validation_checks` 表示采证步骤正确完成，`product_findings` 和 `acceptance` 才是产品结论。修复后应将对应复现预期转换为期望行为回归，不把“要求缺陷存在”当永久验收门。通知迟到通过CDP仅延迟Go已生成的真实响应，不伪造响应/状态；数据库读回证明写已提交。
+
+独立真实服务执行记录：schema实际读数26、初始种子3/6/2/2、binary SHA与源码/测试摘要见 `independent-runtime/initial-db.json` / `result.json`；执行前后输入摘要一致。最终 task/chat_send_permit/dispatch_permit/model_request 均0，容器消失和HTTP/DB端口关闭均读回为true。主代理独立结果与作者证据分别保存，未把旧失败改写成PASS。
+
+本轮 Python product 全目录 `python3 -m unittest discover -s tests/product -v` 独立运行18项通过（含10项 launcher 守护/身份一致性测试），不含 Playwright；Node/Python语法和 `git diff --check` 通过。完整后端race未在本地重跑（本轮无Go/DDL修改），由本轮PR最新head的backend CI单独核对。

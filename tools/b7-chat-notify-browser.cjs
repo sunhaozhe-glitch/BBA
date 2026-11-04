@@ -67,7 +67,7 @@ fs.mkdirSync(out,{recursive:true});
   await check('QQ inbox tab filters to qq conversations',async()=>{
    assert.equal(await p.locator('[data-chat-conv="conv-agent-1"]').count(),0);
    assert(await p.locator('[data-chat-conv="conv-qq-1"]').isVisible());
-   assert((await p.locator('#content').textContent()).includes('不进入 QQ 出站')||true)});
+   assert.equal(await p.locator('#chat-form').count(),0,'switching to QQ clears the Agent composer')});
   await p.locator('[data-chat-conv="conv-qq-2"]').click();await p.waitForFunction(()=>document.querySelector('#content').textContent.includes('该会话暂无消息'));
   await check('empty conversation shows true empty state, not demo data',async()=>{
    assert(requests.some(x=>x.path==='/v1/operator/conversations/conv-qq-2/messages'));
@@ -108,7 +108,7 @@ fs.mkdirSync(out,{recursive:true});
   fault=true;await p.locator('#refresh').click();await p.waitForFunction(()=>!document.querySelector('#content .loading'));
   await check('error state is distinct from empty and success',async()=>{
    const txt=await p.locator('#content').textContent();
-   assert.match(txt,/读取失败/);assert(!/不展示演示数据/.test(txt)||true);assert(!(await p.locator('#content').textContent()).includes('操作成功'))});
+   assert.match(txt,/读取失败/);assert(!/不展示演示数据/.test(txt),'read failure must not include empty-state copy');assert(!(await p.locator('#content').textContent()).includes('操作成功'))});
   fault=false;
   await p.screenshot({path:path.join(out,`chat-notify-${width}.png`),fullPage:true});
   await check('no overflow, no persistent credentials, no unhandled JS errors',async()=>{

@@ -1,12 +1,13 @@
 -- B7 manual acceptance fixture seed (fixture-only; never applied to a live DB).
 -- Reuses the round-1 schema: core.operator_conversation / operator_message /
--- qq_draft / operator_notification (migration 0016, schema 25) and
+-- qq_draft / operator_notification and
 -- core.content_rule so the keyword-block path exercises the real rule engine.
 BEGIN;
 INSERT INTO core.workspace(id) VALUES ('b7fix-ws');
 -- operator + reader + runtime-anchor principals (handler checks principal existence)
 INSERT INTO core.principal(workspace_id,id) VALUES
-  ('b7fix-ws','op-b7fix'), ('b7fix-ws','op-b7fix-reader'), ('b7fix-ws','rt-b7fix');
+  ('b7fix-ws','op-b7fix'), ('b7fix-ws','op-b7fix-reader'),
+  ('b7fix-ws','rt-b7fix-1'), ('b7fix-ws','rt-b7fix-2');
 -- two QQ accounts: verifiable account isolation
 INSERT INTO core.account(workspace_id,id,runtime_id,adapter_instance_id,self_id,identity_status,
   connection_state,login_state,control_state,risk_state,request_join_verified,membership_verified,
@@ -16,6 +17,11 @@ VALUES
    'unknown','unknown','paused','unknown',false,false,1,clock_timestamp()),
   ('b7fix-ws','acct-qq-2','rt-b7fix-2','b7fix-adapter-2','100002','unverified',
    'unknown','unknown','paused','unknown',false,false,1,clock_timestamp());
+-- Persistent inbox identities match the file resolver's current owner epoch.
+-- These credentials authorize fixture ingress only; they grant no QQ capability.
+INSERT INTO core.runtime_credentials(workspace_id,runtime_id,account_id,owner_epoch,active,membership_authority) VALUES
+  ('b7fix-ws','rt-b7fix-1','acct-qq-1',1,true,false),
+  ('b7fix-ws','rt-b7fix-2','acct-qq-2',1,true,false);
 -- enabled keyword rule so a POSTed draft containing TEST_BLOCK is really blocked
 INSERT INTO core.content_revision(workspace_id,version) VALUES ('b7fix-ws',1);
 INSERT INTO core.content_rule(workspace_id,id,version,document) VALUES

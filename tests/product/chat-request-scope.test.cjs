@@ -14,7 +14,7 @@ const root = path.resolve(__dirname, '../..');
 const messagesPath = id => `/v1/operator/conversations/${id}/messages`;
 const agentPath = id => `/v1/operator/agent-threads/${id}/messages`;
 const message = (body, id = body) => ({ id, body, seq: 1, source: 'agent', direction: 'inbound', delivery_state: 'local_record', created_at: '2026-11-04T00:00:00Z' });
-const list = items => ({ data: { items }, meta: { next_cursor: null } });
+const list = items => ({ data: { items, next_cursor: '' } });
 const conversations = [
   { id: 'a', kind: 'agent', conversation_kind: 'agent', conversation_id: '线程 A', version: 1 },
   { id: 'b', kind: 'agent', conversation_kind: 'agent', conversation_id: '线程 B', version: 1 },
