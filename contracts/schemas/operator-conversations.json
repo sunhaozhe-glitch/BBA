@@ -1,0 +1,1005 @@
+{
+  "OperatorConversationPageEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind",
+                "account_id",
+                "conversation_kind",
+                "conversation_id",
+                "version",
+                "created_at",
+                "last_event_at",
+                "unread_count"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "agent",
+                    "qq"
+                  ]
+                },
+                "account_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.",
+                  "nullable": true
+                },
+                "conversation_kind": {
+                  "type": "string",
+                  "enum": [
+                    "agent",
+                    "group",
+                    "private"
+                  ]
+                },
+                "conversation_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                },
+                "version": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "maximum": 9223372036854775807,
+                  "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+                },
+                "created_at": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$",
+                  "description": "B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract."
+                },
+                "last_event_at": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$",
+                  "description": "B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract."
+                },
+                "unread_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "maximum": 9223372036854775807,
+                  "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+                }
+              },
+              "description": "Internal id and external conversation_id can differ. unread_count counts all QQ inbound messages; it is not decremented by marking notifications read.",
+              "oneOf": [
+                {
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "agent"
+                      ]
+                    },
+                    "account_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        null
+                      ]
+                    },
+                    "conversation_kind": {
+                      "type": "string",
+                      "enum": [
+                        "agent"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "account_id",
+                    "conversation_kind"
+                  ]
+                },
+                {
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "qq"
+                      ]
+                    },
+                    "account_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "[^ ]",
+                      "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                    },
+                    "conversation_kind": {
+                      "type": "string",
+                      "enum": [
+                        "group",
+                        "private"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "account_id",
+                    "conversation_kind"
+                  ]
+                }
+              ]
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "pattern": "^[0-9]*$",
+            "description": "Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope."
+          }
+        }
+      }
+    },
+    "description": "Conversation page scoped to the current workspace; no success meta. Order is max(message.created_at) DESC NULLS LAST, internal id ASC; last_event_at falls back to conversation creation."
+  },
+  "OperatorMessagePageEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "source",
+                "direction",
+                "delivery_state",
+                "body",
+                "body_digest",
+                "seq",
+                "created_at"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "agent",
+                    "qq"
+                  ]
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "inbound",
+                    "outbound_draft"
+                  ]
+                },
+                "delivery_state": {
+                  "type": "string",
+                  "enum": [
+                    "received",
+                    "draft",
+                    "blocked"
+                  ]
+                },
+                "body": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192,
+                  "description": "Persisted message text; new writes enforce at most 8192 UTF-8 bytes. Historical DDL allows at most 8192 characters."
+                },
+                "body_digest": {
+                  "$ref": "common.json#/Digest"
+                },
+                "seq": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "maximum": 9223372036854775807,
+                  "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+                },
+                "created_at": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$",
+                  "description": "B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract."
+                }
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "agent",
+                        "qq"
+                      ]
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": [
+                        "inbound"
+                      ]
+                    },
+                    "delivery_state": {
+                      "type": "string",
+                      "enum": [
+                        "received"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "direction",
+                    "delivery_state"
+                  ]
+                },
+                {
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "qq"
+                      ]
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": [
+                        "outbound_draft"
+                      ]
+                    },
+                    "delivery_state": {
+                      "type": "string",
+                      "enum": [
+                        "draft",
+                        "blocked"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "direction",
+                    "delivery_state"
+                  ]
+                }
+              ]
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "pattern": "^[0-9]*$",
+            "description": "Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope."
+          }
+        }
+      }
+    },
+    "description": "Messages for the internal conversation ID, newest numeric seq first. No author role, run, or send authority is implied."
+  },
+  "OperatorAgentMessageRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "body"
+    ],
+    "properties": {
+      "body": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192,
+        "x-max-utf8-bytes": 8192,
+        "description": "Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit."
+      }
+    },
+    "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Stores one Agent inbound message, creating an Agent thread if absent. Existing target must be an Agent conversation without QQ account; its external ID may differ."
+  },
+  "OperatorAgentMessageEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "conversation_id",
+          "source",
+          "direction",
+          "delivery_state",
+          "body_digest",
+          "send_permit"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "conversation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "agent"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "inbound"
+            ]
+          },
+          "delivery_state": {
+            "type": "string",
+            "enum": [
+              "received"
+            ]
+          },
+          "body_digest": {
+            "$ref": "common.json#/Digest"
+          },
+          "send_permit": {
+            "type": "string",
+            "enum": [
+              "absent"
+            ]
+          }
+        }
+      }
+    },
+    "description": "201 for both first creation and exact durable replay. No body/seq/version/replay flag is added to this receipt. No model run is started."
+  },
+  "OperatorQQDraftRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "account_id",
+      "conversation_kind",
+      "conversation_id",
+      "body",
+      "expected_version"
+    ],
+    "properties": {
+      "account_id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs."
+      },
+      "conversation_kind": {
+        "type": "string",
+        "enum": [
+          "group",
+          "private"
+        ]
+      },
+      "conversation_id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs."
+      },
+      "body": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192,
+        "x-max-utf8-bytes": 8192,
+        "description": "Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit."
+      },
+      "expected_version": {
+        "type": "integer",
+        "format": "int64",
+        "enum": [
+          1
+        ]
+      }
+    },
+    "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. expected_version is exactly numeric 1. Creates a review-only outbound draft, not a QQ send."
+  },
+  "OperatorQQDraftEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "message_id",
+          "payload_digest",
+          "rules_version",
+          "decision",
+          "evidence",
+          "send_permit",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "payload_digest": {
+            "$ref": "common.json#/Digest"
+          },
+          "rules_version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "blocked",
+              "unsupported"
+            ]
+          },
+          "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "hits",
+              "text_digest",
+              "raw_text_stored_in_review",
+              "send_permit"
+            ],
+            "properties": {
+              "hits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "rule_id",
+                    "rule_version",
+                    "byte_start",
+                    "byte_end"
+                  ],
+                  "properties": {
+                    "rule_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "[^ ]",
+                      "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                    },
+                    "rule_version": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "maximum": 9223372036854775807,
+                      "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+                    },
+                    "byte_start": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "byte_end": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "description": "contentMatch offsets are UTF-8 byte offsets, with an exclusive end. No match text is included."
+                }
+              },
+              "text_digest": {
+                "$ref": "common.json#/Digest"
+              },
+              "raw_text_stored_in_review": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "send_permit": {
+                "type": "string",
+                "enum": [
+                  "absent"
+                ]
+              }
+            },
+            "description": "Current createDraft content guard projection. May include arbitrary many matching offsets within the byte-bounded text. Evidence is not a send authorization."
+          },
+          "send_permit": {
+            "type": "string",
+            "enum": [
+              "absent"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+          }
+        },
+        "description": "Review receipt only; CQ text is unsupported, rule matches are blocked, otherwise draft. No QQ writer, permit issuance or external effect. Durable exact replay returns the original decision and versions with status 201."
+      }
+    },
+    "description": "201 on new draft and exact replay. Contains the current content guard evidence object; decision unsupported is stored as blocked on its message row."
+  },
+  "OperatorQQDraftDetailEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "message_id",
+          "payload_digest",
+          "rules_version",
+          "decision",
+          "evidence",
+          "send_permit",
+          "version",
+          "account_id",
+          "conversation_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "payload_digest": {
+            "$ref": "common.json#/Digest"
+          },
+          "rules_version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "blocked",
+              "unsupported"
+            ]
+          },
+          "evidence": {
+            "description": "Opaque persisted JSON returned unchanged from qq_draft.evidence. Historical JSON can be an object, array, string, number, boolean or null; jsonb NOT NULL forbids SQL NULL only. Current createDraft writes the content guard object, but GET does not revalidate or rebuild it. Preserve nested integers without float coercion.",
+            "x-go-type": "json.RawMessage"
+          },
+          "send_permit": {
+            "type": "string",
+            "enum": [
+              "absent"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+          },
+          "account_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "conversation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          }
+        }
+      }
+    },
+    "description": "Read-only persisted draft detail, including account and internal conversation IDs. Historical evidence is opaque JSON."
+  },
+  "OperatorQQInboxEventRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "account_id",
+      "conversation_kind",
+      "conversation_id",
+      "event_id",
+      "body"
+    ],
+    "properties": {
+      "account_id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs."
+      },
+      "conversation_kind": {
+        "type": "string",
+        "enum": [
+          "group",
+          "private"
+        ]
+      },
+      "conversation_id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs."
+      },
+      "event_id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs."
+      },
+      "body": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192,
+        "x-max-utf8-bytes": 8192,
+        "description": "Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit."
+      }
+    },
+    "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Runtime inbound evidence only. Event identity is workspace + account + conversation kind/external ID + event_id; body digest detects changed replays. The request header is only checked for nonempty presence."
+  },
+  "OperatorQQInboxEventEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "conversation_id",
+          "source",
+          "direction",
+          "delivery_state",
+          "event_id",
+          "body_digest",
+          "idempotent_replay"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "conversation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "qq"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "inbound"
+            ]
+          },
+          "delivery_state": {
+            "type": "string",
+            "enum": [
+              "received"
+            ]
+          },
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "body_digest": {
+            "$ref": "common.json#/Digest"
+          },
+          "idempotent_replay": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "description": "201 new inbound message, 200 same-event/same-digest replay with idempotent_replay=true; changed digest is 409. No send_permit field."
+  },
+  "OperatorNotificationPageEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "event_type",
+                "object_id",
+                "account_id",
+                "conversation_id",
+                "summary",
+                "evidence_ref",
+                "delivery_state",
+                "read_at",
+                "version",
+                "created_at"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                },
+                "event_type": {
+                  "type": "string"
+                },
+                "object_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+                },
+                "account_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.",
+                  "nullable": true
+                },
+                "conversation_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "[^ ]",
+                  "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.",
+                  "nullable": true
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 240
+                },
+                "evidence_ref": {
+                  "type": "string",
+                  "description": "Persisted reference, possibly empty. Current inbox writes sha256:<digest>."
+                },
+                "delivery_state": {
+                  "type": "string",
+                  "enum": [
+                    "local_only"
+                  ]
+                },
+                "read_at": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$",
+                  "description": "B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract.",
+                  "nullable": true
+                },
+                "version": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "maximum": 9223372036854775807,
+                  "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+                },
+                "created_at": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$",
+                  "description": "B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract."
+                }
+              },
+              "description": "Workspace-local projection. event_type is open text, not proof that every domain emits notifications. read_at and account/conversation IDs are always present and can be null. No external push."
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "pattern": "^[0-9]*$",
+            "description": "Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope."
+          }
+        }
+      }
+    },
+    "description": "Local notifications ordered by created_at DESC, id DESC. Optional account_id is an exact SQL filter; unfiltered workspace-global notifications may have no account or conversation."
+  },
+  "OperatorNotificationReadRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "expected_version"
+    ],
+    "properties": {
+      "expected_version": {
+        "type": "integer",
+        "format": "int64",
+        "minimum": 1,
+        "maximum": 9223372036854775807,
+        "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+      },
+      "read": {
+        "type": "boolean",
+        "nullable": true,
+        "description": "Optional Go bool field. Omitted or JSON null decodes to false (mark unread); false and true are accepted. A response always reports a non-null boolean."
+      }
+    },
+    "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Version compare-and-swap. Missing, null, zero or negative expected_version fails semantic validation with VALIDATION_FAILED (400); a non-integer or overflowing int64 fails decoding with VALIDATION_ERROR (400). A positive expected_version that does not match the persisted version, or a missing notification resource, yields VERSION_CONFLICT (409). No Idempotency-Key is used."
+  },
+  "OperatorNotificationReadEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "read",
+          "version",
+          "delivery_state"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "[^ ]",
+            "description": "Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs."
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision."
+          },
+          "delivery_state": {
+            "type": "string",
+            "enum": [
+              "local_only"
+            ]
+          }
+        }
+      }
+    },
+    "description": "CAS result with incremented numeric version. No replay, message read tracking or external delivery is implied."
+  },
+  "OperatorConversationErrorEnvelope": {
+    "oneOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "description": "Minimal handler auth/method/principal/store gate or operatorDecode error; no message or meta."
+      },
+      {
+        "$ref": "common.json#/ErrorEnvelope"
+      }
+    ],
+    "description": "Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data."
+  }
+}

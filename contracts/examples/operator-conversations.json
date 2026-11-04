@@ -1,0 +1,2113 @@
+[
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": true,
+    "value": {
+      "body": "synthetic Agent text"
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": false,
+    "value": {
+      "body": "synthetic Agent text",
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "msg_demo",
+        "conversation_id": "thread_demo",
+        "source": "agent",
+        "direction": "inbound",
+        "delivery_state": "received",
+        "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "send_permit": "absent"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "msg_demo",
+        "conversation_id": "thread_demo",
+        "source": "agent",
+        "direction": "inbound",
+        "delivery_state": "received",
+        "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "send_permit": "absent"
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": "review-only text",
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": "review-only text",
+      "expected_version": 1,
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": "synthetic inbound text"
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": "synthetic inbound text",
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "msg_demo",
+        "conversation_id": "conv_demo",
+        "source": "qq",
+        "direction": "inbound",
+        "delivery_state": "received",
+        "event_id": "event_demo",
+        "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "idempotent_replay": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "msg_demo",
+        "conversation_id": "conv_demo",
+        "source": "qq",
+        "direction": "inbound",
+        "delivery_state": "received",
+        "event_id": "event_demo",
+        "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "idempotent_replay": false
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": null,
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": null,
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 1,
+      "read": true
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 1,
+      "read": true,
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "notice_demo",
+        "read": true,
+        "version": 2,
+        "delivery_state": "local_only"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "notice_demo",
+        "read": true,
+        "version": 2,
+        "delivery_state": "local_only"
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "UNAUTHENTICATED"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; normal shape, with no external effect assertion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic B7 contract fixture; required envelope/request fields cannot be omitted."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": false,
+    "value": {
+      "error": {
+        "code": "UNAUTHENTICATED"
+      },
+      "unexpected": "reject"
+    },
+    "description": "Synthetic B7 contract fixture; unknown top-level field is rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; empty final page uses empty string cursor."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": "1000100"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; computed response cursor may exceed request offset cap."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": null
+      }
+    },
+    "description": "Synthetic B7 contract fixture; final cursor is not null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": "opaque"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; response cursor is decimal text."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; empty final page uses empty string cursor."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": "1000100"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; computed response cursor may exceed request offset cap."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": null
+      }
+    },
+    "description": "Synthetic B7 contract fixture; final cursor is not null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": "opaque"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; response cursor is decimal text."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; empty final page uses empty string cursor."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": null,
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": "1000100"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; computed response cursor may exceed request offset cap."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": null,
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": null
+      }
+    },
+    "description": "Synthetic B7 contract fixture; final cursor is not null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": null,
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": "opaque"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; response cursor is decimal text."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "qq",
+            "account_id": "acc_demo",
+            "conversation_kind": "group",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; QQ account/group conversation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "qq",
+            "account_id": null,
+            "conversation_kind": "group",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; QQ conversation requires a persisted account."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "private",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z",
+            "last_event_at": "2026-11-04T10:00:00Z",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; Agent conversation cannot be a QQ private conversation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "qq",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; persisted message source/direction/state combination."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "qq",
+            "direction": "outbound_draft",
+            "delivery_state": "draft",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; persisted message source/direction/state combination."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "qq",
+            "direction": "outbound_draft",
+            "delivery_state": "blocked",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; persisted message source/direction/state combination."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "outbound_draft",
+            "delivery_state": "draft",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; Agent messages cannot claim QQ outbound drafts."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "sent",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; message storage does not claim external send success."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": true,
+    "value": {
+      "body": " "
+    },
+    "description": "Synthetic B7 contract fixture; whitespace body is nonempty."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": true,
+    "value": {
+      "body": "文🙂"
+    },
+    "description": "Synthetic B7 contract fixture; multibyte text is accepted within the UTF-8 byte budget."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": true,
+    "value": {
+      "body": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "description": "Synthetic B7 contract fixture; ASCII reaches exact 8192-byte body limit."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": false,
+    "value": {
+      "body": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "description": "Synthetic B7 contract fixture; ASCII exceeds the necessary character/byte bound."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": false,
+    "value": {
+      "body": ""
+    },
+    "description": "Synthetic B7 contract fixture; empty body rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorAgentMessageRequest",
+    "valid": false,
+    "value": {
+      "body": null
+    },
+    "description": "Synthetic B7 contract fixture; null Go string becomes empty and fails semantic validation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": " ",
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; whitespace body is nonempty."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": "文🙂",
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; multibyte text is accepted within the UTF-8 byte budget."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": "",
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; empty body rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": null,
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; null Go string becomes empty and fails semantic validation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": " "
+    },
+    "description": "Synthetic B7 contract fixture; whitespace body is nonempty."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": "文🙂"
+    },
+    "description": "Synthetic B7 contract fixture; multibyte text is accepted within the UTF-8 byte budget."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": ""
+    },
+    "description": "Synthetic B7 contract fixture; empty body rejected."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": null
+    },
+    "description": "Synthetic B7 contract fixture; null Go string becomes empty and fails semantic validation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-room:demo",
+      "body": "review-only text",
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; private target uses the same bounded contract."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "agent",
+      "conversation_id": "external-room:demo",
+      "body": "review-only text",
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; QQ-only request cannot target Agent conversation kind."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": true,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "private",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": "synthetic inbound text"
+    },
+    "description": "Synthetic B7 contract fixture; private target uses the same bounded contract."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "agent",
+      "conversation_id": "external-user:demo",
+      "event_id": "event_demo",
+      "body": "synthetic inbound text"
+    },
+    "description": "Synthetic B7 contract fixture; QQ-only request cannot target Agent conversation kind."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftRequest",
+    "valid": false,
+    "value": {
+      "account_id": "acc_demo",
+      "conversation_kind": "group",
+      "conversation_id": "external-room:demo",
+      "body": "review-only text",
+      "expected_version": 2
+    },
+    "description": "Synthetic B7 contract fixture; draft expected_version must be numeric 1."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 1
+    },
+    "description": "Synthetic B7 contract fixture; omitted read decodes false."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 1,
+      "read": null
+    },
+    "description": "Synthetic B7 contract fixture; JSON null read decodes false."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 9223372036854775807,
+      "read": false
+    },
+    "description": "Synthetic B7 contract fixture; int64 maximum is accepted without string coercion."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 9223372036854775808
+    },
+    "description": "Synthetic B7 contract fixture; overflowing Go int64 fails decoding."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": false,
+    "value": {
+      "expected_version": "1"
+    },
+    "description": "Synthetic B7 contract fixture; CAS requires a JSON number."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 1,
+      "read": "false"
+    },
+    "description": "Synthetic B7 contract fixture; string read is not a Go bool."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "notice_demo",
+        "read": false,
+        "version": 3,
+        "delivery_state": "local_only"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; mark unread response has real false, not omitted or null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationReadEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "notice_demo",
+        "read": null,
+        "version": 3,
+        "delivery_state": "local_only"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; response read is always non-null bool."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "msg_demo",
+        "conversation_id": "conv_demo",
+        "source": "qq",
+        "direction": "inbound",
+        "delivery_state": "received",
+        "event_id": "event_demo",
+        "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "idempotent_replay": true
+      }
+    },
+    "description": "Synthetic B7 contract fixture; 200 exact inbound event replay."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQInboxEventEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "msg_demo",
+        "conversation_id": "conv_demo",
+        "source": "qq",
+        "direction": "inbound",
+        "delivery_state": "received",
+        "event_id": "event_demo",
+        "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "idempotent_replay": "true"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; replay marker requires boolean."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 9007199254740993,
+        "decision": "blocked",
+        "evidence": {
+          "hits": [
+            {
+              "rule_id": "rule_demo",
+              "rule_version": 9007199254740993,
+              "byte_start": 0,
+              "byte_end": 3
+            }
+          ],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1
+      }
+    },
+    "description": "Synthetic B7 contract fixture; original review decision and nested int64 versions are retained."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 9007199254740993,
+        "decision": "unsupported",
+        "evidence": {
+          "hits": [
+            {
+              "rule_id": "rule_demo",
+              "rule_version": 9007199254740993,
+              "byte_start": 0,
+              "byte_end": 3
+            }
+          ],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1
+      }
+    },
+    "description": "Synthetic B7 contract fixture; original review decision and nested int64 versions are retained."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "issued",
+        "version": 1
+      }
+    },
+    "description": "Synthetic B7 contract fixture; review is not permit issuance."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": "1",
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1
+      }
+    },
+    "description": "Synthetic B7 contract fixture; rules_version stays numeric."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 9007199254740993,
+        "decision": "blocked",
+        "evidence": {
+          "hits": [
+            {
+              "rule_id": "rule_demo",
+              "rule_version": 9007199254740993,
+              "byte_start": 0,
+              "byte_end": 3
+            }
+          ],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; original review decision and nested int64 versions are retained."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 9007199254740993,
+        "decision": "unsupported",
+        "evidence": {
+          "hits": [
+            {
+              "rule_id": "rule_demo",
+              "rule_version": 9007199254740993,
+              "byte_start": 0,
+              "byte_end": 3
+            }
+          ],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; original review decision and nested int64 versions are retained."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "issued",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; review is not permit issuance."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": "1",
+        "decision": "draft",
+        "evidence": {
+          "hits": [],
+          "text_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "raw_text_stored_in_review": false,
+          "send_permit": "absent"
+        },
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; rules_version stays numeric."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": null,
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": [],
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": [
+          "historical",
+          {
+            "version": 9007199254740993
+          }
+        ],
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": "legacy evidence",
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": 42,
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": true,
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftDetailEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": {
+          "unbounded_history": {
+            "nested": [
+              1,
+              2,
+              3
+            ]
+          }
+        },
+        "send_permit": "absent",
+        "version": 1,
+        "account_id": "acc_demo",
+        "conversation_id": "conv_demo"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; historical jsonb evidence is returned unchanged, including scalar/array/null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorQQDraftEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "draft_demo",
+        "message_id": "msg_demo",
+        "payload_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rules_version": 0,
+        "decision": "draft",
+        "evidence": null,
+        "send_permit": "absent",
+        "version": 1
+      }
+    },
+    "description": "Synthetic B7 contract fixture; new createDraft builds a content guard evidence object."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": "acc_demo",
+            "conversation_id": "conv_demo",
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": "2026-11-04T10:00:00Z",
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; non-null account/conversation/read timestamp."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "sent",
+            "read_at": null,
+            "version": 1,
+            "created_at": "2026-11-04T10:00:00Z"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 contract fixture; notification state is local_only."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "ACTION_FORBIDDEN"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; minimal handler or decoder error."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "METHOD_NOT_ALLOWED"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; minimal handler or decoder error."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "UNSUPPORTED_MEDIA_TYPE"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; minimal handler or decoder error."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "VALIDATION_ERROR"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; minimal handler or decoder error."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "STATE_STORE_UNAVAILABLE"
+      }
+    },
+    "description": "Synthetic B7 contract fixture; minimal handler or decoder error."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "VALIDATION_FAILED",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "RESOURCE_NOT_FOUND",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "IDEMPOTENCY_CONFLICT",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "VERSION_CONFLICT",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "STATE_CONSTRAINT",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "CONSTRAINT_CONFLICT",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "TRANSACTION_CONFLICT",
+        "message": "request failed",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "STATE_STORE_UNAVAILABLE",
+        "message": "request failed",
+        "retryable": true,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_demo",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic B7 contract fixture; full thWriteError envelope."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": false,
+    "value": {
+      "error": {
+        "code": null
+      }
+    },
+    "description": "Synthetic B7 contract fixture; error code cannot be null."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationErrorEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "success": true
+      }
+    },
+    "description": "Synthetic B7 contract fixture; failure envelope carries no success data."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T19:00:00.123456+08:00",
+            "last_event_at": "2026-11-04T06:00:00-05:00",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 process-local timestamp: RFC3339 offsets are allowed independently of the common UTC-only schema."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T19:00:00",
+            "last_event_at": "2026-11-04T06:00:00-05:00",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 timestamp must include a valid RFC3339 zone representation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorConversationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "thread_demo",
+            "kind": "agent",
+            "account_id": null,
+            "conversation_kind": "agent",
+            "conversation_id": "named-room:demo",
+            "version": 1,
+            "created_at": "2026-11-04T19:00:00+25:00",
+            "last_event_at": "2026-11-04T06:00:00-05:00",
+            "unread_count": 0
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 timestamp must include a valid RFC3339 zone representation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T19:00:00.123456+08:00"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 process-local timestamp: RFC3339 offsets are allowed independently of the common UTC-only schema."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T19:00:00"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 timestamp must include a valid RFC3339 zone representation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorMessagePageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "msg_demo",
+            "source": "agent",
+            "direction": "inbound",
+            "delivery_state": "received",
+            "body": "synthetic text",
+            "body_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "seq": 1,
+            "created_at": "2026-11-04T19:00:00+25:00"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 timestamp must include a valid RFC3339 zone representation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": "2026-11-04T19:00:00+08:00",
+            "version": 1,
+            "created_at": "2026-11-04T19:00:00.123456+08:00"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 process-local timestamp: RFC3339 offsets are allowed independently of the common UTC-only schema."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": "2026-11-04T19:00:00+08:00",
+            "version": 1,
+            "created_at": "2026-11-04T19:00:00"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 timestamp must include a valid RFC3339 zone representation."
+  },
+  {
+    "schema_ref": "operator-conversations.json#/OperatorNotificationPageEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": [
+          {
+            "id": "notice_demo",
+            "event_type": "agent.message",
+            "object_id": "msg_demo",
+            "account_id": null,
+            "conversation_id": null,
+            "summary": "Synthetic local notification",
+            "evidence_ref": "",
+            "delivery_state": "local_only",
+            "read_at": "2026-11-04T19:00:00+08:00",
+            "version": 1,
+            "created_at": "2026-11-04T19:00:00+25:00"
+          }
+        ],
+        "next_cursor": ""
+      }
+    },
+    "description": "Synthetic B7 timestamp must include a valid RFC3339 zone representation."
+  }
+]

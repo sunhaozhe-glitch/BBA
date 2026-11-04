@@ -18,6 +18,7 @@
   },
   "x-ref-policy": "All schema refs are local files under contracts/schemas. Remote, absolute, parent-traversing and symlink-escaping refs are forbidden.",
   "tags": [
+    {"name": "Operator Conversations", "description": "Existing B7 durable messages, review-only drafts, runtime inbox and local notifications; Bearer authentication only on these operations."},
     { "name": "Accounts", "description": "Accounts and account-control projections." },
     { "name": "Tasks", "description": "Task creation, status, event, and control operations." },
     { "name": "Capabilities", "description": "Verified adapter capabilities per account." },
@@ -31,6 +32,443 @@
     { "name": "NapCat Plugin", "description": "Actual local plugin registration ID. Server-side adapter only. Live use requires the separate P0-12/P0-13 approval gates." }
   ],
   "paths": {
+    "/v1/operator/conversations": {
+      "get": {
+        "operationId": "listOperatorConversations",
+        "summary": "List durable Agent and QQ conversations",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only. Filters do not validate account/QQ ID formats; internal Actor account ranges apply when provided, but file resolver does not expose account-restricted operator credentials.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.",
+            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range.",
+            "schema": {"type": "integer", "minimum": 0, "maximum": 1000000, "default": 0}
+          },
+          {
+            "name": "account_id",
+            "in": "query",
+            "required": false,
+            "description": "Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.",
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "conversation_kind",
+            "in": "query",
+            "required": false,
+            "description": "Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.",
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "required": false,
+            "description": "Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.",
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workspace conversation page; empty items is a successful empty result.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationPageEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        }
+      }
+    },
+    "/v1/operator/conversations/{id}/messages": {
+      "get": {
+        "operationId": "listOperatorConversationMessages",
+        "summary": "List durable conversation messages",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only; target ID is the internal stored conversation ID. Current workspace/account visibility is checked first.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id.",
+            "schema": {"type": "string", "minLength": 1, "pattern": "^[^/]+$"}
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.",
+            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range.",
+            "schema": {"type": "integer", "minimum": 0, "maximum": 1000000, "default": 0}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message page by descending numeric seq; final next_cursor is empty.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorMessagePageEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "404": {"$ref": "#/components/responses/OperatorConversationError404"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        }
+      }
+    },
+    "/v1/operator/agent-threads/{id}/messages": {
+      "post": {
+        "operationId": "appendOperatorAgentMessage",
+        "summary": "Append an Agent thread message",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.write. Operator only. Canonical write path only. Locks principal then Agent conversation, allocates seq, stores message/local notification/request receipt atomically. Legacy single-slash receipt is read compatibly; conflicting historical ledgers fail closed. Does not start an Agent run.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id.",
+            "schema": {"type": "string", "minLength": 1, "pattern": "^[^/]+$"}
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Required, nonblank after Go strings.TrimSpace and at most 128 UTF-8 bytes. Character maxLength alone is not an exact byte check. Identity: workspace/principal/method/canonical path/key. Exact replay remains 201; changed effective request or ambiguous legacy identity is 409 IDEMPOTENCY_CONFLICT. Current auth/source/account checks precede replay.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "[^\\u0009-\\u000d\\u0020\\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]",
+              "x-max-utf8-bytes": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New message or exact replay of its original durable receipt; both are 201.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorAgentMessageEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "404": {"$ref": "#/components/responses/OperatorConversationError404"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "409": {"$ref": "#/components/responses/OperatorConversationError409"},
+          "415": {"$ref": "#/components/responses/OperatorConversationError415"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. ",
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorAgentMessageRequest"}
+            }
+          }
+        }
+      }
+    },
+    "/v1/operator/qq-drafts": {
+      "post": {
+        "operationId": "createOperatorQQDraft",
+        "summary": "Create a review-only QQ draft",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.write. Operator only; current workspace/account existence and scope are checked. Request digest includes all effective fields. A rules change never re-reviews an existing receipt. Canonical path only. No QQ send or Chat Permit is created.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Required, nonblank after Go strings.TrimSpace and at most 128 UTF-8 bytes. Character maxLength alone is not an exact byte check. Identity: workspace/principal/method/canonical path/key. Exact replay remains 201; changed effective request or ambiguous legacy identity is 409 IDEMPOTENCY_CONFLICT. Current auth/source/account checks precede replay.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "[^\\u0009-\\u000d\\u0020\\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]",
+              "x-max-utf8-bytes": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New draft or exact replay of the original review receipt; both are 201.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorQQDraftEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "404": {"$ref": "#/components/responses/OperatorConversationError404"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "409": {"$ref": "#/components/responses/OperatorConversationError409"},
+          "415": {"$ref": "#/components/responses/OperatorConversationError415"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. ",
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorQQDraftRequest"}
+            }
+          }
+        }
+      }
+    },
+    "/v1/operator/qq-drafts/{id}": {
+      "get": {
+        "operationId": "getOperatorQQDraft",
+        "summary": "Read a stored QQ draft review",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only; current account visibility applies. Includes internal conversation ID. Historical evidence is returned unchanged, including JSON null/array/scalar.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id.",
+            "schema": {"type": "string", "minLength": 1, "pattern": "^[^/]+$"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stored review detail; evidence is the persisted JSON, not regenerated.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorQQDraftDetailEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "404": {"$ref": "#/components/responses/OperatorConversationError404"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        }
+      }
+    },
+    "/v1/operator/qq-inbox/events": {
+      "post": {
+        "operationId": "ingestOperatorQQInboxEvent",
+        "summary": "Ingest a runtime QQ inbound event",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "RuntimeCredential": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: chat.trigger and conversation.write. Runtime only; mapped principal is runtime_id and must exist in the workspace. Operator tokens cannot forge inbox input. Trusted token owner epoch, current account runtime owner/epoch, runtime credential active state/epoch and explicit account scope are checked before both new writes and replay, holding account then credential locks. Header is presence-only; event_id supplies dedup identity. No QQ writer is called.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Required nonempty header only. No 128-byte cap and no whitespace trim in ingestEvent; this is not the durable request key. Deduplication uses the body event_id in its conversation scope.",
+            "schema": {"type": "string", "minLength": 1}
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New inbound event persisted; idempotent_replay=false.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorQQInboxEventEnvelope"}
+              }
+            }
+          },
+          "200": {
+            "description": "Same event_id/body digest in the same conversation; idempotent_replay=true.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorQQInboxEventEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "404": {"$ref": "#/components/responses/OperatorConversationError404"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "409": {"$ref": "#/components/responses/OperatorConversationError409"},
+          "415": {"$ref": "#/components/responses/OperatorConversationError415"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. ",
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorQQInboxEventRequest"}
+            }
+          }
+        }
+      }
+    },
+    "/v1/operator/notifications": {
+      "get": {
+        "operationId": "listOperatorNotifications",
+        "summary": "List workspace-local notifications",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only. Optional exact account filter; current Actor account ranges apply if internally supplied. Newest created_at/id first.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.",
+            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range.",
+            "schema": {"type": "integer", "minimum": 0, "maximum": 1000000, "default": 0}
+          },
+          {
+            "name": "account_id",
+            "in": "query",
+            "required": false,
+            "description": "Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.",
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Local notification page, empty or nonempty. No external push is implied.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorNotificationPageEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        }
+      }
+    },
+    "/v1/operator/notifications/{id}": {
+      "post": {
+        "operationId": "setOperatorNotificationRead",
+        "summary": "Set local notification read state by version",
+        "tags": ["Operator Conversations"],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: notification.read. Operator only. No Idempotency-Key; stale version or missing ID is VERSION_CONFLICT (409), so identical retries can conflict. Omitted/null read becomes false. Mutation is workspace scoped; this handler does not additionally filter Actor.AccountIDs and file resolver rejects account-restricted operator configurations.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id.",
+            "schema": {"type": "string", "minLength": 1, "pattern": "^[^/]+$"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CAS applied; read is non-null boolean and version is incremented.",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorNotificationReadEnvelope"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/OperatorConversationError400"},
+          "401": {"$ref": "#/components/responses/OperatorConversationError401"},
+          "403": {"$ref": "#/components/responses/OperatorConversationError403"},
+          "404": {"$ref": "#/components/responses/OperatorConversationError404"},
+          "405": {"$ref": "#/components/responses/OperatorConversationError405"},
+          "409": {"$ref": "#/components/responses/OperatorConversationError409"},
+          "415": {"$ref": "#/components/responses/OperatorConversationError415"},
+          "500": {"$ref": "#/components/responses/OperatorConversationError500"},
+          "503": {"$ref": "#/components/responses/OperatorConversationError503"}
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. ",
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorNotificationReadRequest"}
+            }
+          }
+        }
+      }
+    },
     "/v1/operator/runtime": {
       "get": {
         "operationId": "getOperatorRuntime",
@@ -632,6 +1070,19 @@
   },
   "components": {
     "schemas": {
+      "OperatorConversationPageEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationPageEnvelope"},
+      "OperatorMessagePageEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorMessagePageEnvelope"},
+      "OperatorAgentMessageRequest": {"$ref": "./schemas/operator-conversations.json#/OperatorAgentMessageRequest"},
+      "OperatorAgentMessageEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorAgentMessageEnvelope"},
+      "OperatorQQDraftRequest": {"$ref": "./schemas/operator-conversations.json#/OperatorQQDraftRequest"},
+      "OperatorQQDraftEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorQQDraftEnvelope"},
+      "OperatorQQDraftDetailEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorQQDraftDetailEnvelope"},
+      "OperatorQQInboxEventRequest": {"$ref": "./schemas/operator-conversations.json#/OperatorQQInboxEventRequest"},
+      "OperatorQQInboxEventEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorQQInboxEventEnvelope"},
+      "OperatorNotificationPageEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorNotificationPageEnvelope"},
+      "OperatorNotificationReadRequest": {"$ref": "./schemas/operator-conversations.json#/OperatorNotificationReadRequest"},
+      "OperatorNotificationReadEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorNotificationReadEnvelope"},
+      "OperatorConversationErrorEnvelope": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"},
       "MaterializeRequest": {"$ref":"./schemas/product.json#/MaterializeRequest"},
       "OperatorRuntimeEnvelope": { "$ref": "./schemas/runtime.json#/OperatorRuntimeEnvelope" },
       "OperatorRuntime": { "$ref": "./schemas/runtime.json#/OperatorRuntime" },
@@ -819,6 +1270,90 @@
       "SummaryVersionQuery": { "name": "summary_version", "in": "query", "required": false, "description": "Exact stored version number. Required together with summary_id and must be positive; supplying it without summary_id is a validation error, never an implicit newest-version read.", "schema": { "type": "integer", "minimum": 1 } }
     },
     "responses": {
+      "OperatorConversationError400": {
+        "description": "VALIDATION_FAILED for semantic input/pagination; operatorDecode uses minimal VALIDATION_ERROR for malformed, extra, oversized or trailing JSON. Oversized input is 400 here, not a promised 413. operatorDecode uses http.Error with text/plain; charset=utf-8 despite its JSON-shaped body; semantic errors use application/json.",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string",
+              "description": "Raw JSON error text, including the trailing newline written by Go http.Error. Decode this media as a string; parse JSON separately to inspect error.code with OperatorConversationErrorEnvelope."
+            }
+          },
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError401": {
+        "description": "UNAUTHENTICATED: missing/invalid Bearer identity; runtime credentials are refused on operator paths.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError403": {
+        "description": "ACTION_FORBIDDEN for missing operation permission or missing workspace principal; operator identity is forbidden on runtime inbox.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError404": {
+        "description": "RESOURCE_NOT_FOUND for absent/invisible resource, invalid read path ID, wrong conversation domain, or invalid runtime ownership/scope.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError405": {
+        "description": "METHOD_NOT_ALLOWED from this handler, including noncanonical Agent/Draft trailing-slash writes; outer router may reject an unmatched path earlier.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError500": {
+        "description": "STATE_STORE_UNAVAILABLE from database/domain helpers; other unexpected failures. Full error envelope.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError503": {
+        "description": "STATE_STORE_UNAVAILABLE in the shared principal-existence gate. Minimal error envelope.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError409": {
+        "description": "IDEMPOTENCY_CONFLICT, VERSION_CONFLICT, or persistent STATE_CONSTRAINT / CONSTRAINT_CONFLICT / TRANSACTION_CONFLICT. Does not imply an external action.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
+      "OperatorConversationError415": {
+        "description": "UNSUPPORTED_MEDIA_TYPE: Content-Type does not start with application/json. operatorDecode returns a JSON-shaped body with text/plain; charset=utf-8.",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string",
+              "description": "Raw JSON error text, including the trailing newline written by Go http.Error. Decode this media as a string; parse JSON separately to inspect error.code with OperatorConversationErrorEnvelope."
+            }
+          },
+          "application/json": {
+            "schema": {"$ref": "./schemas/operator-conversations.json#/OperatorConversationErrorEnvelope"}
+          }
+        }
+      },
       "ContractError": { "description": "Contract error; retryable describes delivery of the same idempotent HTTP request only and never authorizes replay of a QQ action.", "content": { "application/json": { "schema": { "$ref": "./schemas/common.json#/ErrorEnvelope" } } } }
     }
   }

@@ -20,6 +20,21 @@ import (
 func goType[T any]() reflect.Type { return reflect.TypeOf((*T)(nil)).Elem() }
 
 var componentTypes = map[string]reflect.Type{
+	// operator-conversations.json: B7 durable messages, reviews and local notices
+	"OperatorConversationPageEnvelope":  goType[contract.OperatorConversationPageEnvelope](),
+	"OperatorMessagePageEnvelope":       goType[contract.OperatorMessagePageEnvelope](),
+	"OperatorAgentMessageRequest":       goType[contract.OperatorAgentMessageRequest](),
+	"OperatorAgentMessageEnvelope":      goType[contract.OperatorAgentMessageEnvelope](),
+	"OperatorQQDraftRequest":            goType[contract.OperatorQQDraftRequest](),
+	"OperatorQQDraftEnvelope":           goType[contract.OperatorQQDraftEnvelope](),
+	"OperatorQQDraftDetailEnvelope":     goType[contract.OperatorQQDraftDetailEnvelope](),
+	"OperatorQQInboxEventRequest":       goType[contract.OperatorQQInboxEventRequest](),
+	"OperatorQQInboxEventEnvelope":      goType[contract.OperatorQQInboxEventEnvelope](),
+	"OperatorNotificationPageEnvelope":  goType[contract.OperatorNotificationPageEnvelope](),
+	"OperatorNotificationReadRequest":   goType[contract.OperatorNotificationReadRequest](),
+	"OperatorNotificationReadEnvelope":  goType[contract.OperatorNotificationReadEnvelope](),
+	"OperatorConversationErrorEnvelope": goType[contract.OperatorConversationErrorEnvelope](),
+
 	// common.json
 	"Id":                    goType[contract.Id](),
 	"QQId":                  goType[contract.QQId](),
@@ -373,4 +388,41 @@ func TestFixturesRoundTripGeneratedTypes(t *testing.T) {
 		t.Fatal("no valid fixtures exercised generated Go types")
 	}
 	t.Logf("encoded/decoded %d valid fixtures through generated Go types", tested)
+}
+
+// The detail route returns historical JSON verbatim. Keep generated Go types
+// from coercing nested integers through interface{} / float64.
+func TestOperatorDraftHistoricalEvidencePrecision(t *testing.T) {
+	for _, evidence := range []string{
+		`null`, `[]`, `"history"`, `42`, `true`,
+		`{"nested":{"value":9007199254740993}}`,
+		`[{"value":9223372036854775807}]`,
+	} {
+		t.Run(evidence, func(t *testing.T) {
+			input := []byte(`{"data":{"id":"draft_contract","account_id":"acc_contract","conversation_id":"conv_contract","message_id":"msg_contract","payload_digest":"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","rules_version":9007199254740993,"decision":"draft","evidence":` + evidence + `,"send_permit":"absent","version":1}}`)
+			var value contract.OperatorQQDraftDetailEnvelope
+			if err := json.Unmarshal(input, &value); err != nil {
+				t.Fatal(err)
+			}
+			encoded, err := json.Marshal(value)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var envelope struct {
+				Data struct {
+					Evidence     json.RawMessage `json:"evidence"`
+					RulesVersion json.RawMessage `json:"rules_version"`
+				} `json:"data"`
+			}
+			if err := json.Unmarshal(encoded, &envelope); err != nil {
+				t.Fatal(err)
+			}
+			if string(envelope.Data.Evidence) != evidence {
+				t.Fatalf("evidence changed: want %s got %s", evidence, envelope.Data.Evidence)
+			}
+			if string(envelope.Data.RulesVersion) != "9007199254740993" {
+				t.Fatalf("rules_version changed: %s", envelope.Data.RulesVersion)
+			}
+		})
+	}
 }
