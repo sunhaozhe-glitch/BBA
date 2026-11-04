@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -55,16 +56,22 @@ func TestB7NotificationScopedEventIdentity(t *testing.T) {
 	s := fixtureStore(t)
 	seedAccount(t, s, "account_b7_a", "runtime_b7_a", 1)
 	seedAccount(t, s, "account_b7_b", "runtime_b7_b", 1)
-	runtime := conversationActor()
-	runtime.RuntimeID = "runtime_b7_a"
-	runtime.Permissions["chat.trigger"] = true
-	runtime.AccountIDs = []string{"account_b7_a", "account_b7_b"}
+	runtimeA := conversationActor()
+	runtimeA.RuntimeID = "runtime_b7_a"
+	runtimeA.Permissions["chat.trigger"] = true
+	runtimeA.AccountIDs = []string{"account_b7_a"}
+	runtimeB := conversationActor()
+	runtimeB.RuntimeID = "runtime_b7_b"
+	runtimeB.Permissions["chat.trigger"] = true
+	runtimeB.AccountIDs = []string{"account_b7_b"}
+	runtime := runtimeA
 	h := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
 	sameEventTwoAccounts := `{"account_id":"account_b7_b","conversation_kind":"group","conversation_id":"group_shared","event_id":"evt_shared","body":"shared text"}`
 	first := b7IngestPost(h, runtime, `{"account_id":"account_b7_a","conversation_kind":"group","conversation_id":"group_shared","event_id":"evt_shared","body":"shared text"}`)
 	if first.Code != http.StatusCreated {
 		t.Fatalf("account one ingest status=%d body=%s", first.Code, first.Body.String())
 	}
+	runtime = runtimeB
 	second := b7IngestPost(h, runtime, sameEventTwoAccounts)
 	if second.Code != http.StatusCreated {
 		t.Fatalf("account two ingest status=%d body=%s", second.Code, second.Body.String())
@@ -72,6 +79,7 @@ func TestB7NotificationScopedEventIdentity(t *testing.T) {
 	if jsonPath(t, second, "id") == jsonPath(t, first, "id") {
 		t.Fatal("the same event id in another account must project its own message")
 	}
+	runtime = runtimeA
 	third := b7IngestPost(h, runtime, `{"account_id":"account_b7_a","conversation_kind":"private","conversation_id":"user_shared","event_id":"evt_shared","body":"shared text"}`)
 	if third.Code != http.StatusCreated {
 		t.Fatalf("other conversation ingest status=%d body=%s", third.Code, third.Body.String())
@@ -183,47 +191,8 @@ func TestB7NotificationConcurrentSameScopedEventProjectsOnce(t *testing.T) {
 // scoped event identity only changes which notifications may coexist afterwards.
 func TestB7NotificationMigrate25PreservesRows(t *testing.T) {
 	ctx := context.Background()
-	cfg, err := pgx.ParseConfig(os.Getenv("BBA_FIXTURE_DSN"))
-	if err != nil || os.Getenv("BBA_FIXTURE_ONLY") != "1" || cfg.Host != "/fixture" || cfg.Database != "bba_fixture_admin" || cfg.User != "bba_fixture" {
-		t.Fatal("isolated fixture required")
-	}
-	admin, err := pgx.ConnectConfig(ctx, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer admin.Close(ctx)
-	name := newID("b7_old25")
-	if _, err = admin.Exec(ctx, "CREATE DATABASE "+pgx.Identifier{name}.Sanitize()); err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		if _, err := admin.Exec(ctx, "DROP DATABASE "+pgx.Identifier{name}.Sanitize()+" WITH (FORCE)"); err != nil {
-			t.Error(err)
-		}
-	}()
-	u, err := url.Parse(os.Getenv("BBA_FIXTURE_DSN"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	u.Path = "/" + name
-	s, err := Open(ctx, u.String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer s.Close()
-	old := append([]string{"0001_core.sql"}, migrationTail[:len(migrationTail)-1]...)
-	for _, file := range old {
-		sql, err := migrationFiles.ReadFile("migrations/" + file)
-		if err != nil {
-			t.Fatal(file, err)
-		}
-		if _, err = s.Pool.Exec(ctx, string(sql)); err != nil {
-			t.Fatal(file, err)
-		}
-	}
-	if n := scalarInt(t, s, `SELECT max(version) FROM core.schema_version`); n != 25 {
-		t.Fatalf("built old head %d, want 25", n)
-	}
+	s := b7OldSchemaStore(t)
+	var err error
 	if _, err = s.Pool.Exec(ctx, `INSERT INTO core.workspace(id) VALUES('ws_fixture');
 		INSERT INTO core.principal(workspace_id,id) VALUES('ws_fixture','principal_fixture');
 		INSERT INTO core.account(workspace_id,id,runtime_id,adapter_instance_id,self_id) VALUES('ws_fixture','account_b7_c','rt_b7_c','rt_b7_c','100003'),('ws_fixture','account_b7_d','rt_b7_d','rt_b7_d','100004');
@@ -276,7 +245,166 @@ func TestB7NotificationMigrate25PreservesRows(t *testing.T) {
 	t.Logf("real 25->%d: historical rows retained, scoped identity live, same-scope dedup preserved", migrationHead)
 }
 
+// b7OldSchemaStore builds a real database at the previous schema head -- the
+// whole migration list minus the newest entry -- so both the additive upgrade and
+// the old-schema boundary are measured against a database that never saw the
+// scoped index.
+func b7OldSchemaStore(t *testing.T) *Store {
+	t.Helper()
+	ctx := context.Background()
+	cfg, err := pgx.ParseConfig(os.Getenv("BBA_FIXTURE_DSN"))
+	if err != nil || os.Getenv("BBA_FIXTURE_ONLY") != "1" || cfg.Host != "/fixture" || cfg.Database != "bba_fixture_admin" || cfg.User != "bba_fixture" {
+		t.Fatal("isolated fixture required")
+	}
+	admin, err := pgx.ConnectConfig(ctx, cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { admin.Close(ctx) })
+	name := newID("b7_old25")
+	if _, err = admin.Exec(ctx, "CREATE DATABASE "+pgx.Identifier{name}.Sanitize()); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if _, err := admin.Exec(ctx, "DROP DATABASE "+pgx.Identifier{name}.Sanitize()+" WITH (FORCE)"); err != nil {
+			t.Error(err)
+		}
+	})
+	u, err := url.Parse(os.Getenv("BBA_FIXTURE_DSN"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	u.Path = "/" + name
+	s, err := Open(ctx, u.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { s.Close() })
+	old := append([]string{"0001_core.sql"}, migrationTail[:len(migrationTail)-1]...)
+	for _, file := range old {
+		sql, err := migrationFiles.ReadFile("migrations/" + file)
+		if err != nil {
+			t.Fatal(file, err)
+		}
+		if _, err = s.Pool.Exec(ctx, string(sql)); err != nil {
+			t.Fatal(file, err)
+		}
+	}
+	if n := scalarInt(t, s, `SELECT max(version) FROM core.schema_version`); n != migrationHead-1 {
+		t.Fatalf("built old head %d, want %d", n, migrationHead-1)
+	}
+	return s
+}
+
 // TestB7DraftInjectedNotificationFailureRollsBack injects a notification insert
 // failure through the isolated fixture database: the create must fail as a store
 // error and roll back the whole transaction, so a failed notification is never
 // swallowed by the idempotency write that follows it.
+func TestB7DraftInjectedNotificationFailureRollsBack(t *testing.T) {
+	s := fixtureStore(t)
+	seedAccount(t, s, "account_b7", "runtime_b7", 1)
+	if _, err := s.Pool.Exec(context.Background(), `CREATE FUNCTION core.b7_fail_notification() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'b7_injected_notification_failure'; END $$;
+		CREATE TRIGGER b7_fail_notification BEFORE INSERT ON core.operator_notification FOR EACH ROW EXECUTE FUNCTION core.b7_fail_notification()`); err != nil {
+		t.Fatal(err)
+	}
+	h := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return conversationActor(), nil })
+	fail := conversationRequest(h, http.MethodPost, "/v1/operator/qq-drafts", `{"account_id":"account_b7","conversation_kind":"group","conversation_id":"group_b7_inject","body":"draft","expected_version":1}`, conversationActor())
+	if fail.Code != http.StatusInternalServerError || b7ErrorCode(t, fail) != taskCodeStoreUnavailable {
+		t.Fatalf("injected notification failure status=%d code=%s", fail.Code, b7ErrorCode(t, fail))
+	}
+	if _, err := s.Pool.Exec(context.Background(), `DROP TRIGGER b7_fail_notification ON core.operator_notification`); err != nil {
+		t.Fatal(err)
+	}
+	// The same create succeeds once the injected failure is gone, so the failed
+	// request above rolled the whole transaction back instead of partially writing.
+	control := conversationRequest(h, http.MethodPost, "/v1/operator/qq-drafts", `{"account_id":"account_b7","conversation_kind":"group","conversation_id":"group_b7_control","body":"draft","expected_version":1}`, conversationActor())
+	if control.Code != http.StatusCreated {
+		t.Fatalf("post-injection control status=%d body=%s", control.Code, control.Body.String())
+	}
+	for query, want := range map[string]int{
+		`SELECT count(*) FROM core.operator_conversation WHERE workspace_id='ws_fixture' AND conversation_id='group_b7_inject'`:                                                                 0,
+		`SELECT count(*) FROM core.operator_message WHERE workspace_id='ws_fixture' AND conversation_id IN (SELECT id FROM core.operator_conversation WHERE conversation_id='group_b7_inject')`: 0,
+		`SELECT count(*) FROM core.qq_draft WHERE workspace_id='ws_fixture' AND conversation_id IN (SELECT id FROM core.operator_conversation WHERE conversation_id='group_b7_inject')`:         0,
+		`SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_type='qq.draft.created'`:                                                                     1,
+		`SELECT count(*) FROM core.chat_send_permit`: 0,
+	} {
+		if got := scalarInt(t, s, query); got != want {
+			t.Fatalf("%s = %d, want %d", query, got, want)
+		}
+	}
+}
+
+// TestB7NotificationNullConversationStaysWorkspaceScoped pins the half of the
+// scope the migration deliberately collapses: a notification that carries no
+// persisted conversation -- historical rows and events not bound to a conversation
+// row -- still dedupes across the whole workspace, while another event key in that
+// scope keeps its own row. Every handler path that writes a notification resolves a
+// real conversation row, so this is the preserved fallback, not the common case.
+func TestB7NotificationNullConversationStaysWorkspaceScoped(t *testing.T) {
+	s := fixtureStore(t)
+	seedAccount(t, s, "account_b7", "runtime_b7", 1)
+	ctx := context.Background()
+	if _, err := s.Pool.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES
+		('ws_fixture','notice_b7_null_a','draft:b7_null','qq.draft.created','obj_b7_a','account_b7',NULL,'null scope first'),
+		('ws_fixture','notice_b7_null_b','draft:b7_null','qq.draft.created','obj_b7_b','account_b7',NULL,'null scope second')
+		ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`); err != nil {
+		t.Fatal(err)
+	}
+	if n := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_key='draft:b7_null'`); n != 1 {
+		t.Fatalf("same workspace, NULL conversation, same event key: %d rows, want one", n)
+	}
+	var survivor string
+	if err := s.Pool.QueryRow(ctx, `SELECT id FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_key='draft:b7_null'`).Scan(&survivor); err != nil {
+		t.Fatal(err)
+	}
+	if survivor != "notice_b7_null_a" {
+		t.Fatalf("the first insert must win the scope, survivor=%s", survivor)
+	}
+	if _, err := s.Pool.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES ('ws_fixture','notice_b7_null_other','draft:b7_null_other','qq.draft.created','obj_b7_c','account_b7',NULL,'null scope other key') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`); err != nil {
+		t.Fatal(err)
+	}
+	if n := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND conversation_id IS NULL`); n != 2 {
+		t.Fatalf("two event keys in the workspace-wide NULL scope: %d rows, want two", n)
+	}
+	if n := scalarInt(t, s, `SELECT count(*) FROM core.chat_send_permit`); n != 0 {
+		t.Fatalf("chat_send_permit = %d, want 0", n)
+	}
+}
+
+// TestB7NotificationOldSchemaNeedsMigrationFirst records the deployment boundary
+// for the previous schema head. The server startup gate stays at its minimum of
+// 24, so this build still starts against a schema-25 database, and that database
+// still satisfies the old workspace-wide conflict target the previous build emits.
+// The scoped target this build emits is rejected there before any row is written,
+// so this build and the old schema are not rolling-upgrade compatible and the
+// database has to be migrated first. The Bridge is the other half of the boundary:
+// its gate requires the exact head, so a migrated database no longer starts the
+// previous Bridge -- migrate and restart both binaries together.
+func TestB7NotificationOldSchemaNeedsMigrationFirst(t *testing.T) {
+	s := b7OldSchemaStore(t)
+	ctx := context.Background()
+	if _, err := s.Pool.Exec(ctx, `INSERT INTO core.workspace(id) VALUES('ws_fixture');
+		INSERT INTO core.account(workspace_id,id,runtime_id,adapter_instance_id,self_id) VALUES('ws_fixture','account_b7_old','rt_b7_old','rt_b7_old','100009')`); err != nil {
+		t.Fatal(err)
+	}
+	old := `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES ('ws_fixture','notice_b7_old_a','inbox:evt_old','qq.message.inbound','obj_b7_old','account_b7_old',NULL,'old target') ON CONFLICT(workspace_id,event_key) DO NOTHING`
+	if _, err := s.Pool.Exec(ctx, old); err != nil {
+		t.Fatalf("the previous binary path on the old schema must keep working: %v", err)
+	}
+	if _, err := s.Pool.Exec(ctx, old); err != nil {
+		t.Fatalf("the previous binary path replay on the old schema must keep working: %v", err)
+	}
+	if n := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_key='inbox:evt_old'`); n != 1 {
+		t.Fatalf("old target on the old schema: %d rows, want the replay deduped to one", n)
+	}
+	scoped := `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES ('ws_fixture','notice_b7_old_b','inbox:evt_old','qq.message.inbound','obj_b7_old','account_b7_old',NULL,'new target') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`
+	_, err := s.Pool.Exec(ctx, scoped)
+	var pgerr *pgconn.PgError
+	if err == nil || sqlState(err, &pgerr) != "42P10" {
+		t.Fatalf("the new conflict target on the old schema must fail with 42P10, got %v", err)
+	}
+	if n := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_key='inbox:evt_old'`); n != 1 {
+		t.Fatalf("the rejected insert must write nothing, got %d rows", n)
+	}
+	t.Logf("previous head %d: old binary path works, this build scoped target fails 42P10 -- migrate before deploying", migrationHead-1)
+}
