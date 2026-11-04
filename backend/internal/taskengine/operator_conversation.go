@@ -243,6 +243,16 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 		if er != nil {
 			return er
 		}
+		// Existing rows may have a distinct display/external conversation ID.
+		// Enforce the trust domain without changing that persisted identity.
+		var kind, ck string
+		var account *string
+		if er = tx.QueryRow(ctx, `SELECT kind,conversation_kind,account_id FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2`, a.WorkspaceID, id).Scan(&kind, &ck, &account); er != nil {
+			return er
+		}
+		if kind != "agent" || ck != "agent" || account != nil {
+			return problem("RESOURCE_NOT_FOUND")
+		}
 		var seq int64
 		if er = tx.QueryRow(ctx, `SELECT COALESCE(max(seq),0)+1 FROM core.operator_message WHERE workspace_id=$1 AND conversation_id=$2`, a.WorkspaceID, id).Scan(&seq); er != nil {
 			return er
