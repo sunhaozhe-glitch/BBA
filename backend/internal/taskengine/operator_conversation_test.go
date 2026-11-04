@@ -18,6 +18,17 @@ func conversationActor() Actor {
 	return a
 }
 
+// conversationRuntimeActor mirrors resolver runtime claims for epoch-1 fixtures.
+// Rotation tests must explicitly replace OwnerEpoch with the new token claim.
+func conversationRuntimeActor(runtimeID string, accountIDs ...string) Actor {
+	a := conversationActor()
+	a.RuntimeID = runtimeID
+	a.OwnerEpoch = 1
+	a.AccountIDs = accountIDs
+	a.Permissions["chat.trigger"] = true
+	return a
+}
+
 func conversationRequest(h http.Handler, method, path, body string, actor Actor) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
 	r.Header.Set("Content-Type", "application/json")
@@ -136,10 +147,7 @@ func TestConversationSourceBoundary(t *testing.T) {
 	if rows := scalarInt(t, s, `SELECT count(*) FROM core.operator_conversation WHERE workspace_id='ws_fixture' AND kind='qq' AND conversation_id<>'agent' AND id IN (SELECT conversation_id FROM core.operator_message WHERE source='agent')`); rows != 0 {
 		t.Fatalf("agent message landed in a QQ conversation (%d)", rows)
 	}
-	runtime := conversationActor()
-	runtime.RuntimeID = "runtime_b7"
-	runtime.Permissions["chat.trigger"] = true
-	runtime.AccountIDs = []string{"account_b7"}
+	runtime := conversationRuntimeActor("runtime_b7", "account_b7")
 	r := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
 	in := conversationRequest(r, http.MethodPost, "/v1/operator/qq-inbox/events", `{"account_id":"account_b7","conversation_kind":"group","conversation_id":"group_boundary","event_id":"evt_boundary_1","body":"customer text"}`, runtime)
 	if in.Code != http.StatusCreated {
@@ -166,10 +174,7 @@ func TestConversationSourceBoundary(t *testing.T) {
 func TestInboxEventIdempotency(t *testing.T) {
 	s := fixtureStore(t)
 	seedAccount(t, s, "account_b7", "runtime_b7", 1)
-	runtime := conversationActor()
-	runtime.RuntimeID = "runtime_b7"
-	runtime.Permissions["chat.trigger"] = true
-	runtime.AccountIDs = []string{"account_b7"}
+	runtime := conversationRuntimeActor("runtime_b7", "account_b7")
 	r := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
 	h := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return conversationActor(), nil })
 	operatorIn := conversationRequest(h, http.MethodPost, "/v1/operator/qq-inbox/events", `{"account_id":"account_b7","conversation_kind":"group","conversation_id":"group_idem","event_id":"evt_x","body":"text one"}`, conversationActor())
@@ -300,10 +305,7 @@ func TestConversationAgentAppendOnExistingQQID(t *testing.T) {
 	scoped := conversationActor()
 	scoped.AccountIDs = []string{"account_b7"}
 	scopedHandler := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return scoped, nil })
-	runtime := conversationActor()
-	runtime.RuntimeID = "runtime_b7"
-	runtime.Permissions["chat.trigger"] = true
-	runtime.AccountIDs = []string{"account_b7"}
+	runtime := conversationRuntimeActor("runtime_b7", "account_b7")
 	runtimeHandler := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
 	groupConv := jsonPath(t, conversationRequest(runtimeHandler, http.MethodPost, "/v1/operator/qq-inbox/events", `{"account_id":"account_b7","conversation_kind":"group","conversation_id":"group_p0_boundary","event_id":"evt_p0_group","body":"group text"}`, runtime), "conversation_id")
 	privateConv := jsonPath(t, conversationRequest(runtimeHandler, http.MethodPost, "/v1/operator/qq-inbox/events", `{"account_id":"account_b7","conversation_kind":"private","conversation_id":"qq_user_p0_boundary","event_id":"evt_p0_private","body":"private text"}`, runtime), "conversation_id")

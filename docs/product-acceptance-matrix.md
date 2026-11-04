@@ -138,3 +138,16 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 - `serverMinimumSchema` 仍为 24。新旧通知冲突目标不能跨 schema 混跑；停止旧写入后显式迁移，再切换匹配 server/Bridge，禁止只回退 binary。迁移不会补回历史丢失通知；本轮未执行现存数据库迁移、真实 QQ 或部署，发布为 `NOT_RELEASED`。
 
 源码、升级方式、测试边界见 `docs/superpowers/plans/2026-11-04-b7-notification-scope.md`。账号/runtime 修复单独在 #10 核验；本节不是 B7 全项验收或生产放行。
+
+
+## M1 B7 账号读取与 runtime 身份组合核验（2026-11-04，PR #10 依赖 #9）
+
+基线 main `73a8156`，runtime 实现 `5298832` 保留原候选 `770e776` 的祖先；整合通知分支 `74df669` 得到 `88833cc`。子代理完成实现和作者红绿测试，主代理完成源码审核与 `INDEPENDENT_EXECUTION / ISOLATED_FIXTURE`，没有替代人工 approval 或生产验收。
+
+- QQ inbox 将 resolver 的可信 token OwnerEpoch 传入 Actor，按 account→credential 共享锁后复用 canonical runtime 授权；fresh/replay 都验证当前 owner、active、账号 scope 及三方 epoch。原候选同步轮换后接受旧 token 的缺陷已用红测复现，最终旧 token 拒绝、新 token 正向通过。
+- handler 的账号受限消息读取、撤销/缺失/错误身份和正向控制通过。文件 resolver 仍不支持账号受限 operator token；该读取证据只覆盖 handler/custom auth，没有扩大主服务配置权限。
+- 四类运维 mutation 先持锁的永久回归通过 PostgreSQL 实际阻塞关系观测；提交 owner 改变、撤销、credential epoch 或同步轮换后，阻塞中的 inbox 拒绝，全部持久表快照只包含已授权 mutation。未穷举所有运维锁序或并发 replay 排列。
+- 组合实现 `88833cc` 的完整 `TMPDIR="$PWD/build/test-tmp" bash tools/kernel.sh test-all` 退出 0；backend/测试输入运行期间不变。当前 binary + 新建 PostgreSQL（head 26）+ 真实 resolver 的组合 HTTP 29 项断言通过，包含通知四作用域/重放/已读 CAS、旧/新 token、#8 正负向及两类发送许可为零；fixture 已清理。
+- 独立原始证据在本机忽略目录 `evals/results/review-runtime-full-20261104/`、`evals/results/review-combined-http-20261104/`；作者原始日志/范围见 `docs/superpowers/plans/2026-11-04-b7-account-runtime.md`。后续提交仅同步审查文档，须核对 backend 与构建输入摘要；最新 head CI 和实际合并状态在 PR 动态检查。
+
+#10 的 PR base 为通知分支，便于只审 runtime 差异；先合并 #9，再将 #10 对齐 main 并重新核对 CI，不能把依赖分支当作最终发布目标。沿用 #9 的迁移和新旧 binary 兼容限制。本轮未合并、迁移现存 DB、连接真实 QQ/模型或部署，发布为 `NOT_RELEASED`；#11 principal 幂等、完整 B7/Agent run/生产发布均不在此结论内。

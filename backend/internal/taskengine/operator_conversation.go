@@ -1,6 +1,7 @@
 package taskengine
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -184,7 +185,7 @@ func (h *operatorConversationHTTP) messages(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	var ok bool
-	if e = h.store.Pool.QueryRow(r.Context(), `SELECT EXISTS(SELECT 1 FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2)`, a.WorkspaceID, id).Scan(&ok); e != nil || !ok {
+	if e = h.store.Pool.QueryRow(r.Context(), `SELECT EXISTS(SELECT 1 FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2 AND (coalesce(cardinality($3::text[]),0)=0 OR account_id IS NULL OR account_id=ANY($3)))`, a.WorkspaceID, id, a.AccountIDs).Scan(&ok); e != nil || !ok {
 		thWriteError(w, r, problem(taskCodeNotFound))
 		return
 	}
@@ -378,6 +379,35 @@ func (h *operatorConversationHTTP) getDraft(w http.ResponseWriter, r *http.Reque
 	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": id, "account_id": account, "conversation_id": conv, "message_id": msg, "payload_digest": dig, "rules_version": rev, "decision": decision, "evidence": json.RawMessage(evidence), "send_permit": "absent", "version": version}})
 }
 
+// operatorVerifyRuntimeCredential holds account then credential shared locks
+// through the inbox write/replay transaction. Ownership changes and revocation
+// cannot commit between these locks and the existing runtime authorization
+// check, which binds the trusted token epoch to both persisted rows.
+func operatorVerifyRuntimeCredential(ctx context.Context, tx pgx.Tx, a Actor, accountID string) error {
+	if a.RuntimeID == "" || a.OwnerEpoch <= 0 {
+		return problem("RESOURCE_NOT_FOUND")
+	}
+	var lockedID string
+	if err := tx.QueryRow(ctx, `SELECT id FROM core.account WHERE workspace_id=$1 AND id=$2 FOR SHARE`, a.WorkspaceID, accountID).Scan(&lockedID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return problem("RESOURCE_NOT_FOUND")
+		}
+		return err
+	}
+	if err := tx.QueryRow(ctx, `SELECT runtime_id FROM core.runtime_credentials WHERE workspace_id=$1 AND runtime_id=$2 AND account_id=$3 FOR SHARE`, a.WorkspaceID, a.RuntimeID, accountID).Scan(&lockedID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return problem("RESOURCE_NOT_FOUND")
+		}
+		return err
+	}
+	return authorizeRuntime(ctx, tx, RuntimeActor{
+		WorkspaceID: a.WorkspaceID,
+		RuntimeID:   a.RuntimeID,
+		OwnerEpoch:  a.OwnerEpoch,
+		AccountIDs:  a.AccountIDs,
+	}, accountID)
+}
+
 func (h *operatorConversationHTTP) ingestEvent(w http.ResponseWriter, r *http.Request, a Actor) {
 	var b struct {
 		AccountID        string `json:"account_id"`
@@ -402,12 +432,8 @@ func (h *operatorConversationHTTP) ingestEvent(w http.ResponseWriter, r *http.Re
 	var existingID, existingDigest, messageID, conversationID string
 	var replay bool
 	err := h.store.tx(ctx, func(tx pgx.Tx) error {
-		var exists bool
-		if er := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM core.account WHERE workspace_id=$1 AND id=$2)`, a.WorkspaceID, b.AccountID).Scan(&exists); er != nil {
+		if er := operatorVerifyRuntimeCredential(ctx, tx, a, b.AccountID); er != nil {
 			return er
-		}
-		if !exists {
-			return problem("RESOURCE_NOT_FOUND")
 		}
 		conv := newID("conv")
 		if _, er := tx.Exec(ctx, `INSERT INTO core.operator_conversation(workspace_id,id,kind,account_id,conversation_kind,conversation_id) VALUES($1,$2,'qq',$3,$4,$5) ON CONFLICT DO NOTHING`, a.WorkspaceID, conv, b.AccountID, b.ConversationKind, b.ConversationID); er != nil {

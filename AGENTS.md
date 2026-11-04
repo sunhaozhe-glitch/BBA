@@ -131,6 +131,8 @@ Collector 采集 → 持久窗口 → Summary producer/publisher
 
 这里是定位图，不复制完整 API。逐操作的 method、请求字段、权限名、错误码、分页和幂等规则读 OpenAPI、对应 handler/tests。内部实现的 API 比主服务实际暴露范围更大；`x-feature-enabled-in-p0` 不是装配证明。
 
+QQ inbox 的 runtime 身份由 `operatorConversationAuth` 传递可信 `OwnerEpoch`，事务按 account→credential 持共享锁，再复用 `authorizeRuntime`；fresh 写入与 replay 均须先通过当前 owner、active、账号 scope 和 token/account/credential epoch 校验。自定义 auth 必须传入可信 token epoch，不能从数据库当前值补齐。消息读取支持内部 `Actor.AccountIDs` 范围；当前文件 resolver 不接受账号受限的 operator 配置，handler 测试不代表这种 token 已在主服务接线。
+
 ### 3.5 独立研发 Controller
 
 依据 `controller/src/bba_controller/` 与 `docs/adr/controller-phase1.md`：这是研发编排实验组件，不连接 QQ 业务数据库，也没有把产品 MCP 页面接到 Go Task Engine。

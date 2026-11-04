@@ -56,14 +56,8 @@ func TestB7NotificationScopedEventIdentity(t *testing.T) {
 	s := fixtureStore(t)
 	seedAccount(t, s, "account_b7_a", "runtime_b7_a", 1)
 	seedAccount(t, s, "account_b7_b", "runtime_b7_b", 1)
-	runtimeA := conversationActor()
-	runtimeA.RuntimeID = "runtime_b7_a"
-	runtimeA.Permissions["chat.trigger"] = true
-	runtimeA.AccountIDs = []string{"account_b7_a"}
-	runtimeB := conversationActor()
-	runtimeB.RuntimeID = "runtime_b7_b"
-	runtimeB.Permissions["chat.trigger"] = true
-	runtimeB.AccountIDs = []string{"account_b7_b"}
+	runtimeA := conversationRuntimeActor("runtime_b7_a", "account_b7_a")
+	runtimeB := conversationRuntimeActor("runtime_b7_b", "account_b7_b")
 	runtime := runtimeA
 	h := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
 	sameEventTwoAccounts := `{"account_id":"account_b7_b","conversation_kind":"group","conversation_id":"group_shared","event_id":"evt_shared","body":"shared text"}`
@@ -149,10 +143,7 @@ func TestB7NotificationKeyScopePreservesNonInboxKeys(t *testing.T) {
 func TestB7NotificationConcurrentSameScopedEventProjectsOnce(t *testing.T) {
 	s := fixtureStore(t)
 	seedAccount(t, s, "account_b7_a", "runtime_b7_a", 1)
-	runtime := conversationActor()
-	runtime.RuntimeID = "runtime_b7_a"
-	runtime.Permissions["chat.trigger"] = true
-	runtime.AccountIDs = []string{"account_b7_a"}
+	runtime := conversationRuntimeActor("runtime_b7_a", "account_b7_a")
 	h := s.OperatorConversationHandler(func(*http.Request) (Actor, error) { return runtime, nil })
 	body := `{"account_id":"account_b7_a","conversation_kind":"group","conversation_id":"group_race_notify","event_id":"evt_race","body":"raced text"}`
 	var responses [2]*httptest.ResponseRecorder
