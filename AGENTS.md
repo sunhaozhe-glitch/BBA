@@ -237,7 +237,7 @@ Agent thread/message 与 QQ account/group/private conversation 分域存储；�
 | 聊天 | chat_send_policy、group_binding、chat_trigger、chat_send_usage、chat_send_permit/outcome、专用幂等记录；独立于任务域 |
 | 规划/知识 | model_request、plan_proposal/application/basis、group_summary；work_materialization/item/attempt；本地图投影与 graph_sync_outbox/checkpoints |
 | 产品支持 | login_session/event、content_rule/history/review、workspace_work_settings/audit |
-| 双对话 | operator_conversation→operator_message→qq_draft；operator_notification 按 event_key 去重、保存 read/version，delivery_state 约束为 local_only |
+| 双对话 | operator_conversation→operator_message→qq_draft；operator_notification 按 workspace/持久 conversation/event_key 去重（NULL conversation 保留 workspace 范围），保存 read/version，delivery_state 约束为 local_only |
 
 `operator_message` 只追加，禁止 UPDATE/DELETE；QQ 事件按会话/event_id 去重，消息有 seq/body_digest。当前 migration 没有独立 CRM、日历 occurrence 或运营 Agent run/step 持久化域，不得把相似名称当成已实现。
 
@@ -250,6 +250,7 @@ Agent thread/message 与 QQ account/group/private conversation 分域存储；�
 3. `Store.Open`/服务启动不迁移。`taskengine-migrate` 无参数仅初始化空库；`--check --expected-version N [--expect-head H]` 只读；`--upgrade --expected-version N [--expect-head H]` 显式升级，N/H 从本轮读取获得，不能照抄历史示例。
 4. migration 只追加，不重编号已发布文件、不引入隐式 startup/down migration；保持事务、约束、升级/审计语义。
 5. 涉库变更同时核对 migration tail/head、binary、server/Bridge gate、迁移测试、`--check`、隔离数据库实际 head；验证受支持旧版升级、当前启动、关键查询、隔离恢复及保留/删除语义。
+6. 通知作用域迁移 `0017_operator_notification_scope.sql` 同时改变唯一索引与三处写入冲突目标；新旧写入 SQL 不支持跨 schema 混跑。先停止旧写入方，再显式迁移并切换匹配的 server/Bridge binary；不能只回退 binary，迁移不会补回历史已漏通知。
 
 ### 7.3 契约与编码
 

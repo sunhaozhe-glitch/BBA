@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Isolated PostgreSQL fixture through schema 25. No host ports or production DSN accepted.
+## Isolated PostgreSQL fixture through schema 26. No host ports or production DSN accepted.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:-test}"
@@ -41,7 +41,7 @@ if [[ "$MODE" == schema ]]; then
 	docker exec -i "$FIXTURE_NAME" psql -h /fixture -U bba_fixture -d bba_fixture_admin -v ON_ERROR_STOP=1 < "$ROOT/backend/internal/taskengine/migrations/0010_proposal_work.sql"
 	docker exec -i "$FIXTURE_NAME" psql -h /fixture -U bba_fixture -d bba_fixture_admin -v ON_ERROR_STOP=1 < "$ROOT/backend/internal/taskengine/migrations/0011_artex_sync.sql"
 	docker exec -i "$FIXTURE_NAME" psql -h /fixture -U bba_fixture -d bba_fixture_admin -v ON_ERROR_STOP=1 < "$ROOT/backend/internal/taskengine/migrations/0012_login_sessions.sql"
-	for migration in 0013_content_rules.sql 0014_work_slots.sql 0015_work_settings.sql 0016_qq_conversations.sql; do
+	for migration in 0013_content_rules.sql 0014_work_slots.sql 0015_work_settings.sql 0016_qq_conversations.sql 0017_operator_notification_scope.sql; do
 	 docker exec -i "$FIXTURE_NAME" psql -h /fixture -U bba_fixture -d bba_fixture_admin -v ON_ERROR_STOP=1 < "$ROOT/backend/internal/taskengine/migrations/$migration"
 	done
 	exit
