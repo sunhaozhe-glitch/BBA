@@ -151,3 +151,17 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 - 独立原始证据在本机忽略目录 `evals/results/review-runtime-full-20261104/`、`evals/results/review-combined-http-20261104/`；作者原始日志/范围见 `docs/superpowers/plans/2026-11-04-b7-account-runtime.md`。后续提交仅同步审查文档，须核对 backend 与构建输入摘要；最新 head CI 和实际合并状态在 PR 动态检查。
 
 #10 的 PR base 为通知分支，便于只审 runtime 差异；先合并 #9，再将 #10 对齐 main 并重新核对 CI，不能把依赖分支当作最终发布目标。沿用 #9 的迁移和新旧 binary 兼容限制。本轮未合并、迁移现存 DB、连接真实 QQ/模型或部署，发布为 `NOT_RELEASED`；#11 principal 幂等、完整 B7/Agent run/生产发布均不在此结论内。
+
+
+## M1 B7 操作员幂等闭环增量（2026-11-04，PR #11 更新中）
+
+基线 main `5aaef18`，原 PR #11 `4715e12` 的 base 是旧依赖快照，不能将其前置能力当作主线事实。本地模型子代理只完成初次 RED 移植；后续默认模型子代理完成实现，主代理独立审核与执行。旧依赖的 inbox/runtime/UI 等差异不在本次变更内。
+
+- 主线实际缺 Agent/Draft 的持久账本前置：同主体重试、跨主体同 key 均冲突。永久 RED 与真实旧 binary HTTP 均复现；保留初次编译错误记录，不把编译失败当业务 RED。
+- 新链复用 `core.idempotency`；principal→conversation 锁下，消息/草稿/本地通知/账本一次事务提交；同主体重放原回执，异有效请求冲突，跨主体同 key 独立。Draft 摘要覆盖账号/类型/目标/文本/版本；QQ writer、Task/模型链未启动。
+- 当前权限、主体、account/source 仍在重放前校验；原合法命名 Agent 会话兼容。新写规范路径拒绝末尾 slash；规范请求有界读历史 canonical/单 slash 账本，冲突不猜选。整数无损解码覆盖 rules_version 与嵌套 evidence。
+- 无账本的旧 raw-key 不补造回执：Agent 当前 thread/key 保守拒绝；Draft 按创建主体跨历史目标拒绝，防止改目标绕过。旧有账本保持原 event_id/响应。有原始消息不等于有可恢复的请求身份。
+- 作者定向 `tools/kernel.sh test` exit 0，33 个顶层测试 PASS；主代理完整 `TMPDIR="$PWD/build/test-tmp" bash tools/kernel.sh test-all` 退出0，运行期间后端/测试输入不变；部分 package 无测试。主代理当前源码 binary + 全新 PostgreSQL（head26）+ 文件 resolver/HTTP：53 项断言 PASS，涵盖旧 main/旧 ledger binary→新 binary、并发/丢回执/重启、权限撤销、回滚、数字精度、零 Chat/dispatch permit/task/model；容器、服务和端口清理通过。
+- 主代理撤回了无关 inbox 校验一行后重新执行最终完整 race 与 HTTP，均通过；整段 inbox 实现与 main 一致。原始证据：本机忽略目录 `evals/results/m1-principal-author-20261104/`、`m1-principal-final-full-20261104/`、`m1-principal-final-http-20261104/`、`m1-principal-review-20261104/`。未提交树证据记录代码/测试摘要；提交后须重新核对一致，CI 以最终 PR head 为准。
+
+范围仅支持 B7-01/03/04/05 的请求幂等子项；**Draft/inbox 并发 seq 分配仍非同一锁协议，可能一方409回滚**。完整分页/浏览器/契约与多步 Agent run 未验收；本轮无 wire/DDL/前端/生成类型改动，OpenAPI 覆盖仍待下一项。没有新 migration 不等于新旧业务写入可混跑：切换须先停旧 Agent/Draft 写入；只回退 binary 会恢复缺陷，不能当作安全回滚。本轮未合并、部署、迁移现存库或调用真实 QQ/模型，`NOT_RELEASED`。
