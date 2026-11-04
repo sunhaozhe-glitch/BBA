@@ -125,3 +125,16 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 
 - 当前 `.github/workflows/ci.yml`：contracts（合同/TS/前端语法/插件）、backend（隔离 Go race/build）、character（build/typecheck/test）。未独立覆盖 Collector、完整产品浏览器、frontend/embed 一致性。本轮仅补文档；这三项增强作为独立 CI PR，路径条件设计需避免必需检查被跳过后永久 pending，不混入业务 PR。
 - 通过 GitHub API 查询 `repos/sunhaozhe-glitch/BBA/branches/main` 返回 `protected=false`，`repos/sunhaozhe-glitch/BBA/rulesets` 返回空数组。当前未启用 main 分支保护/ruleset，并非“已核实启用”或“尚未核实”。没有仓库强制的 approval/required check 门禁不等于可绕过 AGENTS 的 PR/最新 CI 规则。本轮不修改仓库设置；未来启用审批/禁止绕过前需确定实际审查者及治理策略，避免单人仓库无法合并。
+
+
+## M1 B7 通知身份增量核验（2026-11-04，PR #9）
+
+基线 main `73a8156`，复用原候选 `31489e6`，由本地模型子代理实现/作者定向测试，主代理完成源码审核与 `INDEPENDENT_EXECUTION / ISOLATED_FIXTURE`。本节只更新 B7 通知身份范围，不覆盖其余历史待验收项。
+
+- 通知身份为 workspace + 持久 conversation + event_key；同一 event_id 跨账号、群/私聊各自投影，同范围重放不新增。NULL conversation 仍按 workspace 去重。
+- 作者定向回归证明未修复主线仅 1 条（应 3 条）；修复后跨范围、并发单投影、通知失败整事务回滚和真实 schema 25→26 保留历史 id/read/version/NULL 行通过。
+- 主代理完整 `TMPDIR="$PWD/build/test-tmp" bash tools/kernel.sh test-all` 退出 0；后端代码/测试输入摘要在运行期间不变，部分 package 无测试。当前 binary + 新建 PostgreSQL + 真实 resolver/HTTP 的 17 项断言退出 0；没有发放 Chat/dispatch permit，fixture 容器与端口已清理。
+- 原始独立证据在本机忽略目录 `evals/results/review-notification-full-20261104/`、`evals/results/review-notification-http-20261104/`；作者日志见计划。提交后的变更仅为审查文档，需核对代码输入摘要；最新 head CI 和实际合并状态在 PR 动态检查。
+- `serverMinimumSchema` 仍为 24。新旧通知冲突目标不能跨 schema 混跑；停止旧写入后显式迁移，再切换匹配 server/Bridge，禁止只回退 binary。迁移不会补回历史丢失通知；本轮未执行现存数据库迁移、真实 QQ 或部署，发布为 `NOT_RELEASED`。
+
+源码、升级方式、测试边界见 `docs/superpowers/plans/2026-11-04-b7-notification-scope.md`。账号/runtime 修复单独在 #10 核验；本节不是 B7 全项验收或生产放行。

@@ -2,9 +2,9 @@
 
 **目标：** 通知投影按 workspace + 持久化会话行 + event key 去重，与已持久化的入站事件身份一致；无持久会话（NULL conversation）的投影仍按整个 workspace 去重；同一范围内重放不产生第二条。
 
-**依据：** `AGENTS.md` 第 4.1、7.1 节。第 7.1 节现有描述是「按 event_key 去重」，本文件记录范围收窄后的语义，供主代理整合进验收矩阵；本文件与验收矩阵不由作者改动。
+**依据：** `AGENTS.md` 第 4.1、7.1 节。第 7.1 节现有描述是「按 event_key 去重」，本文件记录范围收窄后的语义，供主代理整合进验收矩阵；根指南与验收矩阵由主代理审查后同步。
 
-**基线：** main `73a81569c9911419e6d26c4d50a5a5ce750b8465`；原 PR #9 候选 `31489e610e09419c1395f08c081673e3a820ffce`（原父 `579a20c`）。分支 `codex/m1-notification-review`，提交：`cde8a99`（原候选测试原样引入）→ `37e3fdb`（合并候选，父 `cde8a99` + `31489e6`）→ `dfbe4bb`（作者补测与 fixture 修正）。合并后五路与候选逐字节一致。
+**基线：** main `73a81569c9911419e6d26c4d50a5a5ce750b8465`；原 PR #9 候选 `31489e610e09419c1395f08c081673e3a820ffce`（原父 `579a20c`）。分支 `codex/m1-notification-review`，提交：`cde8a99`（原候选测试原样引入）→ `37e3fdb`（合并候选，父 `cde8a99` + `31489e6`）→ `dfbe4bb`（作者补测与 fixture 修正）。通知索引、三处 SQL 冲突目标与 harness 的实现沿用候选，保留最新 main 的来源检查。
 
 **方案与编辑边界：**
 
@@ -43,13 +43,13 @@
 - **启动门保持 24，不是 25。** 门通过只说明允许启动，不说明新页面对应的表已齐全。
 - **本 build 与 schema 25 不是滚动升级兼容**：新 build 仍能在 schema 25 上启动，但新的冲突目标在写入前即被拒绝（SQLSTATE 42P10，测试证明不写入任何行）。须先 `taskengine-migrate` 再部署本 build。
 - **反向同样成立**：Bridge 门要求精确 head，schema 迁到 26 后旧 Bridge 不再启动。迁移与两个 binary 须一起切换。
-- 旧 build 的冲突目标在 schema 25 上仍工作（测试双向证明），所以窗口期是「旧 build + 旧 schema」可用，不是任意组合。
+- 旧 build 的冲突目标在 schema 25 上仍工作（已执行对应 SQL 正向控制），所以窗口期是「旧 build + 旧 schema」可用，不是任意组合。
 - 未跑 `bash tools/contract.sh check`：本轮无契约文件改动，且按 PR #8 计划记录 OpenAPI 尚无 B7 路由，契约检查证明不了本行为。
-- `COALESCE(conversation_id,'')` 使字面空串会话 ID 与 NULL 落入同一桶；当前无 handler 写空串（三处都解析真实会话行），记录为未覆盖边界，不宣称已验证。
+- `COALESCE(conversation_id,'')` 为 NULL 通知提供 workspace 范围；`core.id` 的 DDL 禁止字面空串会话 ID，因此空串不会成为另一合法会话。三处 handler 都关联实际会话，NULL 路径通过直接 SQL 验证。
 
 ## 未覆盖风险
 
-- 完整 `test-all` 由主代理在最终 commit 独立运行；本文件的定向结果不替代整套结果。
+- 主代理已在实现提交 `4d56c81` 独立执行完整 `test-all`，退出 0（`review-notification-full-20261104/`）；该次 backend/测试输入未变化，后续仅有审查文档同步。真实 HTTP 的构建输入摘要也与当前生产源码一致。最新 PR head 的 CI 仍单独核对。
 - 与 #10 的严格 owner 检查存在交互：本 fixture 已改为每个账号用其真实 runtime 认证，不再依赖一条凭据替别的 runtime 的账号行事。若 #10 引入 `OwnerEpoch` 新字段或共享 fixture 变更，需按其结果重跑本套件。
 - 语义变化需写进验收矩阵：同一 event key 现在每个会话一条（此前整个 workspace 一条）。
-- 本轮不改根 `AGENTS.md` 与验收矩阵，不推送、不合并、不部署；作者自测不记为独立执行或生产验收。
+- 子代理没有改根指南或验收矩阵；主代理负责审查后的文档同步与 PR 更新。未获合并/部署授权，作者自测不记为独立执行或生产验收。
