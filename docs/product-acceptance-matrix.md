@@ -165,3 +165,15 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 - 主代理撤回了无关 inbox 校验一行后重新执行最终完整 race 与 HTTP，均通过；整段 inbox 实现与 main 一致。原始证据：本机忽略目录 `evals/results/m1-principal-author-20261104/`、`m1-principal-final-full-20261104/`、`m1-principal-final-http-20261104/`、`m1-principal-review-20261104/`。未提交树证据记录代码/测试摘要；提交后须重新核对一致，CI 以最终 PR head 为准。
 
 范围仅支持 B7-01/03/04/05 的请求幂等子项；**Draft/inbox 并发 seq 分配仍非同一锁协议，可能一方409回滚**。完整分页/浏览器/契约与多步 Agent run 未验收；本轮无 wire/DDL/前端/生成类型改动，OpenAPI 覆盖仍待下一项。没有新 migration 不等于新旧业务写入可混跑：切换须先停旧 Agent/Draft 写入；只回退 binary 会恢复缺陷，不能当作安全回滚。本轮未合并、部署、迁移现存库或调用真实 QQ/模型，`NOT_RELEASED`。
+
+
+## B7 既有 HTTP 契约入口与验收边界
+
+`contracts/openapi.yaml` 记录八个已装配操作：会话列表、会话消息列表、Agent 消息追加、QQ 草稿创建/读取、runtime QQ inbox、通知列表与通知 read CAS。请求/响应的十三个公共组件见 `contracts/schemas/operator-conversations.json`，合成正反样例见 `contracts/examples/operator-conversations.json`；独立 wire oracle 为 `tests/contract/test_operator_conversation_contract.py`。这些操作沿用当前 handler/resolver；没有新增业务执行、权限、migration 或前端接线。
+
+| 范围 | 合同保证与消费者 | 验证入口 | 仍须单独核验 |
+|---|---|---|---|
+| 八操作 wire | operator/runtime Bearer 分域、字段 required/nullable、数字 seq/version、review-only/permit absent、本地通知、两种错误 envelope（解码 400/415 的 text/plain 媒体为含末尾换行的 JSON 文本字符串，另行解析后检查错误对象）、RFC3339 offset 时间 | `bash tools/contract.sh check`；`generate` 同时验证生成 Go/TS 类型和所有命名组件的 fixtures | 真实 binary/resolver/隔离 DB 的请求响应、当前 auth/epoch、分页/replay/CAS，不由合成 fixtures 证明 |
+| 边界差异 | UTF-8 字节上限另以描述记录；通知 read 省略/null→false；Inbox 幂等头仅非空、按 event_id 去重；输入 offset 有上限但输出 next_cursor 可能超过它；GET 历史 evidence 为任意 JSON | 独立 contract 回归检查结构；完整生成含 Go/TS smoke | 字节执行边界、并发/崩溃恢复、浏览器完整消费及外部效果；JSON Schema 字符限额不替代实际字节检查 |
+
+本节是稳定合同导航，不核销历史 B7-01 至 B7-07 的其他待验收项；不构成 controlled live、浏览器、完整 M1、M5 Agent run、CI 或发布通过证明。实现作者命令/退出码、未提交输入摘要与主代理独立复验各保留本轮范围和身份，发布仍为 `NOT_RELEASED`。

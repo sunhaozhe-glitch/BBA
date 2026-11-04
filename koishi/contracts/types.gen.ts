@@ -4,6 +4,166 @@
  */
 
 export interface paths {
+    "/v1/operator/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List durable Agent and QQ conversations
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only. Filters do not validate account/QQ ID formats; internal Actor account ranges apply when provided, but file resolver does not expose account-restricted operator credentials.
+         */
+        get: operations["listOperatorConversations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/conversations/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List durable conversation messages
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only; target ID is the internal stored conversation ID. Current workspace/account visibility is checked first.
+         */
+        get: operations["listOperatorConversationMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/agent-threads/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Append an Agent thread message
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.write. Operator only. Canonical write path only. Locks principal then Agent conversation, allocates seq, stores message/local notification/request receipt atomically. Legacy single-slash receipt is read compatibly; conflicting historical ledgers fail closed. Does not start an Agent run.
+         */
+        post: operations["appendOperatorAgentMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/qq-drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a review-only QQ draft
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.write. Operator only; current workspace/account existence and scope are checked. Request digest includes all effective fields. A rules change never re-reviews an existing receipt. Canonical path only. No QQ send or Chat Permit is created.
+         */
+        post: operations["createOperatorQQDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/qq-drafts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a stored QQ draft review
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only; current account visibility applies. Includes internal conversation ID. Historical evidence is returned unchanged, including JSON null/array/scalar.
+         */
+        get: operations["getOperatorQQDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/qq-inbox/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ingest a runtime QQ inbound event
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: chat.trigger and conversation.write. Runtime only; mapped principal is runtime_id and must exist in the workspace. Operator tokens cannot forge inbox input. Trusted token owner epoch, current account runtime owner/epoch, runtime credential active state/epoch and explicit account scope are checked before both new writes and replay, holding account then credential locks. Header is presence-only; event_id supplies dedup identity. No QQ writer is called.
+         */
+        post: operations["ingestOperatorQQInboxEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List workspace-local notifications
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: conversation.read. Operator only. Optional exact account filter; current Actor account ranges apply if internally supplied. Newest created_at/id first.
+         */
+        get: operations["listOperatorNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/notifications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set local notification read state by version
+         * @description Existing B7 route mounted by serverAPISurface and operatorConversationAuth. Only Bearer auth is represented here. Workspace and current principal existence are checked on every call. Responses use Cache-Control: no-store. Required permission: notification.read. Operator only. No Idempotency-Key; stale version or missing ID is VERSION_CONFLICT (409), so identical retries can conflict. Omitted/null read becomes false. Mutation is workspace scoped; this handler does not additionally filter Actor.AccountIDs and file resolver rejects account-restricted operator configurations.
+         */
+        post: operations["setOperatorNotificationRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/operator/runtime": {
         parameters: {
             query?: never;
@@ -866,6 +1026,302 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Conversation page scoped to the current workspace; no success meta. Order is max(message.created_at) DESC NULLS LAST, internal id ASC; last_event_at falls back to conversation creation. */
+        OperatorConversationPageEnvelope: {
+            data: {
+                items: ({
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    id: string;
+                    /** @enum {string} */
+                    kind: "agent" | "qq";
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    account_id: string | null;
+                    /** @enum {string} */
+                    conversation_kind: "agent" | "group" | "private";
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    conversation_id: string;
+                    /**
+                     * Format: int64
+                     * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                     */
+                    version: number;
+                    /** @description B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract. */
+                    created_at: string;
+                    /** @description B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract. */
+                    last_event_at: string;
+                    /**
+                     * Format: int64
+                     * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                     */
+                    unread_count: number;
+                } & ({
+                    /** @enum {string} */
+                    kind: "agent";
+                    /** @enum {string|null} */
+                    account_id: null;
+                    /** @enum {string} */
+                    conversation_kind: "agent";
+                } | {
+                    /** @enum {string} */
+                    kind: "qq";
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    account_id: string;
+                    /** @enum {string} */
+                    conversation_kind: "group" | "private";
+                }))[];
+                /** @description Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope. */
+                next_cursor: string;
+            };
+        };
+        /** @description Messages for the internal conversation ID, newest numeric seq first. No author role, run, or send authority is implied. */
+        OperatorMessagePageEnvelope: {
+            data: {
+                items: ({
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    id: string;
+                    /** @enum {string} */
+                    source: "agent" | "qq";
+                    /** @enum {string} */
+                    direction: "inbound" | "outbound_draft";
+                    /** @enum {string} */
+                    delivery_state: "received" | "draft" | "blocked";
+                    /** @description Persisted message text; new writes enforce at most 8192 UTF-8 bytes. Historical DDL allows at most 8192 characters. */
+                    body: string;
+                    body_digest: components["schemas"]["Digest"];
+                    /**
+                     * Format: int64
+                     * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                     */
+                    seq: number;
+                    /** @description B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract. */
+                    created_at: string;
+                } & ({
+                    /** @enum {string} */
+                    source: "agent" | "qq";
+                    /** @enum {string} */
+                    direction: "inbound";
+                    /** @enum {string} */
+                    delivery_state: "received";
+                } | {
+                    /** @enum {string} */
+                    source: "qq";
+                    /** @enum {string} */
+                    direction: "outbound_draft";
+                    /** @enum {string} */
+                    delivery_state: "draft" | "blocked";
+                }))[];
+                /** @description Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope. */
+                next_cursor: string;
+            };
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Stores one Agent inbound message, creating an Agent thread if absent. Existing target must be an Agent conversation without QQ account; its external ID may differ. */
+        OperatorAgentMessageRequest: {
+            /** @description Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit. */
+            body: string;
+        };
+        /** @description 201 for both first creation and exact durable replay. No body/seq/version/replay flag is added to this receipt. No model run is started. */
+        OperatorAgentMessageEnvelope: {
+            data: {
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                id: string;
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                conversation_id: string;
+                /** @enum {string} */
+                source: "agent";
+                /** @enum {string} */
+                direction: "inbound";
+                /** @enum {string} */
+                delivery_state: "received";
+                body_digest: components["schemas"]["Digest"];
+                /** @enum {string} */
+                send_permit: "absent";
+            };
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. expected_version is exactly numeric 1. Creates a review-only outbound draft, not a QQ send. */
+        OperatorQQDraftRequest: {
+            /** @description Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs. */
+            account_id: string;
+            /** @enum {string} */
+            conversation_kind: "group" | "private";
+            /** @description Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs. */
+            conversation_id: string;
+            /** @description Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit. */
+            body: string;
+            /**
+             * Format: int64
+             * @enum {integer}
+             */
+            expected_version: 1;
+        };
+        /** @description 201 on new draft and exact replay. Contains the current content guard evidence object; decision unsupported is stored as blocked on its message row. */
+        OperatorQQDraftEnvelope: {
+            /** @description Review receipt only; CQ text is unsupported, rule matches are blocked, otherwise draft. No QQ writer, permit issuance or external effect. Durable exact replay returns the original decision and versions with status 201. */
+            data: {
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                id: string;
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                message_id: string;
+                payload_digest: components["schemas"]["Digest"];
+                /**
+                 * Format: int64
+                 * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                 */
+                rules_version: number;
+                /** @enum {string} */
+                decision: "draft" | "blocked" | "unsupported";
+                /** @description Current createDraft content guard projection. May include arbitrary many matching offsets within the byte-bounded text. Evidence is not a send authorization. */
+                evidence: {
+                    hits: {
+                        /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                        rule_id: string;
+                        /**
+                         * Format: int64
+                         * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                         */
+                        rule_version: number;
+                        byte_start: number;
+                        byte_end: number;
+                    }[];
+                    text_digest: components["schemas"]["Digest"];
+                    /** @enum {boolean} */
+                    raw_text_stored_in_review: false;
+                    /** @enum {string} */
+                    send_permit: "absent";
+                };
+                /** @enum {string} */
+                send_permit: "absent";
+                /**
+                 * Format: int64
+                 * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                 */
+                version: number;
+            };
+        };
+        /** @description Read-only persisted draft detail, including account and internal conversation IDs. Historical evidence is opaque JSON. */
+        OperatorQQDraftDetailEnvelope: {
+            data: {
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                id: string;
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                message_id: string;
+                payload_digest: components["schemas"]["Digest"];
+                /**
+                 * Format: int64
+                 * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                 */
+                rules_version: number;
+                /** @enum {string} */
+                decision: "draft" | "blocked" | "unsupported";
+                /** @description Opaque persisted JSON returned unchanged from qq_draft.evidence. Historical JSON can be an object, array, string, number, boolean or null; jsonb NOT NULL forbids SQL NULL only. Current createDraft writes the content guard object, but GET does not revalidate or rebuild it. Preserve nested integers without float coercion. */
+                evidence: unknown;
+                /** @enum {string} */
+                send_permit: "absent";
+                /**
+                 * Format: int64
+                 * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                 */
+                version: number;
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                account_id: string;
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                conversation_id: string;
+            };
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Runtime inbound evidence only. Event identity is workspace + account + conversation kind/external ID + event_id; body digest detects changed replays. The request header is only checked for nonempty presence. */
+        OperatorQQInboxEventRequest: {
+            /** @description Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs. */
+            account_id: string;
+            /** @enum {string} */
+            conversation_kind: "group" | "private";
+            /** @description Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs. */
+            conversation_id: string;
+            /** @description Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs. */
+            event_id: string;
+            /** @description Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit. */
+            body: string;
+        };
+        /** @description 201 new inbound message, 200 same-event/same-digest replay with idempotent_replay=true; changed digest is 409. No send_permit field. */
+        OperatorQQInboxEventEnvelope: {
+            data: {
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                id: string;
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                conversation_id: string;
+                /** @enum {string} */
+                source: "qq";
+                /** @enum {string} */
+                direction: "inbound";
+                /** @enum {string} */
+                delivery_state: "received";
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                event_id: string;
+                body_digest: components["schemas"]["Digest"];
+                idempotent_replay: boolean;
+            };
+        };
+        /** @description Local notifications ordered by created_at DESC, id DESC. Optional account_id is an exact SQL filter; unfiltered workspace-global notifications may have no account or conversation. */
+        OperatorNotificationPageEnvelope: {
+            data: {
+                items: {
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    id: string;
+                    event_type: string;
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    object_id: string;
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    account_id: string | null;
+                    /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                    conversation_id: string | null;
+                    summary: string;
+                    /** @description Persisted reference, possibly empty. Current inbox writes sha256:<digest>. */
+                    evidence_ref: string;
+                    /** @enum {string} */
+                    delivery_state: "local_only";
+                    /** @description B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract. */
+                    read_at: string | null;
+                    /**
+                     * Format: int64
+                     * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                     */
+                    version: number;
+                    /** @description B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract. */
+                    created_at: string;
+                }[];
+                /** @description Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope. */
+                next_cursor: string;
+            };
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Version compare-and-swap. Missing, null, zero or negative expected_version fails semantic validation with VALIDATION_FAILED (400); a non-integer or overflowing int64 fails decoding with VALIDATION_ERROR (400). A positive expected_version that does not match the persisted version, or a missing notification resource, yields VERSION_CONFLICT (409). No Idempotency-Key is used. */
+        OperatorNotificationReadRequest: {
+            /**
+             * Format: int64
+             * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+             */
+            expected_version: number;
+            /** @description Optional Go bool field. Omitted or JSON null decodes to false (mark unread); false and true are accepted. A response always reports a non-null boolean. */
+            read?: boolean | null;
+        };
+        /** @description CAS result with incremented numeric version. No replay, message read tracking or external delivery is implied. */
+        OperatorNotificationReadEnvelope: {
+            data: {
+                /** @description Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs. */
+                id: string;
+                read: boolean;
+                /**
+                 * Format: int64
+                 * @description Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+                 */
+                version: number;
+                /** @enum {string} */
+                delivery_state: "local_only";
+            };
+        };
+        /** @description Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data. */
+        OperatorConversationErrorEnvelope: {
+            error: {
+                code: string;
+            };
+        } | components["schemas"]["ErrorEnvelope"];
         /** @description Explicitly materialize an approved proposal into immutable step applications and durable fenced work items. Creates no execution or external effect; worker gates remain authoritative. */
         MaterializeRequest: {
             expected_version: number;
@@ -2574,6 +3030,89 @@ export interface components {
         };
     };
     responses: {
+        /** @description VALIDATION_FAILED for semantic input/pagination; operatorDecode uses minimal VALIDATION_ERROR for malformed, extra, oversized or trailing JSON. Oversized input is 400 here, not a promised 413. operatorDecode uses http.Error with text/plain; charset=utf-8 despite its JSON-shaped body; semantic errors use application/json. */
+        OperatorConversationError400: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "text/plain": string;
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description UNAUTHENTICATED: missing/invalid Bearer identity; runtime credentials are refused on operator paths. */
+        OperatorConversationError401: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description ACTION_FORBIDDEN for missing operation permission or missing workspace principal; operator identity is forbidden on runtime inbox. */
+        OperatorConversationError403: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description RESOURCE_NOT_FOUND for absent/invisible resource, invalid read path ID, wrong conversation domain, or invalid runtime ownership/scope. */
+        OperatorConversationError404: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description METHOD_NOT_ALLOWED from this handler, including noncanonical Agent/Draft trailing-slash writes; outer router may reject an unmatched path earlier. */
+        OperatorConversationError405: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description STATE_STORE_UNAVAILABLE from database/domain helpers; other unexpected failures. Full error envelope. */
+        OperatorConversationError500: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description STATE_STORE_UNAVAILABLE in the shared principal-existence gate. Minimal error envelope. */
+        OperatorConversationError503: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description IDEMPOTENCY_CONFLICT, VERSION_CONFLICT, or persistent STATE_CONSTRAINT / CONSTRAINT_CONFLICT / TRANSACTION_CONFLICT. Does not imply an external action. */
+        OperatorConversationError409: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
+        /** @description UNSUPPORTED_MEDIA_TYPE: Content-Type does not start with application/json. operatorDecode returns a JSON-shaped body with text/plain; charset=utf-8. */
+        OperatorConversationError415: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "text/plain": string;
+                "application/json": components["schemas"]["OperatorConversationErrorEnvelope"];
+            };
+        };
         /** @description Contract error; retryable describes delivery of the same idempotent HTTP request only and never authorizes replay of a QQ action. */
         ContractError: {
             headers: {
@@ -2613,6 +3152,301 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listOperatorConversations: {
+        parameters: {
+            query?: {
+                /** @description Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED. */
+                limit?: number;
+                /** @description Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range. */
+                cursor?: number;
+                /** @description Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation. */
+                account_id?: string;
+                /** @description Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation. */
+                conversation_kind?: string;
+                /** @description Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation. */
+                conversation_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Workspace conversation page; empty items is a successful empty result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorConversationPageEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            405: components["responses"]["OperatorConversationError405"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    listOperatorConversationMessages: {
+        parameters: {
+            query?: {
+                /** @description Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED. */
+                limit?: number;
+                /** @description Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range. */
+                cursor?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Message page by descending numeric seq; final next_cursor is empty. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorMessagePageEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            404: components["responses"]["OperatorConversationError404"];
+            405: components["responses"]["OperatorConversationError405"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    appendOperatorAgentMessage: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required, nonblank after Go strings.TrimSpace and at most 128 UTF-8 bytes. Character maxLength alone is not an exact byte check. Identity: workspace/principal/method/canonical path/key. Exact replay remains 201; changed effective request or ambiguous legacy identity is 409 IDEMPOTENCY_CONFLICT. Current auth/source/account checks precede replay. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                /** @description Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperatorAgentMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description New message or exact replay of its original durable receipt; both are 201. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorAgentMessageEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            404: components["responses"]["OperatorConversationError404"];
+            405: components["responses"]["OperatorConversationError405"];
+            409: components["responses"]["OperatorConversationError409"];
+            415: components["responses"]["OperatorConversationError415"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    createOperatorQQDraft: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required, nonblank after Go strings.TrimSpace and at most 128 UTF-8 bytes. Character maxLength alone is not an exact byte check. Identity: workspace/principal/method/canonical path/key. Exact replay remains 201; changed effective request or ambiguous legacy identity is 409 IDEMPOTENCY_CONFLICT. Current auth/source/account checks precede replay. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperatorQQDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description New draft or exact replay of the original review receipt; both are 201. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorQQDraftEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            404: components["responses"]["OperatorConversationError404"];
+            405: components["responses"]["OperatorConversationError405"];
+            409: components["responses"]["OperatorConversationError409"];
+            415: components["responses"]["OperatorConversationError415"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    getOperatorQQDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stored review detail; evidence is the persisted JSON, not regenerated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorQQDraftDetailEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            404: components["responses"]["OperatorConversationError404"];
+            405: components["responses"]["OperatorConversationError405"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    ingestOperatorQQInboxEvent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required nonempty header only. No 128-byte cap and no whitespace trim in ingestEvent; this is not the durable request key. Deduplication uses the body event_id in its conversation scope. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperatorQQInboxEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Same event_id/body digest in the same conversation; idempotent_replay=true. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorQQInboxEventEnvelope"];
+                };
+            };
+            /** @description New inbound event persisted; idempotent_replay=false. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorQQInboxEventEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            404: components["responses"]["OperatorConversationError404"];
+            405: components["responses"]["OperatorConversationError405"];
+            409: components["responses"]["OperatorConversationError409"];
+            415: components["responses"]["OperatorConversationError415"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    listOperatorNotifications: {
+        parameters: {
+            query?: {
+                /** @description Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED. */
+                limit?: number;
+                /** @description Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range. */
+                cursor?: number;
+                /** @description Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation. */
+                account_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Local notification page, empty or nonempty. No external push is implied. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorNotificationPageEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            405: components["responses"]["OperatorConversationError405"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
+    setOperatorNotificationRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Internal resource/thread ID: nonempty and no slash. Handler does not apply the common ResourceId syntax or length check; persistent IDs are separately constrained by core.id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperatorNotificationReadRequest"];
+            };
+        };
+        responses: {
+            /** @description CAS applied; read is non-null boolean and version is incremented. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorNotificationReadEnvelope"];
+                };
+            };
+            400: components["responses"]["OperatorConversationError400"];
+            401: components["responses"]["OperatorConversationError401"];
+            403: components["responses"]["OperatorConversationError403"];
+            404: components["responses"]["OperatorConversationError404"];
+            405: components["responses"]["OperatorConversationError405"];
+            409: components["responses"]["OperatorConversationError409"];
+            415: components["responses"]["OperatorConversationError415"];
+            500: components["responses"]["OperatorConversationError500"];
+            503: components["responses"]["OperatorConversationError503"];
+        };
+    };
     getOperatorRuntime: {
         parameters: {
             query?: never;

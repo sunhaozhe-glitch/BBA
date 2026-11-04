@@ -265,6 +265,7 @@ Agent/Draft 新写只接受规范路径；直接 handler 的末尾 `/` 写入拒
 - `contracts/openapi.yaml` 是 HTTP/plugin 规范；先更新正反 fixtures，再 `bash tools/contract.sh check`，必要时才 `generate`。`check` 不等于全部生成类型 smoke；不手改 `types.gen.go`/`types.gen.ts`。
 - `$ref` 仅本地受限引用，禁止远端、绝对路径、父目录及软链逃逸。保留 required/nullable 区别；Go nullable 用于区分缺失、null 和有值。
 - QQ ID、wire epoch/fence/sequence 按 schema 用十进制字符串，不转成丢精度 JS number；Go 内部 int64 不改变 wire 约定。
+- B7 既有双对话接口的 `seq/version/rules_version/unread_count` 是 JSON 数字（有界遗留协议），不能在仅补契约时改成字符串。成功 envelope 为 `data`，分页 `data.next_cursor` 末页为空串；独立错误 Schema 兼容 minimal `error.code` 与完整 `error/meta`，`operatorDecode` 的 400/415 使用 `text/plain` 承载带末尾换行的 JSON 错误文本，其媒体 Schema 是 string；只有另行 JSON 解析后才按错误对象 Schema 检查。B7 时间字段允许 RFC3339 offset，不能由数据库 session UTC 推断响应尾部必为 Z。请求文本/Agent 与 Draft 幂等键的 UTF-8 字节限额以 handler 为准，Schema 字符上限不能证明完整字节校验。通知 `read` 可省略/null，按 false 解码；Draft GET 的历史 evidence 是任意 JSON，不能由当前 create 的 content guard 对象推断其历史类型。
 - Go 修改使用 gofmt；TS 保持 strict/NodeNext 和相对 `.js` import，只改 `src/`，不手改 `dist/`/`lib/`。保留 Character 的 pinned ChatLuna lifecycle patch，升级依赖必须重验。
 - Controller MCP 合同独立维护于 `contracts.py`/`model_contracts.py` 和导出 schemas；不把其 Python/SQLite 模型写入 Go 生成类型。
 
@@ -407,7 +408,7 @@ bash tools/product-acceptance.sh release-check --package <evidence-directory>
 | 日历/CRM/运营 Agent run | 当前 DDL/主服务无这些完整持久化链；`scheduler.go`、Controller tasks 和 Agent registry 分别不是这三项的完成证明 |
 | CRM UI 文案冲突 | `frontend/app.js` 的 assets `pendingText` 仍有“意向 + 至少一个运营 QQ 好友关系才算引流成功”的旧文案，与第 4.4 节冲突；后续 UI 修复须按明确意向独立计数，不据旧文案改业务规则 |
 | 双对话状态 | B7 主路由/handler 已装配；`operator_conversation.go` 只做消息/草稿/本地通知，不证明 Agent 自动回复、多步 run 或 QQ 出站已接通 |
-| B7 HTTP 契约覆盖 | 当前 `contracts/openapi.yaml` 未列出 conversations、agent-threads、qq-drafts、qq-inbox/events、operator notifications 路由；handler/主服务已有实现不代表 OpenAPI 已覆盖。变更需核对实际实现与测试，后续单独补齐规范和正反 fixtures，不能用契约 CI 绿灯认定这些接口已验收 |
+| B7 HTTP 契约覆盖 | `contracts/openapi.yaml`、`contracts/schemas/operator-conversations.json` 与同名 examples 覆盖既有双对话、Agent 消息、QQ 草稿、runtime inbox 和本地通知的八个操作；`tests/contract/test_operator_conversation_contract.py` 维护独立 wire 回归。Bearer operator/runtime 分域；合同与生成类型 smoke 不等于实际 HTTP、浏览器、真实 QQ 或完整 M1 验收 |
 | Schema 日志/文档漂移 | Bridge 启动日志仍含固定历史 schema 值；runbook 含历史 head/命令，不能作为实际读数。读 `SchemaHead()`、gate 和数据库；最低启动门不等于全部页面兼容 |
 | 配置与备份 | registry 与模型请求数据库无跨存储事务；文件当前上限 4 MiB，历史/回执增长会触及拒绝写入边界。PostgreSQL 备份不覆盖 registry、runtime 文件/Controller SQLite；需按域规划归档、备份和恢复 |
 | Controller 与产品 MCP | 独立 stdio 模拟研发控制器存在；产品 MCP 菜单/工具目录不因此具备真实连接或业务工具执行能力；真实 OMP 路由/隐式调用/fallback 未闭合 |

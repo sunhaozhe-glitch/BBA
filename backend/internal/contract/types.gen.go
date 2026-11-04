@@ -2388,6 +2388,564 @@ func (e Operation6State) Valid() bool {
 	}
 }
 
+// Defines values for OperatorAgentMessageEnvelopeDataDeliveryState.
+const (
+	OperatorAgentMessageEnvelopeDataDeliveryStateReceived OperatorAgentMessageEnvelopeDataDeliveryState = "received"
+)
+
+// Valid indicates whether the value is a known member of the OperatorAgentMessageEnvelopeDataDeliveryState enum.
+func (e OperatorAgentMessageEnvelopeDataDeliveryState) Valid() bool {
+	switch e {
+	case OperatorAgentMessageEnvelopeDataDeliveryStateReceived:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorAgentMessageEnvelopeDataDirection.
+const (
+	OperatorAgentMessageEnvelopeDataDirectionInbound OperatorAgentMessageEnvelopeDataDirection = "inbound"
+)
+
+// Valid indicates whether the value is a known member of the OperatorAgentMessageEnvelopeDataDirection enum.
+func (e OperatorAgentMessageEnvelopeDataDirection) Valid() bool {
+	switch e {
+	case OperatorAgentMessageEnvelopeDataDirectionInbound:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorAgentMessageEnvelopeDataSendPermit.
+const (
+	OperatorAgentMessageEnvelopeDataSendPermitAbsent OperatorAgentMessageEnvelopeDataSendPermit = "absent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorAgentMessageEnvelopeDataSendPermit enum.
+func (e OperatorAgentMessageEnvelopeDataSendPermit) Valid() bool {
+	switch e {
+	case OperatorAgentMessageEnvelopeDataSendPermitAbsent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorAgentMessageEnvelopeDataSource.
+const (
+	OperatorAgentMessageEnvelopeDataSourceAgent OperatorAgentMessageEnvelopeDataSource = "agent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorAgentMessageEnvelopeDataSource enum.
+func (e OperatorAgentMessageEnvelopeDataSource) Valid() bool {
+	switch e {
+	case OperatorAgentMessageEnvelopeDataSourceAgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItemsConversationKind.
+const (
+	OperatorConversationPageEnvelopeDataItemsConversationKindAgent   OperatorConversationPageEnvelopeDataItemsConversationKind = "agent"
+	OperatorConversationPageEnvelopeDataItemsConversationKindGroup   OperatorConversationPageEnvelopeDataItemsConversationKind = "group"
+	OperatorConversationPageEnvelopeDataItemsConversationKindPrivate OperatorConversationPageEnvelopeDataItemsConversationKind = "private"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItemsConversationKind enum.
+func (e OperatorConversationPageEnvelopeDataItemsConversationKind) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItemsConversationKindAgent:
+		return true
+	case OperatorConversationPageEnvelopeDataItemsConversationKindGroup:
+		return true
+	case OperatorConversationPageEnvelopeDataItemsConversationKindPrivate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItemsKind.
+const (
+	OperatorConversationPageEnvelopeDataItemsKindAgent OperatorConversationPageEnvelopeDataItemsKind = "agent"
+	OperatorConversationPageEnvelopeDataItemsKindQq    OperatorConversationPageEnvelopeDataItemsKind = "qq"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItemsKind enum.
+func (e OperatorConversationPageEnvelopeDataItemsKind) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItemsKindAgent:
+		return true
+	case OperatorConversationPageEnvelopeDataItemsKindQq:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItems0AccountId.
+const (
+	OperatorConversationPageEnvelopeDataItems0AccountIdLessThannil OperatorConversationPageEnvelopeDataItems0AccountId = "<nil>"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItems0AccountId enum.
+func (e OperatorConversationPageEnvelopeDataItems0AccountId) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItems0AccountIdLessThannil:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItems0ConversationKind.
+const (
+	OperatorConversationPageEnvelopeDataItems0ConversationKindAgent OperatorConversationPageEnvelopeDataItems0ConversationKind = "agent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItems0ConversationKind enum.
+func (e OperatorConversationPageEnvelopeDataItems0ConversationKind) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItems0ConversationKindAgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItems0Kind.
+const (
+	OperatorConversationPageEnvelopeDataItems0KindAgent OperatorConversationPageEnvelopeDataItems0Kind = "agent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItems0Kind enum.
+func (e OperatorConversationPageEnvelopeDataItems0Kind) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItems0KindAgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItems1ConversationKind.
+const (
+	OperatorConversationPageEnvelopeDataItems1ConversationKindGroup   OperatorConversationPageEnvelopeDataItems1ConversationKind = "group"
+	OperatorConversationPageEnvelopeDataItems1ConversationKindPrivate OperatorConversationPageEnvelopeDataItems1ConversationKind = "private"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItems1ConversationKind enum.
+func (e OperatorConversationPageEnvelopeDataItems1ConversationKind) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItems1ConversationKindGroup:
+		return true
+	case OperatorConversationPageEnvelopeDataItems1ConversationKindPrivate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorConversationPageEnvelopeDataItems1Kind.
+const (
+	OperatorConversationPageEnvelopeDataItems1KindQq OperatorConversationPageEnvelopeDataItems1Kind = "qq"
+)
+
+// Valid indicates whether the value is a known member of the OperatorConversationPageEnvelopeDataItems1Kind enum.
+func (e OperatorConversationPageEnvelopeDataItems1Kind) Valid() bool {
+	switch e {
+	case OperatorConversationPageEnvelopeDataItems1KindQq:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItemsDeliveryState.
+const (
+	OperatorMessagePageEnvelopeDataItemsDeliveryStateBlocked  OperatorMessagePageEnvelopeDataItemsDeliveryState = "blocked"
+	OperatorMessagePageEnvelopeDataItemsDeliveryStateDraft    OperatorMessagePageEnvelopeDataItemsDeliveryState = "draft"
+	OperatorMessagePageEnvelopeDataItemsDeliveryStateReceived OperatorMessagePageEnvelopeDataItemsDeliveryState = "received"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItemsDeliveryState enum.
+func (e OperatorMessagePageEnvelopeDataItemsDeliveryState) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItemsDeliveryStateBlocked:
+		return true
+	case OperatorMessagePageEnvelopeDataItemsDeliveryStateDraft:
+		return true
+	case OperatorMessagePageEnvelopeDataItemsDeliveryStateReceived:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItemsDirection.
+const (
+	OperatorMessagePageEnvelopeDataItemsDirectionInbound       OperatorMessagePageEnvelopeDataItemsDirection = "inbound"
+	OperatorMessagePageEnvelopeDataItemsDirectionOutboundDraft OperatorMessagePageEnvelopeDataItemsDirection = "outbound_draft"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItemsDirection enum.
+func (e OperatorMessagePageEnvelopeDataItemsDirection) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItemsDirectionInbound:
+		return true
+	case OperatorMessagePageEnvelopeDataItemsDirectionOutboundDraft:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItemsSource.
+const (
+	OperatorMessagePageEnvelopeDataItemsSourceAgent OperatorMessagePageEnvelopeDataItemsSource = "agent"
+	OperatorMessagePageEnvelopeDataItemsSourceQq    OperatorMessagePageEnvelopeDataItemsSource = "qq"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItemsSource enum.
+func (e OperatorMessagePageEnvelopeDataItemsSource) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItemsSourceAgent:
+		return true
+	case OperatorMessagePageEnvelopeDataItemsSourceQq:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItems0DeliveryState.
+const (
+	OperatorMessagePageEnvelopeDataItems0DeliveryStateReceived OperatorMessagePageEnvelopeDataItems0DeliveryState = "received"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItems0DeliveryState enum.
+func (e OperatorMessagePageEnvelopeDataItems0DeliveryState) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItems0DeliveryStateReceived:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItems0Direction.
+const (
+	OperatorMessagePageEnvelopeDataItems0DirectionInbound OperatorMessagePageEnvelopeDataItems0Direction = "inbound"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItems0Direction enum.
+func (e OperatorMessagePageEnvelopeDataItems0Direction) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItems0DirectionInbound:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItems0Source.
+const (
+	OperatorMessagePageEnvelopeDataItems0SourceAgent OperatorMessagePageEnvelopeDataItems0Source = "agent"
+	OperatorMessagePageEnvelopeDataItems0SourceQq    OperatorMessagePageEnvelopeDataItems0Source = "qq"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItems0Source enum.
+func (e OperatorMessagePageEnvelopeDataItems0Source) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItems0SourceAgent:
+		return true
+	case OperatorMessagePageEnvelopeDataItems0SourceQq:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItems1DeliveryState.
+const (
+	OperatorMessagePageEnvelopeDataItems1DeliveryStateBlocked OperatorMessagePageEnvelopeDataItems1DeliveryState = "blocked"
+	OperatorMessagePageEnvelopeDataItems1DeliveryStateDraft   OperatorMessagePageEnvelopeDataItems1DeliveryState = "draft"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItems1DeliveryState enum.
+func (e OperatorMessagePageEnvelopeDataItems1DeliveryState) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItems1DeliveryStateBlocked:
+		return true
+	case OperatorMessagePageEnvelopeDataItems1DeliveryStateDraft:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItems1Direction.
+const (
+	OperatorMessagePageEnvelopeDataItems1DirectionOutboundDraft OperatorMessagePageEnvelopeDataItems1Direction = "outbound_draft"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItems1Direction enum.
+func (e OperatorMessagePageEnvelopeDataItems1Direction) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItems1DirectionOutboundDraft:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorMessagePageEnvelopeDataItems1Source.
+const (
+	OperatorMessagePageEnvelopeDataItems1SourceQq OperatorMessagePageEnvelopeDataItems1Source = "qq"
+)
+
+// Valid indicates whether the value is a known member of the OperatorMessagePageEnvelopeDataItems1Source enum.
+func (e OperatorMessagePageEnvelopeDataItems1Source) Valid() bool {
+	switch e {
+	case OperatorMessagePageEnvelopeDataItems1SourceQq:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorNotificationPageEnvelopeDataItemsDeliveryState.
+const (
+	OperatorNotificationPageEnvelopeDataItemsDeliveryStateLocalOnly OperatorNotificationPageEnvelopeDataItemsDeliveryState = "local_only"
+)
+
+// Valid indicates whether the value is a known member of the OperatorNotificationPageEnvelopeDataItemsDeliveryState enum.
+func (e OperatorNotificationPageEnvelopeDataItemsDeliveryState) Valid() bool {
+	switch e {
+	case OperatorNotificationPageEnvelopeDataItemsDeliveryStateLocalOnly:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorNotificationReadEnvelopeDataDeliveryState.
+const (
+	OperatorNotificationReadEnvelopeDataDeliveryStateLocalOnly OperatorNotificationReadEnvelopeDataDeliveryState = "local_only"
+)
+
+// Valid indicates whether the value is a known member of the OperatorNotificationReadEnvelopeDataDeliveryState enum.
+func (e OperatorNotificationReadEnvelopeDataDeliveryState) Valid() bool {
+	switch e {
+	case OperatorNotificationReadEnvelopeDataDeliveryStateLocalOnly:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftDetailEnvelopeDataDecision.
+const (
+	OperatorQQDraftDetailEnvelopeDataDecisionBlocked     OperatorQQDraftDetailEnvelopeDataDecision = "blocked"
+	OperatorQQDraftDetailEnvelopeDataDecisionDraft       OperatorQQDraftDetailEnvelopeDataDecision = "draft"
+	OperatorQQDraftDetailEnvelopeDataDecisionUnsupported OperatorQQDraftDetailEnvelopeDataDecision = "unsupported"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftDetailEnvelopeDataDecision enum.
+func (e OperatorQQDraftDetailEnvelopeDataDecision) Valid() bool {
+	switch e {
+	case OperatorQQDraftDetailEnvelopeDataDecisionBlocked:
+		return true
+	case OperatorQQDraftDetailEnvelopeDataDecisionDraft:
+		return true
+	case OperatorQQDraftDetailEnvelopeDataDecisionUnsupported:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftDetailEnvelopeDataSendPermit.
+const (
+	OperatorQQDraftDetailEnvelopeDataSendPermitAbsent OperatorQQDraftDetailEnvelopeDataSendPermit = "absent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftDetailEnvelopeDataSendPermit enum.
+func (e OperatorQQDraftDetailEnvelopeDataSendPermit) Valid() bool {
+	switch e {
+	case OperatorQQDraftDetailEnvelopeDataSendPermitAbsent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftEnvelopeDataDecision.
+const (
+	OperatorQQDraftEnvelopeDataDecisionBlocked     OperatorQQDraftEnvelopeDataDecision = "blocked"
+	OperatorQQDraftEnvelopeDataDecisionDraft       OperatorQQDraftEnvelopeDataDecision = "draft"
+	OperatorQQDraftEnvelopeDataDecisionUnsupported OperatorQQDraftEnvelopeDataDecision = "unsupported"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftEnvelopeDataDecision enum.
+func (e OperatorQQDraftEnvelopeDataDecision) Valid() bool {
+	switch e {
+	case OperatorQQDraftEnvelopeDataDecisionBlocked:
+		return true
+	case OperatorQQDraftEnvelopeDataDecisionDraft:
+		return true
+	case OperatorQQDraftEnvelopeDataDecisionUnsupported:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview.
+const (
+	OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReviewFalse OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview = false
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview enum.
+func (e OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview) Valid() bool {
+	switch e {
+	case OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReviewFalse:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftEnvelopeDataEvidenceSendPermit.
+const (
+	OperatorQQDraftEnvelopeDataEvidenceSendPermitAbsent OperatorQQDraftEnvelopeDataEvidenceSendPermit = "absent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftEnvelopeDataEvidenceSendPermit enum.
+func (e OperatorQQDraftEnvelopeDataEvidenceSendPermit) Valid() bool {
+	switch e {
+	case OperatorQQDraftEnvelopeDataEvidenceSendPermitAbsent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftEnvelopeDataSendPermit.
+const (
+	OperatorQQDraftEnvelopeDataSendPermitAbsent OperatorQQDraftEnvelopeDataSendPermit = "absent"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftEnvelopeDataSendPermit enum.
+func (e OperatorQQDraftEnvelopeDataSendPermit) Valid() bool {
+	switch e {
+	case OperatorQQDraftEnvelopeDataSendPermitAbsent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftRequestConversationKind.
+const (
+	OperatorQQDraftRequestConversationKindGroup   OperatorQQDraftRequestConversationKind = "group"
+	OperatorQQDraftRequestConversationKindPrivate OperatorQQDraftRequestConversationKind = "private"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftRequestConversationKind enum.
+func (e OperatorQQDraftRequestConversationKind) Valid() bool {
+	switch e {
+	case OperatorQQDraftRequestConversationKindGroup:
+		return true
+	case OperatorQQDraftRequestConversationKindPrivate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQDraftRequestExpectedVersion.
+const (
+	OperatorQQDraftRequestExpectedVersionN1 OperatorQQDraftRequestExpectedVersion = 1
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQDraftRequestExpectedVersion enum.
+func (e OperatorQQDraftRequestExpectedVersion) Valid() bool {
+	switch e {
+	case OperatorQQDraftRequestExpectedVersionN1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQInboxEventEnvelopeDataDeliveryState.
+const (
+	OperatorQQInboxEventEnvelopeDataDeliveryStateReceived OperatorQQInboxEventEnvelopeDataDeliveryState = "received"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQInboxEventEnvelopeDataDeliveryState enum.
+func (e OperatorQQInboxEventEnvelopeDataDeliveryState) Valid() bool {
+	switch e {
+	case OperatorQQInboxEventEnvelopeDataDeliveryStateReceived:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQInboxEventEnvelopeDataDirection.
+const (
+	OperatorQQInboxEventEnvelopeDataDirectionInbound OperatorQQInboxEventEnvelopeDataDirection = "inbound"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQInboxEventEnvelopeDataDirection enum.
+func (e OperatorQQInboxEventEnvelopeDataDirection) Valid() bool {
+	switch e {
+	case OperatorQQInboxEventEnvelopeDataDirectionInbound:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQInboxEventEnvelopeDataSource.
+const (
+	OperatorQQInboxEventEnvelopeDataSourceQq OperatorQQInboxEventEnvelopeDataSource = "qq"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQInboxEventEnvelopeDataSource enum.
+func (e OperatorQQInboxEventEnvelopeDataSource) Valid() bool {
+	switch e {
+	case OperatorQQInboxEventEnvelopeDataSourceQq:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for OperatorQQInboxEventRequestConversationKind.
+const (
+	OperatorQQInboxEventRequestConversationKindGroup   OperatorQQInboxEventRequestConversationKind = "group"
+	OperatorQQInboxEventRequestConversationKindPrivate OperatorQQInboxEventRequestConversationKind = "private"
+)
+
+// Valid indicates whether the value is a known member of the OperatorQQInboxEventRequestConversationKind enum.
+func (e OperatorQQInboxEventRequestConversationKind) Valid() bool {
+	switch e {
+	case OperatorQQInboxEventRequestConversationKindGroup:
+		return true
+	case OperatorQQInboxEventRequestConversationKindPrivate:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for OperatorRuntimeEnvironment.
 const (
 	OperatorRuntimeEnvironmentDevelopment  OperatorRuntimeEnvironment = "development"
@@ -5422,6 +5980,427 @@ type OperationEnvelope struct {
 	Meta RequestMeta `json:"meta"`
 }
 
+// OperatorAgentMessageEnvelope 201 for both first creation and exact durable replay. No body/seq/version/replay flag is added to this receipt. No model run is started.
+type OperatorAgentMessageEnvelope struct {
+	Data struct {
+		// BodyDigest Lowercase hexadecimal SHA-256 digest, exactly 64 characters.
+		BodyDigest Digest `json:"body_digest"`
+
+		// ConversationId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		ConversationId string                                        `json:"conversation_id"`
+		DeliveryState  OperatorAgentMessageEnvelopeDataDeliveryState `json:"delivery_state"`
+		Direction      OperatorAgentMessageEnvelopeDataDirection     `json:"direction"`
+
+		// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		Id         string                                     `json:"id"`
+		SendPermit OperatorAgentMessageEnvelopeDataSendPermit `json:"send_permit"`
+		Source     OperatorAgentMessageEnvelopeDataSource     `json:"source"`
+	} `json:"data"`
+}
+
+// OperatorAgentMessageEnvelopeDataDeliveryState defines model for OperatorAgentMessageEnvelope.Data.DeliveryState.
+type OperatorAgentMessageEnvelopeDataDeliveryState string
+
+// OperatorAgentMessageEnvelopeDataDirection defines model for OperatorAgentMessageEnvelope.Data.Direction.
+type OperatorAgentMessageEnvelopeDataDirection string
+
+// OperatorAgentMessageEnvelopeDataSendPermit defines model for OperatorAgentMessageEnvelope.Data.SendPermit.
+type OperatorAgentMessageEnvelopeDataSendPermit string
+
+// OperatorAgentMessageEnvelopeDataSource defines model for OperatorAgentMessageEnvelope.Data.Source.
+type OperatorAgentMessageEnvelopeDataSource string
+
+// OperatorAgentMessageRequest Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Stores one Agent inbound message, creating an Agent thread if absent. Existing target must be an Agent conversation without QQ account; its external ID may differ.
+type OperatorAgentMessageRequest struct {
+	// Body Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit.
+	Body string `json:"body"`
+}
+
+// OperatorConversationErrorEnvelope Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationErrorEnvelope struct {
+	union json.RawMessage
+}
+
+// OperatorConversationErrorEnvelope0 Minimal handler auth/method/principal/store gate or operatorDecode error; no message or meta.
+type OperatorConversationErrorEnvelope0 struct {
+	Error struct {
+		Code string `json:"code"`
+	} `json:"error"`
+}
+
+// OperatorConversationPageEnvelope Conversation page scoped to the current workspace; no success meta. Order is max(message.created_at) DESC NULLS LAST, internal id ASC; last_event_at falls back to conversation creation.
+type OperatorConversationPageEnvelope struct {
+	Data struct {
+		Items []OperatorConversationPageEnvelope_Data_Items_Item `json:"items"`
+
+		// NextCursor Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope.
+		NextCursor string `json:"next_cursor"`
+	} `json:"data"`
+}
+
+// OperatorConversationPageEnvelopeDataItemsConversationKind defines model for OperatorConversationPageEnvelope.Data.Items.ConversationKind.
+type OperatorConversationPageEnvelopeDataItemsConversationKind string
+
+// OperatorConversationPageEnvelopeDataItemsKind defines model for OperatorConversationPageEnvelope.Data.Items.Kind.
+type OperatorConversationPageEnvelopeDataItemsKind string
+
+// OperatorConversationPageEnvelopeDataItems0 defines model for OperatorConversationPageEnvelope.Data.Items.0.
+type OperatorConversationPageEnvelopeDataItems0 struct {
+	AccountId        nullable.Nullable[OperatorConversationPageEnvelopeDataItems0AccountId] `json:"account_id"`
+	ConversationKind OperatorConversationPageEnvelopeDataItems0ConversationKind             `json:"conversation_kind"`
+	Kind             OperatorConversationPageEnvelopeDataItems0Kind                         `json:"kind"`
+}
+
+// OperatorConversationPageEnvelopeDataItems0AccountId defines model for OperatorConversationPageEnvelope.Data.Items.0.AccountId.
+type OperatorConversationPageEnvelopeDataItems0AccountId string
+
+// OperatorConversationPageEnvelopeDataItems0ConversationKind defines model for OperatorConversationPageEnvelope.Data.Items.0.ConversationKind.
+type OperatorConversationPageEnvelopeDataItems0ConversationKind string
+
+// OperatorConversationPageEnvelopeDataItems0Kind defines model for OperatorConversationPageEnvelope.Data.Items.0.Kind.
+type OperatorConversationPageEnvelopeDataItems0Kind string
+
+// OperatorConversationPageEnvelopeDataItems1 defines model for OperatorConversationPageEnvelope.Data.Items.1.
+type OperatorConversationPageEnvelopeDataItems1 struct {
+	// AccountId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+	AccountId        string                                                     `json:"account_id"`
+	ConversationKind OperatorConversationPageEnvelopeDataItems1ConversationKind `json:"conversation_kind"`
+	Kind             OperatorConversationPageEnvelopeDataItems1Kind             `json:"kind"`
+}
+
+// OperatorConversationPageEnvelopeDataItems1ConversationKind defines model for OperatorConversationPageEnvelope.Data.Items.1.ConversationKind.
+type OperatorConversationPageEnvelopeDataItems1ConversationKind string
+
+// OperatorConversationPageEnvelopeDataItems1Kind defines model for OperatorConversationPageEnvelope.Data.Items.1.Kind.
+type OperatorConversationPageEnvelopeDataItems1Kind string
+
+// OperatorConversationPageEnvelope_Data_Items_Item Internal id and external conversation_id can differ. unread_count counts all QQ inbound messages; it is not decremented by marking notifications read.
+type OperatorConversationPageEnvelope_Data_Items_Item struct {
+	// AccountId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+	AccountId nullable.Nullable[string] `json:"account_id"`
+
+	// ConversationId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+	ConversationId   string                                                    `json:"conversation_id"`
+	ConversationKind OperatorConversationPageEnvelopeDataItemsConversationKind `json:"conversation_kind"`
+
+	// CreatedAt B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract.
+	CreatedAt string `json:"created_at"`
+
+	// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+	Id   string                                        `json:"id"`
+	Kind OperatorConversationPageEnvelopeDataItemsKind `json:"kind"`
+
+	// LastEventAt B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract.
+	LastEventAt string `json:"last_event_at"`
+
+	// UnreadCount Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+	UnreadCount int64 `json:"unread_count"`
+
+	// Version Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+	Version int64 `json:"version"`
+	union   json.RawMessage
+}
+
+// OperatorMessagePageEnvelope Messages for the internal conversation ID, newest numeric seq first. No author role, run, or send authority is implied.
+type OperatorMessagePageEnvelope struct {
+	Data struct {
+		Items []OperatorMessagePageEnvelope_Data_Items_Item `json:"items"`
+
+		// NextCursor Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope.
+		NextCursor string `json:"next_cursor"`
+	} `json:"data"`
+}
+
+// OperatorMessagePageEnvelopeDataItemsDeliveryState defines model for OperatorMessagePageEnvelope.Data.Items.DeliveryState.
+type OperatorMessagePageEnvelopeDataItemsDeliveryState string
+
+// OperatorMessagePageEnvelopeDataItemsDirection defines model for OperatorMessagePageEnvelope.Data.Items.Direction.
+type OperatorMessagePageEnvelopeDataItemsDirection string
+
+// OperatorMessagePageEnvelopeDataItemsSource defines model for OperatorMessagePageEnvelope.Data.Items.Source.
+type OperatorMessagePageEnvelopeDataItemsSource string
+
+// OperatorMessagePageEnvelopeDataItems0 defines model for OperatorMessagePageEnvelope.Data.Items.0.
+type OperatorMessagePageEnvelopeDataItems0 struct {
+	DeliveryState OperatorMessagePageEnvelopeDataItems0DeliveryState `json:"delivery_state"`
+	Direction     OperatorMessagePageEnvelopeDataItems0Direction     `json:"direction"`
+	Source        OperatorMessagePageEnvelopeDataItems0Source        `json:"source"`
+}
+
+// OperatorMessagePageEnvelopeDataItems0DeliveryState defines model for OperatorMessagePageEnvelope.Data.Items.0.DeliveryState.
+type OperatorMessagePageEnvelopeDataItems0DeliveryState string
+
+// OperatorMessagePageEnvelopeDataItems0Direction defines model for OperatorMessagePageEnvelope.Data.Items.0.Direction.
+type OperatorMessagePageEnvelopeDataItems0Direction string
+
+// OperatorMessagePageEnvelopeDataItems0Source defines model for OperatorMessagePageEnvelope.Data.Items.0.Source.
+type OperatorMessagePageEnvelopeDataItems0Source string
+
+// OperatorMessagePageEnvelopeDataItems1 defines model for OperatorMessagePageEnvelope.Data.Items.1.
+type OperatorMessagePageEnvelopeDataItems1 struct {
+	DeliveryState OperatorMessagePageEnvelopeDataItems1DeliveryState `json:"delivery_state"`
+	Direction     OperatorMessagePageEnvelopeDataItems1Direction     `json:"direction"`
+	Source        OperatorMessagePageEnvelopeDataItems1Source        `json:"source"`
+}
+
+// OperatorMessagePageEnvelopeDataItems1DeliveryState defines model for OperatorMessagePageEnvelope.Data.Items.1.DeliveryState.
+type OperatorMessagePageEnvelopeDataItems1DeliveryState string
+
+// OperatorMessagePageEnvelopeDataItems1Direction defines model for OperatorMessagePageEnvelope.Data.Items.1.Direction.
+type OperatorMessagePageEnvelopeDataItems1Direction string
+
+// OperatorMessagePageEnvelopeDataItems1Source defines model for OperatorMessagePageEnvelope.Data.Items.1.Source.
+type OperatorMessagePageEnvelopeDataItems1Source string
+
+// OperatorMessagePageEnvelope_Data_Items_Item defines model for OperatorMessagePageEnvelope.Data.Items.Item.
+type OperatorMessagePageEnvelope_Data_Items_Item struct {
+	// Body Persisted message text; new writes enforce at most 8192 UTF-8 bytes. Historical DDL allows at most 8192 characters.
+	Body string `json:"body"`
+
+	// BodyDigest Lowercase hexadecimal SHA-256 digest, exactly 64 characters.
+	BodyDigest Digest `json:"body_digest"`
+
+	// CreatedAt B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract.
+	CreatedAt     string                                            `json:"created_at"`
+	DeliveryState OperatorMessagePageEnvelopeDataItemsDeliveryState `json:"delivery_state"`
+	Direction     OperatorMessagePageEnvelopeDataItemsDirection     `json:"direction"`
+
+	// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+	Id string `json:"id"`
+
+	// Seq Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+	Seq    int64                                      `json:"seq"`
+	Source OperatorMessagePageEnvelopeDataItemsSource `json:"source"`
+	union  json.RawMessage
+}
+
+// OperatorNotificationPageEnvelope Local notifications ordered by created_at DESC, id DESC. Optional account_id is an exact SQL filter; unfiltered workspace-global notifications may have no account or conversation.
+type OperatorNotificationPageEnvelope struct {
+	Data struct {
+		Items []struct {
+			// AccountId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+			AccountId nullable.Nullable[string] `json:"account_id"`
+
+			// ConversationId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+			ConversationId nullable.Nullable[string] `json:"conversation_id"`
+
+			// CreatedAt B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract.
+			CreatedAt     string                                                 `json:"created_at"`
+			DeliveryState OperatorNotificationPageEnvelopeDataItemsDeliveryState `json:"delivery_state"`
+			EventType     string                                                 `json:"event_type"`
+
+			// EvidenceRef Persisted reference, possibly empty. Current inbox writes sha256:<digest>.
+			EvidenceRef string `json:"evidence_ref"`
+
+			// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+			Id string `json:"id"`
+
+			// ObjectId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+			ObjectId string `json:"object_id"`
+
+			// ReadAt B7 implementation timestamp: RFC3339 with Z or an explicit UTC offset, including fractional seconds. pgx ScanLocation is unset, so process local timezone may appear even with a UTC database session. A local pattern is used because the shared date-time FormatChecker requires UTC Z; this does not redefine that common contract.
+			ReadAt  nullable.Nullable[string] `json:"read_at"`
+			Summary string                    `json:"summary"`
+
+			// Version Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+			Version int64 `json:"version"`
+		} `json:"items"`
+
+		// NextCursor Always present. Empty string means final page. Otherwise decimal offset = requested offset + limit; can exceed the accepted input maximum 1000000 (up to 1000100). No meta envelope.
+		NextCursor string `json:"next_cursor"`
+	} `json:"data"`
+}
+
+// OperatorNotificationPageEnvelopeDataItemsDeliveryState defines model for OperatorNotificationPageEnvelope.Data.Items.DeliveryState.
+type OperatorNotificationPageEnvelopeDataItemsDeliveryState string
+
+// OperatorNotificationReadEnvelope CAS result with incremented numeric version. No replay, message read tracking or external delivery is implied.
+type OperatorNotificationReadEnvelope struct {
+	Data struct {
+		DeliveryState OperatorNotificationReadEnvelopeDataDeliveryState `json:"delivery_state"`
+
+		// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		Id   string `json:"id"`
+		Read bool   `json:"read"`
+
+		// Version Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+		Version int64 `json:"version"`
+	} `json:"data"`
+}
+
+// OperatorNotificationReadEnvelopeDataDeliveryState defines model for OperatorNotificationReadEnvelope.Data.DeliveryState.
+type OperatorNotificationReadEnvelopeDataDeliveryState string
+
+// OperatorNotificationReadRequest Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Version compare-and-swap. Missing, null, zero or negative expected_version fails semantic validation with VALIDATION_FAILED (400); a non-integer or overflowing int64 fails decoding with VALIDATION_ERROR (400). A positive expected_version that does not match the persisted version, or a missing notification resource, yields VERSION_CONFLICT (409). No Idempotency-Key is used.
+type OperatorNotificationReadRequest struct {
+	// ExpectedVersion Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+	ExpectedVersion int64 `json:"expected_version"`
+
+	// Read Optional Go bool field. Omitted or JSON null decodes to false (mark unread); false and true are accepted. A response always reports a non-null boolean.
+	Read nullable.Nullable[bool] `json:"read,omitempty"`
+}
+
+// OperatorQQDraftDetailEnvelope Read-only persisted draft detail, including account and internal conversation IDs. Historical evidence is opaque JSON.
+type OperatorQQDraftDetailEnvelope struct {
+	Data struct {
+		// AccountId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		AccountId string `json:"account_id"`
+
+		// ConversationId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		ConversationId string                                    `json:"conversation_id"`
+		Decision       OperatorQQDraftDetailEnvelopeDataDecision `json:"decision"`
+
+		// Evidence Opaque persisted JSON returned unchanged from qq_draft.evidence. Historical JSON can be an object, array, string, number, boolean or null; jsonb NOT NULL forbids SQL NULL only. Current createDraft writes the content guard object, but GET does not revalidate or rebuild it. Preserve nested integers without float coercion.
+		Evidence json.RawMessage `json:"evidence"`
+
+		// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		Id string `json:"id"`
+
+		// MessageId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		MessageId string `json:"message_id"`
+
+		// PayloadDigest Lowercase hexadecimal SHA-256 digest, exactly 64 characters.
+		PayloadDigest Digest `json:"payload_digest"`
+
+		// RulesVersion Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+		RulesVersion int64                                       `json:"rules_version"`
+		SendPermit   OperatorQQDraftDetailEnvelopeDataSendPermit `json:"send_permit"`
+
+		// Version Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+		Version int64 `json:"version"`
+	} `json:"data"`
+}
+
+// OperatorQQDraftDetailEnvelopeDataDecision defines model for OperatorQQDraftDetailEnvelope.Data.Decision.
+type OperatorQQDraftDetailEnvelopeDataDecision string
+
+// OperatorQQDraftDetailEnvelopeDataSendPermit defines model for OperatorQQDraftDetailEnvelope.Data.SendPermit.
+type OperatorQQDraftDetailEnvelopeDataSendPermit string
+
+// OperatorQQDraftEnvelope 201 on new draft and exact replay. Contains the current content guard evidence object; decision unsupported is stored as blocked on its message row.
+type OperatorQQDraftEnvelope struct {
+	// Data Review receipt only; CQ text is unsupported, rule matches are blocked, otherwise draft. No QQ writer, permit issuance or external effect. Durable exact replay returns the original decision and versions with status 201.
+	Data struct {
+		Decision OperatorQQDraftEnvelopeDataDecision `json:"decision"`
+
+		// Evidence Current createDraft content guard projection. May include arbitrary many matching offsets within the byte-bounded text. Evidence is not a send authorization.
+		Evidence struct {
+			Hits []struct {
+				ByteEnd   int `json:"byte_end"`
+				ByteStart int `json:"byte_start"`
+
+				// RuleId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+				RuleId string `json:"rule_id"`
+
+				// RuleVersion Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+				RuleVersion int64 `json:"rule_version"`
+			} `json:"hits"`
+			RawTextStoredInReview OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview `json:"raw_text_stored_in_review"`
+			SendPermit            OperatorQQDraftEnvelopeDataEvidenceSendPermit            `json:"send_permit"`
+
+			// TextDigest Lowercase hexadecimal SHA-256 digest, exactly 64 characters.
+			TextDigest Digest `json:"text_digest"`
+		} `json:"evidence"`
+
+		// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		Id string `json:"id"`
+
+		// MessageId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		MessageId string `json:"message_id"`
+
+		// PayloadDigest Lowercase hexadecimal SHA-256 digest, exactly 64 characters.
+		PayloadDigest Digest `json:"payload_digest"`
+
+		// RulesVersion Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+		RulesVersion int64                                 `json:"rules_version"`
+		SendPermit   OperatorQQDraftEnvelopeDataSendPermit `json:"send_permit"`
+
+		// Version Existing B7 JSON number (signed int64), not a decimal string. Consumers must preserve integer precision.
+		Version int64 `json:"version"`
+	} `json:"data"`
+}
+
+// OperatorQQDraftEnvelopeDataDecision defines model for OperatorQQDraftEnvelope.Data.Decision.
+type OperatorQQDraftEnvelopeDataDecision string
+
+// OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview defines model for OperatorQQDraftEnvelope.Data.Evidence.RawTextStoredInReview.
+type OperatorQQDraftEnvelopeDataEvidenceRawTextStoredInReview bool
+
+// OperatorQQDraftEnvelopeDataEvidenceSendPermit defines model for OperatorQQDraftEnvelope.Data.Evidence.SendPermit.
+type OperatorQQDraftEnvelopeDataEvidenceSendPermit string
+
+// OperatorQQDraftEnvelopeDataSendPermit defines model for OperatorQQDraftEnvelope.Data.SendPermit.
+type OperatorQQDraftEnvelopeDataSendPermit string
+
+// OperatorQQDraftRequest Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. expected_version is exactly numeric 1. Creates a review-only outbound draft, not a QQ send.
+type OperatorQQDraftRequest struct {
+	// AccountId Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs.
+	AccountId string `json:"account_id"`
+
+	// Body Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit.
+	Body string `json:"body"`
+
+	// ConversationId Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs.
+	ConversationId   string                                 `json:"conversation_id"`
+	ConversationKind OperatorQQDraftRequestConversationKind `json:"conversation_kind"`
+	ExpectedVersion  OperatorQQDraftRequestExpectedVersion  `json:"expected_version"`
+}
+
+// OperatorQQDraftRequestConversationKind defines model for OperatorQQDraftRequest.ConversationKind.
+type OperatorQQDraftRequestConversationKind string
+
+// OperatorQQDraftRequestExpectedVersion defines model for OperatorQQDraftRequest.ExpectedVersion.
+type OperatorQQDraftRequestExpectedVersion int64
+
+// OperatorQQInboxEventEnvelope 201 new inbound message, 200 same-event/same-digest replay with idempotent_replay=true; changed digest is 409. No send_permit field.
+type OperatorQQInboxEventEnvelope struct {
+	Data struct {
+		// BodyDigest Lowercase hexadecimal SHA-256 digest, exactly 64 characters.
+		BodyDigest Digest `json:"body_digest"`
+
+		// ConversationId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		ConversationId string                                        `json:"conversation_id"`
+		DeliveryState  OperatorQQInboxEventEnvelopeDataDeliveryState `json:"delivery_state"`
+		Direction      OperatorQQInboxEventEnvelopeDataDirection     `json:"direction"`
+
+		// EventId Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		EventId string `json:"event_id"`
+
+		// Id Persisted core.id: 1..128 characters, not entirely ASCII spaces. External conversation IDs need not be decimal QQ IDs.
+		Id               string                                 `json:"id"`
+		IdempotentReplay bool                                   `json:"idempotent_replay"`
+		Source           OperatorQQInboxEventEnvelopeDataSource `json:"source"`
+	} `json:"data"`
+}
+
+// OperatorQQInboxEventEnvelopeDataDeliveryState defines model for OperatorQQInboxEventEnvelope.Data.DeliveryState.
+type OperatorQQInboxEventEnvelopeDataDeliveryState string
+
+// OperatorQQInboxEventEnvelopeDataDirection defines model for OperatorQQInboxEventEnvelope.Data.Direction.
+type OperatorQQInboxEventEnvelopeDataDirection string
+
+// OperatorQQInboxEventEnvelopeDataSource defines model for OperatorQQInboxEventEnvelope.Data.Source.
+type OperatorQQInboxEventEnvelopeDataSource string
+
+// OperatorQQInboxEventRequest Unknown fields are rejected. Content-Type must start with application/json; one complete JSON document, at most 16384 request bytes. Runtime inbound evidence only. Event identity is workspace + account + conversation kind/external ID + event_id; body digest detects changed replays. The request header is only checked for nonempty presence.
+type OperatorQQInboxEventRequest struct {
+	// AccountId Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs.
+	AccountId string `json:"account_id"`
+
+	// Body Nonempty valid UTF-8, at most 8192 UTF-8 bytes. maxLength is a necessary character bound only; JSON Schema does not enforce the stricter byte bound. Whitespace is accepted; JSON encoding overhead also counts toward the separate 16384-byte request limit.
+	Body string `json:"body"`
+
+	// ConversationId Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs.
+	ConversationId   string                                      `json:"conversation_id"`
+	ConversationKind OperatorQQInboxEventRequestConversationKind `json:"conversation_kind"`
+
+	// EventId Handler checks nonempty only; storage constraints can reject an otherwise decoded value. Not restricted to decimal QQ IDs.
+	EventId string `json:"event_id"`
+}
+
+// OperatorQQInboxEventRequestConversationKind defines model for OperatorQQInboxEventRequest.ConversationKind.
+type OperatorQQInboxEventRequestConversationKind string
+
 // OperatorRuntime defines model for OperatorRuntime.
 type OperatorRuntime struct {
 	DevelopmentOperations bool                       `json:"development_operations"`
@@ -6446,6 +7425,33 @@ type TaskEntrySender = QQId
 // ContractError Error response envelope. It carries no data field.
 type ContractError = ErrorEnvelope
 
+// OperatorConversationError400 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError400 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError401 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError401 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError403 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError403 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError404 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError404 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError405 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError405 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError409 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError409 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError415 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError415 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError500 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError500 = OperatorConversationErrorEnvelope
+
+// OperatorConversationError503 Two real error writers: handler/operatorDecode emit only error.code; store/domain failures use thWriteError with full ErrorEnvelope and meta. Decode uses VALIDATION_ERROR while semantic validation uses VALIDATION_FAILED. HTTP 400/401/403/404/405/409/415/500/503 depend on the actual source; no generic success data.
+type OperatorConversationError503 = OperatorConversationErrorEnvelope
+
 // ListAccountsParams defines parameters for ListAccounts.
 type ListAccountsParams struct {
 	Cursor *Cursor `form:"cursor,omitempty" json:"cursor,omitempty"`
@@ -6586,6 +7592,63 @@ type CreateModelRequestParams struct {
 // QueryExternalObservationsParams defines parameters for QueryExternalObservations.
 type QueryExternalObservationsParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// AppendOperatorAgentMessageParams defines parameters for AppendOperatorAgentMessage.
+type AppendOperatorAgentMessageParams struct {
+	// IdempotencyKey Required, nonblank after Go strings.TrimSpace and at most 128 UTF-8 bytes. Character maxLength alone is not an exact byte check. Identity: workspace/principal/method/canonical path/key. Exact replay remains 201; changed effective request or ambiguous legacy identity is 409 IDEMPOTENCY_CONFLICT. Current auth/source/account checks precede replay.
+	IdempotencyKey string `json:"Idempotency-Key"`
+}
+
+// ListOperatorConversationsParams defines parameters for ListOperatorConversations.
+type ListOperatorConversationsParams struct {
+	// Limit Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range.
+	Cursor *int `form:"cursor,omitempty" json:"cursor,omitempty"`
+
+	// AccountId Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.
+	AccountId *string `form:"account_id,omitempty" json:"account_id,omitempty"`
+
+	// ConversationKind Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.
+	ConversationKind *string `form:"conversation_kind,omitempty" json:"conversation_kind,omitempty"`
+
+	// ConversationId Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.
+	ConversationId *string `form:"conversation_id,omitempty" json:"conversation_id,omitempty"`
+}
+
+// ListOperatorConversationMessagesParams defines parameters for ListOperatorConversationMessages.
+type ListOperatorConversationMessagesParams struct {
+	// Limit Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range.
+	Cursor *int `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// ListOperatorNotificationsParams defines parameters for ListOperatorNotifications.
+type ListOperatorNotificationsParams struct {
+	// Limit Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor Offset, not an opaque token. Omitted or empty string selects 0. HTTP text is parsed by strconv.Atoi; leading zeros, +0 and -0 are accepted. Range 0..1000000. Response next_cursor can exceed this input range.
+	Cursor *int `form:"cursor,omitempty" json:"cursor,omitempty"`
+
+	// AccountId Optional exact SQL equality filter; omitted/empty disables it. Unknown IDs/kinds simply do not match. No QQId, ResourceId or enum validation.
+	AccountId *string `form:"account_id,omitempty" json:"account_id,omitempty"`
+}
+
+// CreateOperatorQQDraftParams defines parameters for CreateOperatorQQDraft.
+type CreateOperatorQQDraftParams struct {
+	// IdempotencyKey Required, nonblank after Go strings.TrimSpace and at most 128 UTF-8 bytes. Character maxLength alone is not an exact byte check. Identity: workspace/principal/method/canonical path/key. Exact replay remains 201; changed effective request or ambiguous legacy identity is 409 IDEMPOTENCY_CONFLICT. Current auth/source/account checks precede replay.
+	IdempotencyKey string `json:"Idempotency-Key"`
+}
+
+// IngestOperatorQQInboxEventParams defines parameters for IngestOperatorQQInboxEvent.
+type IngestOperatorQQInboxEventParams struct {
+	// IdempotencyKey Required nonempty header only. No 128-byte cap and no whitespace trim in ingestEvent; this is not the durable request key. Deduplication uses the body event_id in its conversation scope.
+	IdempotencyKey string `json:"Idempotency-Key"`
 }
 
 // ListTasksParams defines parameters for ListTasks.
@@ -6782,6 +7845,18 @@ type QueryExternalObservationsJSONRequestBody = ObservationQueryRequest
 
 // PutObservationJSONRequestBody defines body for PutObservation for application/json ContentType.
 type PutObservationJSONRequestBody = Observation
+
+// AppendOperatorAgentMessageJSONRequestBody defines body for AppendOperatorAgentMessage for application/json ContentType.
+type AppendOperatorAgentMessageJSONRequestBody = OperatorAgentMessageRequest
+
+// SetOperatorNotificationReadJSONRequestBody defines body for SetOperatorNotificationRead for application/json ContentType.
+type SetOperatorNotificationReadJSONRequestBody = OperatorNotificationReadRequest
+
+// CreateOperatorQQDraftJSONRequestBody defines body for CreateOperatorQQDraft for application/json ContentType.
+type CreateOperatorQQDraftJSONRequestBody = OperatorQQDraftRequest
+
+// IngestOperatorQQInboxEventJSONRequestBody defines body for IngestOperatorQQInboxEvent for application/json ContentType.
+type IngestOperatorQQInboxEventJSONRequestBody = OperatorQQInboxEventRequest
 
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
 type CreateTaskJSONRequestBody = CreateTaskRequest
@@ -8464,6 +9539,438 @@ func (t Operation_Error_Details_AdditionalProperties) MarshalJSON() ([]byte, err
 
 func (t *Operation_Error_Details_AdditionalProperties) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOperatorConversationErrorEnvelope0 returns the union data inside the OperatorConversationErrorEnvelope as a OperatorConversationErrorEnvelope0
+func (t OperatorConversationErrorEnvelope) AsOperatorConversationErrorEnvelope0() (OperatorConversationErrorEnvelope0, error) {
+	var body OperatorConversationErrorEnvelope0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOperatorConversationErrorEnvelope0 overwrites any union data inside the OperatorConversationErrorEnvelope as the provided OperatorConversationErrorEnvelope0
+func (t *OperatorConversationErrorEnvelope) FromOperatorConversationErrorEnvelope0(v OperatorConversationErrorEnvelope0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOperatorConversationErrorEnvelope0 performs a merge with any union data inside the OperatorConversationErrorEnvelope, using the provided OperatorConversationErrorEnvelope0
+func (t *OperatorConversationErrorEnvelope) MergeOperatorConversationErrorEnvelope0(v OperatorConversationErrorEnvelope0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsErrorEnvelope returns the union data inside the OperatorConversationErrorEnvelope as a ErrorEnvelope
+func (t OperatorConversationErrorEnvelope) AsErrorEnvelope() (ErrorEnvelope, error) {
+	var body ErrorEnvelope
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromErrorEnvelope overwrites any union data inside the OperatorConversationErrorEnvelope as the provided ErrorEnvelope
+func (t *OperatorConversationErrorEnvelope) FromErrorEnvelope(v ErrorEnvelope) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeErrorEnvelope performs a merge with any union data inside the OperatorConversationErrorEnvelope, using the provided ErrorEnvelope
+func (t *OperatorConversationErrorEnvelope) MergeErrorEnvelope(v ErrorEnvelope) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OperatorConversationErrorEnvelope) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OperatorConversationErrorEnvelope) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOperatorConversationPageEnvelopeDataItems0 returns the union data inside the OperatorConversationPageEnvelope_Data_Items_Item as a OperatorConversationPageEnvelopeDataItems0
+func (t OperatorConversationPageEnvelope_Data_Items_Item) AsOperatorConversationPageEnvelopeDataItems0() (OperatorConversationPageEnvelopeDataItems0, error) {
+	var body OperatorConversationPageEnvelopeDataItems0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOperatorConversationPageEnvelopeDataItems0 overwrites any union data inside the OperatorConversationPageEnvelope_Data_Items_Item as the provided OperatorConversationPageEnvelopeDataItems0
+func (t *OperatorConversationPageEnvelope_Data_Items_Item) FromOperatorConversationPageEnvelopeDataItems0(v OperatorConversationPageEnvelopeDataItems0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOperatorConversationPageEnvelopeDataItems0 performs a merge with any union data inside the OperatorConversationPageEnvelope_Data_Items_Item, using the provided OperatorConversationPageEnvelopeDataItems0
+func (t *OperatorConversationPageEnvelope_Data_Items_Item) MergeOperatorConversationPageEnvelopeDataItems0(v OperatorConversationPageEnvelopeDataItems0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOperatorConversationPageEnvelopeDataItems1 returns the union data inside the OperatorConversationPageEnvelope_Data_Items_Item as a OperatorConversationPageEnvelopeDataItems1
+func (t OperatorConversationPageEnvelope_Data_Items_Item) AsOperatorConversationPageEnvelopeDataItems1() (OperatorConversationPageEnvelopeDataItems1, error) {
+	var body OperatorConversationPageEnvelopeDataItems1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOperatorConversationPageEnvelopeDataItems1 overwrites any union data inside the OperatorConversationPageEnvelope_Data_Items_Item as the provided OperatorConversationPageEnvelopeDataItems1
+func (t *OperatorConversationPageEnvelope_Data_Items_Item) FromOperatorConversationPageEnvelopeDataItems1(v OperatorConversationPageEnvelopeDataItems1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOperatorConversationPageEnvelopeDataItems1 performs a merge with any union data inside the OperatorConversationPageEnvelope_Data_Items_Item, using the provided OperatorConversationPageEnvelopeDataItems1
+func (t *OperatorConversationPageEnvelope_Data_Items_Item) MergeOperatorConversationPageEnvelopeDataItems1(v OperatorConversationPageEnvelopeDataItems1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OperatorConversationPageEnvelope_Data_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	object["account_id"], err = json.Marshal(t.AccountId)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'account_id': %w", err)
+	}
+
+	object["conversation_id"], err = json.Marshal(t.ConversationId)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'conversation_id': %w", err)
+	}
+
+	object["conversation_kind"], err = json.Marshal(t.ConversationKind)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'conversation_kind': %w", err)
+	}
+
+	object["created_at"], err = json.Marshal(t.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'created_at': %w", err)
+	}
+
+	object["id"], err = json.Marshal(t.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'id': %w", err)
+	}
+
+	object["kind"], err = json.Marshal(t.Kind)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+	}
+
+	object["last_event_at"], err = json.Marshal(t.LastEventAt)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'last_event_at': %w", err)
+	}
+
+	object["unread_count"], err = json.Marshal(t.UnreadCount)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'unread_count': %w", err)
+	}
+
+	object["version"], err = json.Marshal(t.Version)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'version': %w", err)
+	}
+
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *OperatorConversationPageEnvelope_Data_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["account_id"]; found {
+		err = json.Unmarshal(raw, &t.AccountId)
+		if err != nil {
+			return fmt.Errorf("error reading 'account_id': %w", err)
+		}
+	}
+
+	if raw, found := object["conversation_id"]; found {
+		err = json.Unmarshal(raw, &t.ConversationId)
+		if err != nil {
+			return fmt.Errorf("error reading 'conversation_id': %w", err)
+		}
+	}
+
+	if raw, found := object["conversation_kind"]; found {
+		err = json.Unmarshal(raw, &t.ConversationKind)
+		if err != nil {
+			return fmt.Errorf("error reading 'conversation_kind': %w", err)
+		}
+	}
+
+	if raw, found := object["created_at"]; found {
+		err = json.Unmarshal(raw, &t.CreatedAt)
+		if err != nil {
+			return fmt.Errorf("error reading 'created_at': %w", err)
+		}
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	if raw, found := object["last_event_at"]; found {
+		err = json.Unmarshal(raw, &t.LastEventAt)
+		if err != nil {
+			return fmt.Errorf("error reading 'last_event_at': %w", err)
+		}
+	}
+
+	if raw, found := object["unread_count"]; found {
+		err = json.Unmarshal(raw, &t.UnreadCount)
+		if err != nil {
+			return fmt.Errorf("error reading 'unread_count': %w", err)
+		}
+	}
+
+	if raw, found := object["version"]; found {
+		err = json.Unmarshal(raw, &t.Version)
+		if err != nil {
+			return fmt.Errorf("error reading 'version': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsOperatorMessagePageEnvelopeDataItems0 returns the union data inside the OperatorMessagePageEnvelope_Data_Items_Item as a OperatorMessagePageEnvelopeDataItems0
+func (t OperatorMessagePageEnvelope_Data_Items_Item) AsOperatorMessagePageEnvelopeDataItems0() (OperatorMessagePageEnvelopeDataItems0, error) {
+	var body OperatorMessagePageEnvelopeDataItems0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOperatorMessagePageEnvelopeDataItems0 overwrites any union data inside the OperatorMessagePageEnvelope_Data_Items_Item as the provided OperatorMessagePageEnvelopeDataItems0
+func (t *OperatorMessagePageEnvelope_Data_Items_Item) FromOperatorMessagePageEnvelopeDataItems0(v OperatorMessagePageEnvelopeDataItems0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOperatorMessagePageEnvelopeDataItems0 performs a merge with any union data inside the OperatorMessagePageEnvelope_Data_Items_Item, using the provided OperatorMessagePageEnvelopeDataItems0
+func (t *OperatorMessagePageEnvelope_Data_Items_Item) MergeOperatorMessagePageEnvelopeDataItems0(v OperatorMessagePageEnvelopeDataItems0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOperatorMessagePageEnvelopeDataItems1 returns the union data inside the OperatorMessagePageEnvelope_Data_Items_Item as a OperatorMessagePageEnvelopeDataItems1
+func (t OperatorMessagePageEnvelope_Data_Items_Item) AsOperatorMessagePageEnvelopeDataItems1() (OperatorMessagePageEnvelopeDataItems1, error) {
+	var body OperatorMessagePageEnvelopeDataItems1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOperatorMessagePageEnvelopeDataItems1 overwrites any union data inside the OperatorMessagePageEnvelope_Data_Items_Item as the provided OperatorMessagePageEnvelopeDataItems1
+func (t *OperatorMessagePageEnvelope_Data_Items_Item) FromOperatorMessagePageEnvelopeDataItems1(v OperatorMessagePageEnvelopeDataItems1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOperatorMessagePageEnvelopeDataItems1 performs a merge with any union data inside the OperatorMessagePageEnvelope_Data_Items_Item, using the provided OperatorMessagePageEnvelopeDataItems1
+func (t *OperatorMessagePageEnvelope_Data_Items_Item) MergeOperatorMessagePageEnvelopeDataItems1(v OperatorMessagePageEnvelopeDataItems1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OperatorMessagePageEnvelope_Data_Items_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	object["body"], err = json.Marshal(t.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'body': %w", err)
+	}
+
+	object["body_digest"], err = json.Marshal(t.BodyDigest)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'body_digest': %w", err)
+	}
+
+	object["created_at"], err = json.Marshal(t.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'created_at': %w", err)
+	}
+
+	object["delivery_state"], err = json.Marshal(t.DeliveryState)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'delivery_state': %w", err)
+	}
+
+	object["direction"], err = json.Marshal(t.Direction)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'direction': %w", err)
+	}
+
+	object["id"], err = json.Marshal(t.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'id': %w", err)
+	}
+
+	object["seq"], err = json.Marshal(t.Seq)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'seq': %w", err)
+	}
+
+	object["source"], err = json.Marshal(t.Source)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'source': %w", err)
+	}
+
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *OperatorMessagePageEnvelope_Data_Items_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["body"]; found {
+		err = json.Unmarshal(raw, &t.Body)
+		if err != nil {
+			return fmt.Errorf("error reading 'body': %w", err)
+		}
+	}
+
+	if raw, found := object["body_digest"]; found {
+		err = json.Unmarshal(raw, &t.BodyDigest)
+		if err != nil {
+			return fmt.Errorf("error reading 'body_digest': %w", err)
+		}
+	}
+
+	if raw, found := object["created_at"]; found {
+		err = json.Unmarshal(raw, &t.CreatedAt)
+		if err != nil {
+			return fmt.Errorf("error reading 'created_at': %w", err)
+		}
+	}
+
+	if raw, found := object["delivery_state"]; found {
+		err = json.Unmarshal(raw, &t.DeliveryState)
+		if err != nil {
+			return fmt.Errorf("error reading 'delivery_state': %w", err)
+		}
+	}
+
+	if raw, found := object["direction"]; found {
+		err = json.Unmarshal(raw, &t.Direction)
+		if err != nil {
+			return fmt.Errorf("error reading 'direction': %w", err)
+		}
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["seq"]; found {
+		err = json.Unmarshal(raw, &t.Seq)
+		if err != nil {
+			return fmt.Errorf("error reading 'seq': %w", err)
+		}
+	}
+
+	if raw, found := object["source"]; found {
+		err = json.Unmarshal(raw, &t.Source)
+		if err != nil {
+			return fmt.Errorf("error reading 'source': %w", err)
+		}
+	}
+
 	return err
 }
 
