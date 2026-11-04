@@ -1,6 +1,7 @@
 package taskengine
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -69,6 +70,13 @@ func (h *operatorConversationHTTP) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	}
 	if !principal {
 		fail(403, "ACTION_FORBIDDEN")
+		return
+	}
+	// The server routes these writes by their canonical path. Do not create
+	// new alias identities when the handler is used without that outer router.
+	if r.Method == http.MethodPost && path != r.URL.Path && (path == "/v1/operator/qq-drafts" ||
+		(strings.HasPrefix(path, "/v1/operator/agent-threads/") && strings.HasSuffix(path, "/messages"))) {
+		fail(http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED")
 		return
 	}
 	switch {
@@ -217,6 +225,57 @@ func (h *operatorConversationHTTP) messages(w http.ResponseWriter, r *http.Reque
 	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"items": items, "next_cursor": next}})
 }
 
+// operatorRequestEventID frames the durable request identity independently of
+// its body. Keep the version and framing stable across process restarts.
+func operatorRequestEventID(a Actor, method, path, key string) string {
+	identity, _ := json.Marshal([]string{"operator-request-v1", a.WorkspaceID, a.PrincipalID, method, path, key})
+	return "opreq:v1:" + ChatTextDigest(string(identity))
+}
+
+// Operator writes lock principal before conversation. The first lock serializes
+// the principal's ledger; the second protects seq across different principals.
+func operatorLockPrincipal(ctx context.Context, tx pgx.Tx, a Actor) error {
+	var id string
+	err := tx.QueryRow(ctx, `SELECT id FROM core.principal WHERE workspace_id=$1 AND id=$2 FOR UPDATE`, a.WorkspaceID, a.PrincipalID).Scan(&id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return problem("ACTION_FORBIDDEN")
+	}
+	return err
+}
+
+// Authorize the principal and target before calling this helper. Read at most
+// the canonical identity and its historical single-slash alias, never mint an
+// alias ledger. If both exist they must agree; neither is safe to guess away.
+func operatorReadRequest(ctx context.Context, tx pgx.Tx, a Actor, method, path, key, digest string) (map[string]any, bool, error) {
+	var saved taskIdemRecord
+	found := false
+	for _, candidate := range []string{path, path + "/"} {
+		rec, ok, err := taskReadIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, method, candidate, key)
+		if err != nil {
+			return nil, false, err
+		}
+		if !ok {
+			continue
+		}
+		if rec.digest != digest || (found && !bytes.Equal(saved.response, rec.response)) {
+			return nil, false, problem(taskCodeIdempotency)
+		}
+		saved, found = rec, true
+	}
+	if !found {
+		return nil, false, nil
+	}
+	var response map[string]any
+	decoder := json.NewDecoder(bytes.NewReader(saved.response))
+	// Decode recursively, including evidence: bigint rule versions must never
+	// pass through float64 when a durable response is replayed.
+	decoder.UseNumber()
+	if err := decoder.Decode(&response); err != nil {
+		return nil, false, err
+	}
+	return response, true, nil
+}
+
 func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.Request, a Actor, id string) {
 	if id == "" || strings.Contains(id, "/") {
 		thWriteError(w, r, problem(taskCodeValidation))
@@ -228,7 +287,7 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 	if !operatorDecode(w, r, &b) {
 		return
 	}
-	if !utf8.ValidString(b.Body) || len(b.Body) == 0 || len(b.Body) > 8192 || r.Header.Get("Idempotency-Key") == "" {
+	if !utf8.ValidString(b.Body) || len(b.Body) == 0 || len(b.Body) > 8192 || taskCheckIdempotencyKey(r.Header.Get("Idempotency-Key")) != nil {
 		thWriteError(w, r, problem(taskCodeValidation))
 		return
 	}
@@ -239,7 +298,14 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 	d := ChatTextDigest(b.Body)
 	ctx := r.Context()
 	var mid string
+	var response map[string]any
+	path := strings.TrimSuffix(r.URL.Path, "/")
+	key := r.Header.Get("Idempotency-Key")
+	eventID := operatorRequestEventID(a, r.Method, path, key)
 	e := h.store.tx(ctx, func(tx pgx.Tx) error {
+		if err := operatorLockPrincipal(ctx, tx, a); err != nil {
+			return err
+		}
 		_, er := tx.Exec(ctx, `INSERT INTO core.operator_conversation(workspace_id,id,kind,conversation_kind,conversation_id) VALUES($1,$2,'agent','agent',$2) ON CONFLICT DO NOTHING`, a.WorkspaceID, id)
 		if er != nil {
 			return er
@@ -248,30 +314,48 @@ func (h *operatorConversationHTTP) agentMessage(w http.ResponseWriter, r *http.R
 		// Enforce the trust domain without changing that persisted identity.
 		var kind, ck string
 		var account *string
-		if er = tx.QueryRow(ctx, `SELECT kind,conversation_kind,account_id FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2`, a.WorkspaceID, id).Scan(&kind, &ck, &account); er != nil {
+		if er = tx.QueryRow(ctx, `SELECT kind,conversation_kind,account_id FROM core.operator_conversation WHERE workspace_id=$1 AND id=$2 FOR UPDATE`, a.WorkspaceID, id).Scan(&kind, &ck, &account); er != nil {
 			return er
 		}
 		if kind != "agent" || ck != "agent" || account != nil {
 			return problem("RESOURCE_NOT_FOUND")
+		}
+		var found bool
+		response, found, er = operatorReadRequest(ctx, tx, a, r.Method, path, key, d)
+		if er != nil || found {
+			return er
+		}
+		// Pre-ledger Agent rows do not identify their author. A raw-key match
+		// on this thread is ambiguous even if its body happens to match.
+		var legacy bool
+		if er = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM core.operator_message WHERE workspace_id=$1 AND conversation_id=$2 AND event_id=$3)`, a.WorkspaceID, id, key).Scan(&legacy); er != nil {
+			return er
+		}
+		if legacy {
+			return problem(taskCodeIdempotency)
 		}
 		var seq int64
 		if er = tx.QueryRow(ctx, `SELECT COALESCE(max(seq),0)+1 FROM core.operator_message WHERE workspace_id=$1 AND conversation_id=$2`, a.WorkspaceID, id).Scan(&seq); er != nil {
 			return er
 		}
 		mid = newID("msg")
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'agent','inbound','received',$4,$5,$6,$7)`, a.WorkspaceID, mid, id, b.Body, d, r.Header.Get("Idempotency-Key"), seq)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'agent','inbound','received',$4,$5,$6,$7)`, a.WorkspaceID, mid, id, b.Body, d, eventID, seq)
 		if er != nil {
 			return er
 		}
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+id+":"+r.Header.Get("Idempotency-Key"), mid, id)
-		return er
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,conversation_id,summary) VALUES($1,$2,$3,'agent.message',$4,$5,'Agent thread message') ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "agent-message:"+id+":"+eventID, mid, id)
+		if er != nil {
+			return er
+		}
+		response = map[string]any{"data": map[string]any{"id": mid, "conversation_id": id, "source": "agent", "direction": "inbound", "delivery_state": "received", "body_digest": d, "send_permit": "absent"}}
+		return taskWriteIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, r.Method, path, key, d, mid, response)
 	})
 	if e != nil {
 		thWriteError(w, r, e)
 		return
 	}
 	w.WriteHeader(201)
-	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": mid, "conversation_id": id, "source": "agent", "direction": "inbound", "delivery_state": "received", "body_digest": d, "send_permit": "absent"}})
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Request, a Actor) {
@@ -285,7 +369,7 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 	if !operatorDecode(w, r, &b) {
 		return
 	}
-	if b.AccountID == "" || b.ConversationID == "" || (b.ConversationKind != "group" && b.ConversationKind != "private") || !utf8.ValidString(b.Body) || len(b.Body) == 0 || len(b.Body) > 8192 || b.ExpectedVersion != 1 || r.Header.Get("Idempotency-Key") == "" {
+	if b.AccountID == "" || b.ConversationID == "" || (b.ConversationKind != "group" && b.ConversationKind != "private") || !utf8.ValidString(b.Body) || len(b.Body) == 0 || len(b.Body) > 8192 || b.ExpectedVersion != 1 || taskCheckIdempotencyKey(r.Header.Get("Idempotency-Key")) != nil {
 		thWriteError(w, r, problem(taskCodeValidation))
 		return
 	}
@@ -299,7 +383,16 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 	var rulesVersion int64
 	var evidence []byte
 	bodyDigest := ChatTextDigest(b.Body)
+	requestBytes, _ := json.Marshal(b)
+	requestDigest := ChatTextDigest(string(requestBytes))
+	var response map[string]any
+	path := strings.TrimSuffix(r.URL.Path, "/")
+	key := r.Header.Get("Idempotency-Key")
+	eventID := operatorRequestEventID(a, r.Method, path, key)
 	e := h.store.tx(ctx, func(tx pgx.Tx) error {
+		if err := operatorLockPrincipal(ctx, tx, a); err != nil {
+			return err
+		}
 		var exists bool
 		if er := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM core.account WHERE workspace_id=$1 AND id=$2)`, a.WorkspaceID, b.AccountID).Scan(&exists); er != nil {
 			return er
@@ -313,11 +406,26 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 		if er != nil {
 			return er
 		}
-		if er = tx.QueryRow(ctx, `SELECT id,kind,account_id,conversation_id FROM core.operator_conversation WHERE workspace_id=$1 AND kind='qq' AND account_id=$2 AND conversation_kind=$3 AND conversation_id=$4`, a.WorkspaceID, b.AccountID, b.ConversationKind, b.ConversationID).Scan(&conv, &kind, &account, &external); er != nil {
+		if er = tx.QueryRow(ctx, `SELECT id,kind,account_id,conversation_id FROM core.operator_conversation WHERE workspace_id=$1 AND kind='qq' AND account_id=$2 AND conversation_kind=$3 AND conversation_id=$4 FOR UPDATE`, a.WorkspaceID, b.AccountID, b.ConversationKind, b.ConversationID).Scan(&conv, &kind, &account, &external); er != nil {
 			return er
 		}
 		if kind != "qq" || account != b.AccountID || external != b.ConversationID {
 			return problem("RESOURCE_NOT_FOUND")
+		}
+		var found bool
+		response, found, er = operatorReadRequest(ctx, tx, a, r.Method, path, key, requestDigest)
+		if er != nil || found {
+			return er
+		}
+		// The Draft endpoint has one request scope across all targets. Legacy
+		// drafts record their author, so check that principal's raw key across
+		// every conversation before allowing a new durable request identity.
+		var legacy bool
+		if er = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM core.qq_draft d JOIN core.operator_message m ON m.workspace_id=d.workspace_id AND m.id=d.message_id WHERE d.workspace_id=$1 AND d.created_by=$2 AND m.event_id=$3)`, a.WorkspaceID, a.PrincipalID, key).Scan(&legacy); er != nil {
+			return er
+		}
+		if legacy {
+			return problem(taskCodeIdempotency)
 		}
 		items, rev, er := contentLoad(ctx, tx, a.WorkspaceID)
 		if er != nil {
@@ -344,7 +452,7 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 		if state == "unsupported" {
 			state = "blocked"
 		}
-		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'qq','outbound_draft',$4,$5,$6,$7,$8)`, a.WorkspaceID, msgID, conv, state, b.Body, bodyDigest, r.Header.Get("Idempotency-Key"), seq)
+		_, er = tx.Exec(ctx, `INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq) VALUES($1,$2,$3,'qq','outbound_draft',$4,$5,$6,$7,$8)`, a.WorkspaceID, msgID, conv, state, b.Body, bodyDigest, eventID, seq)
 		if er != nil {
 			return er
 		}
@@ -353,14 +461,18 @@ func (h *operatorConversationHTTP) createDraft(w http.ResponseWriter, r *http.Re
 			return er
 		}
 		_, er = tx.Exec(ctx, `INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,account_id,conversation_id,summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(workspace_id,COALESCE(conversation_id,''),event_key) DO NOTHING`, a.WorkspaceID, newID("notice"), "draft:"+draftID, "qq.draft.created", draftID, b.AccountID, conv, "QQ draft review: "+decision)
-		return er
+		if er != nil {
+			return er
+		}
+		response = map[string]any{"data": map[string]any{"id": draftID, "message_id": msgID, "payload_digest": bodyDigest, "rules_version": rulesVersion, "decision": decision, "evidence": json.RawMessage(evidence), "send_permit": "absent", "version": 1}}
+		return taskWriteIdempotency(ctx, tx, a.WorkspaceID, a.PrincipalID, r.Method, path, key, requestDigest, draftID, response)
 	})
 	if e != nil {
 		thWriteError(w, r, e)
 		return
 	}
 	w.WriteHeader(201)
-	_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": draftID, "message_id": msgID, "payload_digest": bodyDigest, "rules_version": rulesVersion, "decision": decision, "evidence": json.RawMessage(evidence), "send_permit": "absent", "version": 1}})
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (h *operatorConversationHTTP) getDraft(w http.ResponseWriter, r *http.Request, a Actor, id string) {

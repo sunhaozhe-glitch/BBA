@@ -155,6 +155,12 @@ Agent thread/message 与 QQ account/group/private conversation 分域存储；�
 
 后续按消息、任务、CRM 各自事件逐项接线，要求 scope、去重、分页 cursor、已读并发安全与脱敏；不能预先宣称所有事件已有通知。基础对话闭环与完整 M5 Agent run 分开验收。
 
+Agent 消息/QQ 草稿的持久请求身份是 workspace + principal + method + 规范 path + Idempotency-Key；消息事件使用带版本的 JSON 分帧摘要，不使用正文或裸请求键代替主体范围。复用 `core.idempotency`，按 principal→conversation 行锁分配 seq，并在同一事务写入消息/草稿/通知/账本。重放前仍检查当前认证、权限、主体、账号和会话来源；Draft 请求摘要含全部有效字段，重放返回持久原 decision/版本，不重新评审当前规则。响应解码须保留整数（含嵌套 evidence），不能经 float64 中转。
+
+Agent/Draft 新写只接受规范路径；直接 handler 的末尾 `/` 写入拒绝，主服务仍按既有 router 返回未匹配。规范请求有界兼容规范 path 和一个末尾 `/` 的历史账本，两份记录不一致则冲突。旧裸 event_id 有账本时重放原回执，不改历史消息；无账本时，Agent 当前 thread/key 无法确定原主体，保守冲突，Draft 按 workspace/created_by/raw key 跨历史目标冲突，不靠换目标绕过，不补造历史回执。新旧写入版本不应混跑；即使无新 migration，也须停止旧 Agent/Draft 写入后切换，回退旧 binary 会恢复缺陷并可能将新请求当新写，不能宣称无损回退。
+
+上述会话锁仅覆盖参与该协议的 Agent/Draft 写入；当前 inbox 不锁会话行，Draft/inbox 并发仍可能由 seq 唯一约束拒绝一个事务。不得把这次范围标为完整 M1 并发验收。
+
 ### 4.2 五种业务任务
 
 | 类型 | 当前代码边界 |
