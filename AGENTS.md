@@ -313,7 +313,7 @@ Agent/Draft 新写只接受规范路径；直接 handler 的末尾 `/` 写入拒
 - 同步 PR 只包含源码、必要生成资源与文档；不提交 dev-stack 状态、token、DSN、数据库或运行日志。恢复 UI 不授予 worker、真实 QQ、模型、迁移或合并权限。
 <!-- omh:agent-instructions:end -->
 
-`frontend/app.js` 使用内存 bearer token、请求 AbortController 和 session/route/detail 序列；双对话另以 `chatSeq` 绑定页签、会话 ID 和页面代次，写表单还绑定 DOM 实例，拒绝迟到消息、错误、401 和保存回执污染当前视图。切换会话先清空旧消息，加载/失败不显示为空会话；忽略旧写回执不代表取消后端写入，不自动重试。修改异步 UI 时保留这些边界、HTML 转义与同源 CSP。验证真实 API、权限、空/错误/未知状态、分页、刷新和浏览器交互。新增 Collector/嵌入一致性/浏览器 CI 应单独提交，不能假定现有 workflow 已覆盖。
+`frontend/app.js` 使用内存 bearer token、请求 AbortController 和 session/route/detail 序列；双对话另以 `chatSeq` 绑定页签、会话 ID 和页面代次，写表单还绑定 DOM 实例，拒绝迟到消息、错误、401 和保存回执污染当前视图。切换会话先清空旧消息，加载/失败不显示为空会话；忽略旧写回执不代表取消后端写入，不自动重试。通知读取另以 `notifySeq` 绑定列表代次，已读操作绑定发起页面的 session/route/list 及原按钮 DOM；成功重读立即作废旧列表，迟到成功/错误/401/finally 不得影响新页或新按钮。同按钮进行中禁止重复提交；超时/断连不自动重发，刷新或重入读取权威状态。修改异步 UI 时保留这些边界、HTML 转义与同源 CSP。验证真实 API、权限、空/错误/未知状态、分页、刷新和浏览器交互。新增 Collector/嵌入一致性/浏览器 CI 应单独提交，不能假定现有 workflow 已覆盖。
 
 ## 10. 开发、验证与部署流程
 
@@ -341,6 +341,8 @@ node --test tests/plugin/*.mjs
 # Controller：先按 pyproject 安装到独立 Python 环境；只执行隔离模拟测试
 PYTHONPATH=controller/src python3 -m unittest discover -s controller/tests -v
 ```
+
+通知与对话请求作用域回归分别为 `tests/product/notification-request-scope.test.cjs`、`tests/product/chat-request-scope.test.cjs`；使用可用的 Playwright/Chrome 环境执行 `node --test <测试文件>`，依赖定位见文件头。`tests/product/b7-real-service-acceptance.cjs` 必须针对调用者拥有的全新隔离 fixture 运行，并由调用者 finally 停止；不指向已部署服务。现有 CI 不执行这些浏览器测试，不能用 CI 绿灯替代本机证据。
 
 Go 测试不得裸跑 `go test ./...` 绕过 harness 或掩盖缺 DSN skip。`kernel.sh` 用无网络容器与 Unix socket、不发布 DB host 端口；`schema` 是隔离 SQL 应用 smoke，不替代 server/Bridge 启动门测试。`prefetch` 准备缓存后契约 Node/Go 阶段使用 `--network none`。根 `contract:check` 只含 refgate/validator/Python tests/lint，完整类型生成与 smoke 见 `generate`。
 

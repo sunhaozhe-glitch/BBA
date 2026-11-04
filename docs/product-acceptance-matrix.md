@@ -209,3 +209,30 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 独立真实服务执行记录：schema实际读数26、初始种子3/6/2/2、binary SHA与源码/测试摘要见 `independent-runtime/initial-db.json` / `result.json`；执行前后输入摘要一致。最终 task/chat_send_permit/dispatch_permit/model_request 均0，容器消失和HTTP/DB端口关闭均读回为true。主代理独立结果与作者证据分别保存，未把旧失败改写成PASS。
 
 本轮 Python product 全目录 `python3 -m unittest discover -s tests/product -v` 独立运行18项通过（含10项 launcher 守护/身份一致性测试），不含 Playwright；Node/Python语法和 `git diff --check` 通过。完整后端race未在本地重跑（本轮无Go/DDL修改），由本轮PR最新head的backend CI单独核对。
+
+
+## M1 通知迟到回执修复（2026-11-04）
+
+基线为合并 PR #16 后的 `origin/main` `28bf29575a615094785d7633b0da28ac76d86335`。本轮由子代理实施、主代理复核；以下执行均对应提交前冻结输入，提交后须核对内容摘要。源码 `frontend/app.js` 与 embed 摘要一致（`aa57ad6c2acb23f6d560bc61d7aceb60802c2c136b625e0caef71529a2f3ff1d`）；真实服务回归脚本摘要为 `5c14299caea14c322f10ba431cf6866965e0c0492791bac3790bf3a38b6d51a5`。PR、最新提交 CI 和合并状态以对应 PR/本机提交回执为准，本节不预先宣称合并或发布。
+
+### 实现与边界
+
+`frontend/app.js` 的通知读取新增 `notifySeq`，同时核对发起时的 session、route seq 与列表代次；已读回执另绑定原按钮 DOM 和 busy 状态。旧成功/错误/401/finally 不再影响新页、新会话或新按钮；同按钮进行中只发一次 POST。当前成功重读服务端，失败仍可显示错误并主动重试；超时/断连不自动重发，应刷新/重入核对。同步唯一产品源码与 embed；未改变 HTTP 合同、DDL、Go 授权、依赖或 CI 配置。
+
+### 本轮证据
+
+| 验证项 | 身份、环境与实际结果 | 证明范围 |
+|---|---|---|
+| 通知请求作用域 | 作者最终相同测试 RED：82项中43失败；修复后作者及主代理独立执行均82/82通过 | `tests/product/notification-request-scope.test.cjs` 使用真实前端与 loopback HTTP fixture；覆盖迟到 GET/POST、切 chat/返回/刷新/新登录、403/409/401/500/timeout/断连、当前行为、同页新代次、原按钮身份和防重复。提前触发超时定时器、为指定跨登录请求移除 signal 属于测试故障注入，不是 Go/持久化证明 |
+| 既有产品回归 | 主代理独立执行 chat21、三屏UI39（1440/768/375）、Python product18均通过 | 保留原对话/草稿/UI/fixture guard；不是完整隔离或恢复验收 |
+| 真实服务正向通知回归 | 最终同一脚本在旧前端作者 RED 失败；修复版作者及主代理全新实例均11项检查通过，`notification_navigation: PASS` | `tests/product/b7-real-service-acceptance.cjs` 在 CDP Response 阶段只延迟 Go 已提交的真实200；释放前DB及独立API确认 read=true/version4→5，切chat后内容/认证/错误保持，返回通知页仍已读/version5。750ms有界采样不是无限迟到证明 |
+| 真实服务既有 smoke | 主代理独立13/13通过；schema实读26，初始会话/消息/草稿/通知3/6/2/2 | 全新PG16 + 本次embed真实Go binary + file resolver；当前 binary SHA256 `e85b3340333280a30854e989ffc0b6772e435a53bdd84c84e745d73b8853842e`，不是已部署实例 |
+| 生成与清理 | 主代理核对语法、构建幂等、源/embed一致、diff检查；真实实例四类执行事实为0，专属容器消失/端口关闭均读回 | `task`、`chat_send_permit`、`dispatch_permit`、`model_request` 均0；不调用真实QQ/模型/MCP/ARTEX，不部署或迁移现存DB |
+
+本机证据在忽略目录 `evals/results/m1-notification-scope-20261104/`：`frontend/` 保存作者最终相同测试 RED/GREEN，`independent-ui/` 保存主代理独立命令/日志/摘要；`runtime/fix-round1/` 保存最终真实服务作者 RED/GREEN 与采证故障检查，`independent-runtime-final/` 保存主代理新实例最终11项、smoke13、DB/版本及清理读回。每轮输入前后摘要一致；凭据、原始日志及截图不提交。独立源码审查与执行身份分开记录，Agent 审查不等于 GitHub 人工 approval。
+
+保留失败：早期测试 harness 修订、真实旧版 RED、主代理首次修复版运行的截图空 `style` 属性误报均保留。最终先截图再固定对比快照，未放宽产品状态断言；只有观察到 UI 状态差异才登记该产品回归，CDP/DB/API采证故障记检查失败、通知 `NOT_VERIFIED` 并非零退出。响应等待与CDP清理有界并立即处理拒绝，采证错误不能伪装成产品通过。
+
+### 当前结论与后续
+
+本轮通知迟到缺陷在上述范围为 `IMPLEMENTED / WIRED_TO_CONSUMER / ISOLATED_FIXTURE / PASS`；**M1仍为PARTIAL，发布为NOT_RELEASED**。11项包含剩余缺口调查，exit0不代表完整产品通过。51条消息/通知的尾页API可读但UI仍不消费cursor（P2），已认证header仍显示“尚未连接”（P3）；会话51+分页、完整并发/持久恢复、外部推送及M5 run仍未验收。后续单独实现会话/消息/通知分页，再处理header状态；修改调查脚本时逐项把已修缺口转换成正向回归。

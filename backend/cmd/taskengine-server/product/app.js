@@ -4,7 +4,7 @@ const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=
 const paths={dashboard:'仪表盘',chat:'对话',tasks:'任务',schedules:'计划任务',assets:'资产',llm:'LLM',agents:'Agent',mcp:'MCP',skills:'Skill',tools:'工具',notify:'通知推送',intercept:'拦截规则',approvals:'审批记录',logs:'日志',settings:'系统配置'};
 const icons={dashboard:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',chat:'M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z',tasks:'M9 12l2 2 4-4 M5 3h14v18H5z',schedules:'M4 5h16v16H4z M8 2v6 M16 2v6 M4 10h16',assets:'M12 3l9 5v10l-9 4-9-4V8z M3 8l9 5 9-5 M12 13v9',tools:'M14 6l4 4 4-4a7 7 0 0 1-9 9l-6 6-4-4 6-6a7 7 0 0 1 9-9z',other:'M12 3v3 M12 18v3 M3 12h3 M18 12h3 M6 6l2 2 M16 16l2 2 M6 18l2-2 M16 8l2-2 M8 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0'};
 const icon=k=>`<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${icons[k]||icons.other}"/></svg>`;
-const state={token:'',route:'dashboard',seq:0,session:0,detailSeq:0,chatSeq:0,controllers:new Set(),registry:null,taskCursor:'',taskItems:[],busy:false};
+const state={token:'',route:'dashboard',seq:0,session:0,detailSeq:0,chatSeq:0,notifySeq:0,controllers:new Set(),registry:null,taskCursor:'',taskItems:[],busy:false};
 const reasonMap={ACCOUNT_SCOPE_MAPPING_REQUIRED:'尚未配置当前操作员的账号映射',ACCOUNT_SOURCE_UNAVAILABLE:'账号概览服务暂不可用',ACCOUNT_SOURCE_HTTP_ERROR:'账号概览服务返回错误',ACCOUNT_SOURCE_SCHEMA_UNKNOWN:'账号概览格式未验证',HEARTBEAT_STALE_OR_UNKNOWN:'心跳已过期或未知',FRESH_HEARTBEAT:'有效心跳',OFFLINE:'离线',UNKNOWN_STATE:'状态无法确认',DUPLICATE_QQ_INSTANCE:'同一 QQ 存在多个实例，需核对',DUPLICATE_INSTANCE_ID:'实例标识重复',INSTANCE_MISSING:'注册实例未返回',ONLINE_UNKNOWN:'在线状态未知',OVERVIEW_ONLINE:'概览确认在线',OVERVIEW_OFFLINE:'概览确认离线',OVERVIEW_EXPLICIT_ERROR:'概览明确报错',QQ_IDENTITY_UNVERIFIED_OR_MISMATCH:'QQ 身份未核实或不匹配',INSTANCE_SCHEMA_UNKNOWN:'实例字段格式未验证',NO_RECORDED_MODEL_USAGE:'暂无已记录的模型用量'};
 const reason=r=>reasonMap[r]||(/INCOMPLETE_USAGE_RECORDS/.test(r)?'模型用量记录不完整':r);
 const labels={DRAFT:'草稿',VALIDATING:'校验中',READY:'就绪',RUNNING:'运行中',WAITING_EXTERNAL:'等待外部结果',VERIFYING:'验证中',PAUSING:'暂停中',PAUSED:'已暂停',BLOCKED:'阻塞',RECONCILING:'对账中',CANCELLING:'取消中',CANCELLED:'已取消',COMPLETED:'已完成',SUCCEEDED:'已完成',FAILED:'失败',PARTIAL:'部分完成',EXPIRED:'已过期'};
@@ -167,8 +167,30 @@ async function loadChatMsgs(id){
   if(!current())return;state.chatMsgs=raw.data.items;state.chatLoading=false;renderChat();
  }catch(e){if(current()){state.chatLoading=false;state.chatError='消息读取失败：'+e.message+'；未当作空态。';renderChat()}}
 }
-async function loadNotify(seq){const s=state.session,current=()=>s===state.session&&seq===state.seq&&state.route==='notify';$('#content').innerHTML='<div class="loading">正在读取通知投影…</div>';try{const raw=await api('/v1/operator/notifications?limit=50&offset=0',{},current);if(!current())return;notifyRender(raw.data.items)}catch(e){if(current()){$('#content').innerHTML=card('通知投影','<p role="alert">读取失败：'+esc(e.message)+'；读取失败不会当成空态。</p>'+pendingScope(notifyScope));$('#error').textContent='通知读取失败：'+e.message+'；未当作空态。';$('#error').hidden=false}}}
-function notifyRender(items){const list=items.length?`<div class="table-wrap"><table><thead><tr><th>事件</th><th>账号 / 会话</th><th>摘要</th><th>投递</th><th>读取</th><th>时间</th><th></th></tr></thead><tbody>${items.map(n=>`<tr><td>${esc(n.event_type)}</td><td>${esc(n.account_id||'—')}<small>${esc(n.conversation_id||'无关联')}</small></td><td>${esc(n.summary)}</td><td>${esc(n.delivery_state==='local_only'?'本地记录':n.delivery_state)}</td><td><span class="badge ${n.read_at?'green':'amber'}">${n.read_at?'已读':'未读'}</span></td><td>${esc(new Date(n.created_at).toLocaleString('zh-CN'))}</td><td>${n.read_at?'':`<button data-notice-read="${esc(n.id)}" data-version="${esc(n.version)}">标记已读</button>`}</td></tr>`).join('')}</tbody></table>`:empty('暂无通知','当前权限范围内没有事件记录；不展示演示数据');$('#content').innerHTML=card('通知投影 · 本地记录',list+pendingScope(notifyScope));document.querySelectorAll('[data-notice-read]').forEach(b=>b.onclick=async()=>{const body={expected_version:Number(b.dataset.version),read:true};try{await api('/v1/operator/notifications/'+encodeURIComponent(b.dataset.noticeRead),{method:'POST',body:JSON.stringify(body),headers:{'Idempotency-Key':self.crypto?.randomUUID?.()||('nk-'+Date.now())}},()=>true);await loadNotify(state.seq)}catch(e){const t=$('#content-form-error')||$('#error');const msg='操作失败：'+e.message+'；CAS 冲突未覆盖当前记录。';if(t){t.textContent=msg;t.hidden=false}}})}
+// A notification reload invalidates the previous list and its buttons, even within one route seq.
+function notifyViewCurrent(seq){
+ const session=state.session,request=state.notifySeq;
+ return ()=>session===state.session&&seq===state.seq&&request===state.notifySeq&&state.route==='notify';
+}
+async function loadNotify(seq){
+ if(seq!==state.seq||state.route!=='notify')return;
+ state.notifySeq++;const current=notifyViewCurrent(seq);$('#error').hidden=true;
+ $('#content').innerHTML='<div class="loading">正在读取通知投影…</div>';
+ try{const raw=await api('/v1/operator/notifications?limit=50&offset=0',{},current);if(!current())return;notifyRender(raw.data.items,current,seq)}
+ catch(e){if(current()){$('#content').innerHTML=card('通知投影','<p role="alert">读取失败：'+esc(e.message)+'；读取失败不会当成空态。</p>'+pendingScope(notifyScope));$('#error').textContent='通知读取失败：'+e.message+'；未当作空态。';$('#error').hidden=false}}
+}
+function notifyRender(items,view,seq){const list=items.length?`<div class="table-wrap"><table><thead><tr><th>事件</th><th>账号 / 会话</th><th>摘要</th><th>投递</th><th>读取</th><th>时间</th><th></th></tr></thead><tbody>${items.map(n=>`<tr><td>${esc(n.event_type)}</td><td>${esc(n.account_id||'—')}<small>${esc(n.conversation_id||'无关联')}</small></td><td>${esc(n.summary)}</td><td>${esc(n.delivery_state==='local_only'?'本地记录':n.delivery_state)}</td><td><span class="badge ${n.read_at?'green':'amber'}">${n.read_at?'已读':'未读'}</span></td><td>${esc(new Date(n.created_at).toLocaleString('zh-CN'))}</td><td>${n.read_at?'':`<button data-notice-read="${esc(n.id)}" data-version="${esc(n.version)}">标记已读</button>`}</td></tr>`).join('')}</tbody></table>`:empty('暂无通知','当前权限范围内没有事件记录；不展示演示数据');$('#content').innerHTML=card('通知投影 · 本地记录',list+pendingScope(notifyScope));document.querySelectorAll('[data-notice-read]').forEach(b=>{
+ const current=()=>view()&&b.isConnected&&$('#content').contains(b);let busy=false;
+ b.onclick=async()=>{
+  if(!current()||busy)return;
+  const body={expected_version:Number(b.dataset.version),read:true};busy=true;b.disabled=true;
+  try{
+   await api('/v1/operator/notifications/'+encodeURIComponent(b.dataset.noticeRead),{method:'POST',body:JSON.stringify(body),headers:{'Idempotency-Key':self.crypto?.randomUUID?.()||('nk-'+Date.now())}},current);
+   if(current())await loadNotify(seq);
+  }catch(e){if(current()){$('#error').textContent='操作失败：'+e.message+'；CAS 冲突未覆盖当前记录。';$('#error').hidden=false}}
+  finally{busy=false;if(current())b.disabled=false}
+ };
+})}
 function pendingScope(items){return `<p class="muted">待接入范围：${items.map(esc).join('；')}</p>`}
 document.addEventListener('click',e=>{const tab=e.target.closest('[data-chat-tab]');if(tab&&state.route==='chat'){state.chatTab=tab.dataset.chatTab;state.chatConv='';state.chatMsgs=[];loadChat(state.seq);return}const cv=e.target.closest('[data-chat-conv]');if(cv&&state.route==='chat'){state.chatConv=cv.dataset.chatConv;loadChatMsgs(cv.dataset.chatConv);return}});
 })();

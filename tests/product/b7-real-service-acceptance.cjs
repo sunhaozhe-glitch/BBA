@@ -1,6 +1,7 @@
-/* Baseline investigation / known-gap reproducer, NOT a permanent feature gate.
- * Exit 0 means evidence collection succeeded; product findings remain FAIL/PARTIAL.
- * Assertions that reproduce bugs/gaps MUST become positive expectations once fixed.
+/* Real-service notification navigation regression + remaining known-gap evidence.
+ * Exit 0 requires the positive navigation regression and all evidence checks to pass.
+ * Pagination/header gaps still keep overall M1 PARTIAL; they are separate work.
+ * Exit nonzero on any check/setup/transport error; never treat collection as PASS.
  * Real Go + caller-owned manual fixture only. Usage:
  * <node> tests/product/b7-real-service-acceptance.cjs <fixture-config.json> <new-outdir>
  * Credentials travel file -> memory -> HTTP headers only. No route()/mock responses.
@@ -48,7 +49,7 @@ const ports = JSON.parse(execFileSync('docker',['inspect','--format','{{json .Ne
 assert(ports['5432/tcp'].some(p=>p.HostIp==='127.0.0.1' && p.HostPort===String(owner.db_port)), 'DB port belongs to labeled container');
 function sql(query) {
   // No DSN/password/token in argv. psql uses the container's local socket.
-  return execFileSync('docker',['exec','-i',cfg.db_container,'psql','-X','-v','ON_ERROR_STOP=1','-U',decodeURIComponent(dsn.username),'-d',dsn.pathname.slice(1),'-At'], {input:query,encoding:'utf8'}).trim();
+  return execFileSync('docker',['exec','-i',cfg.db_container,'psql','-X','-v','ON_ERROR_STOP=1','-U',decodeURIComponent(dsn.username),'-d',dsn.pathname.slice(1),'-At'], {input:query,encoding:'utf8',timeout:10000,killSignal:'SIGKILL'}).trim();
 }
 function save(name, value) { fs.writeFileSync(path.join(out,name), typeof value==='string'?value:JSON.stringify(value,null,2)+'\n', {mode:0o600}); }
 function zeroFacts() { return JSON.parse(sql("SELECT json_build_object('schema_max',(SELECT max(version) FROM core.schema_version),'task',(SELECT count(*) FROM core.task),'chat_send_permit',(SELECT count(*) FROM core.chat_send_permit),'dispatch_permit',(SELECT count(*) FROM core.dispatch_permit),'model_request',(SELECT count(*) FROM core.model_request));")); }
@@ -68,10 +69,20 @@ async function api(method, url, role='operator', body) {
 }
 async function check(name, fn) {
   try { await fn(); checks.push({name,status:'PASS'}); }
-  catch(e) {checks.push({name,status:'FAIL',error:e.message}); console.error(name+': '+e.message);}
+  catch(e) {checks.push({name,status:'FAIL',error:e.message,...(e.verification?{verification:e.verification}:{})}); console.error(name+': '+e.message);}
 }
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
+function deadline(promise, label, ms=10000) {
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(Error(label+' timed out after '+ms+'ms')),ms);
+    Promise.resolve(promise).then(value=>{clearTimeout(timer);resolve(value)},error=>{clearTimeout(timer);reject(error)});
+  });
+}
+// Resolve both success and failure from creation: a waiter must never reject
+// unobserved while a different operation fails or CDP release is still pending.
+const observed = promise => promise.then(value=>({value}),error=>({error}));
 let browser, page, cdp, hold, restoredActive=false;
+const notificationCheckName='real committed notification POST after navigation preserves chat/session/error and read version';
 const emptyId=prefix+'-empty', msgId=prefix+'-messages', noticeId=prefix+'-cas';
 async function login(role='operator', route='chat') {
   await page.goto(cfg.origin+'/product/'+route);
@@ -90,23 +101,66 @@ async function refresh() {
   const response=page.waitForResponse(r=>r.request().method()==='GET' && new URL(r.url()).pathname==='/v1/operator/notifications');
   await page.locator('#refresh').click();await response;await loaded();
 }
-async function shot(name) {await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});}
+async function shot(name) {await page.screenshot({path:path.join(out,name+'.png'),fullPage:true,timeout:10000});}
 async function holdResponse(url) {
-  let arrive,release,done;
-  const arrived=new Promise(r=>arrive=r), released=new Promise(r=>release=r), finished=new Promise(r=>done=r);
-  cdp=await page.context().newCDPSession(page);
-  await cdp.send('Fetch.enable',{patterns:[{urlPattern:cfg.origin+url,requestStage:'Response'}]});
+  let arrive, rejectArrival, release, done;
+  const arrived=new Promise((resolve,reject)=>{arrive=resolve;rejectArrival=reject});
+  const released=new Promise(resolve=>release=resolve), finished=new Promise(resolve=>done=resolve);
+  // Attach immediately so transport failures cannot become unhandled rejections.
+  arrived.catch(()=>{});
+  cdp=await deadline(page.context().newCDPSession(page),'CDP session');
+  const session=cdp;
+  let matched=false;
   hold={release,finished};
-  cdp.on('Fetch.requestPaused',async event=>{
+  session.on('Fetch.requestPaused',async event=>{
     try {
-      // Response stage: Go has already produced this exact status/body.
-      const body=await cdp.send('Fetch.getResponseBody',{requestId:event.requestId});
-      save('delayed-real-response.json',{status:event.responseStatusCode,body:JSON.parse(body.base64Encoded?Buffer.from(body.body,'base64').toString():body.body)});
+      // Only hold this POST at Response stage with a real Go 200. GETs and
+      // other statuses continue untouched and cannot satisfy the arrival gate.
+      const exact=event.request.method==='POST' && event.request.url===cfg.origin+url;
+      if(!exact || event.responseStatusCode!==200) {
+        await deadline(session.send('Fetch.continueRequest',{requestId:event.requestId}),'CDP continue response');
+        if(exact)throw Error('notification POST expected real 200, got '+event.responseStatusCode);
+        return;
+      }
+      assert(!matched,'only one notification POST may be held');matched=true;
+      const body=await deadline(session.send('Fetch.getResponseBody',{requestId:event.requestId}),'CDP response body');
+      save('delayed-real-response.json',{method:event.request.method,path:url,status:event.responseStatusCode,body:JSON.parse(body.base64Encoded?Buffer.from(body.body,'base64').toString():body.body)});
       arrive(event);await released;
-      await cdp.send('Fetch.continueRequest',{requestId:event.requestId});done();
-    } catch(e) {done();checks.push({name:'CDP hold transport',status:'FAIL',error:e.message});}
+      // Continue the original response; no fulfillRequest or synthetic body.
+      await deadline(session.send('Fetch.continueRequest',{requestId:event.requestId}),'CDP continue response');done();
+    } catch(e) {
+      rejectArrival(e);done({error:e.message});
+      checks.push({name:'CDP hold transport',status:'FAIL',error:e.message});
+    }
   });
+  await deadline(session.send('Fetch.enable',{patterns:[{urlPattern:cfg.origin+url,requestStage:'Response'}]}),'CDP enable');
   return {arrived,release,finished};
+}
+async function closeHold() {
+  const closingHold=hold, session=cdp, errors=[];
+  hold=null;cdp=null;
+  // Every cleanup step has its own deadline; one failure must not skip detach
+  // or the caller's browser/DB/result finalization.
+  if(closingHold){
+    closingHold.release();
+    try{await deadline(closingHold.finished,'CDP release cleanup',1000)}catch(e){errors.push(e.message)}
+  }
+  if(session){
+    try{await deadline(session.send('Fetch.disable'),'CDP disable',2000)}catch(e){errors.push(e.message)}
+    try{await deadline(session.detach(),'CDP detach',2000)}catch(e){errors.push(e.message)}
+  }
+  if(errors.length)throw Error(errors.join('; '));
+}
+async function chatSnapshot() {
+  return page.evaluate(()=>({
+    pathname:location.pathname,content:document.querySelector('#content').innerHTML,
+    auth_hidden:document.querySelector('#auth').hidden,
+    logout_visible:!!document.querySelector('#logout').getClientRects().length,
+    error_hidden:document.querySelector('#error').hidden,error:document.querySelector('#error').textContent,
+    connection:document.querySelector('#connection').textContent,
+    chat_tabs:!!document.querySelector('#chat-tabs'),chat_form:!!document.querySelector('#chat-form'),
+    loading:!!document.querySelector('#content .loading')
+  }));
 }
 (async()=>{
   try {
@@ -143,7 +197,7 @@ async function holdResponse(url) {
 INSERT INTO core.operator_conversation(workspace_id,id,kind,conversation_kind,conversation_id) VALUES ('b7fix-ws','${emptyId}','agent','agent','${emptyId}'),('b7fix-ws','${msgId}','agent','agent','${msgId}');
 INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,summary) VALUES ('b7fix-ws','${noticeId}','${noticeId}','fixture.cas','${noticeId}','${noticeId}');
 COMMIT;`);
-    browser=await chromium.launch({headless:true,executablePath:'/opt/google/chrome/chrome',args:['--no-sandbox']});
+    browser=await chromium.launch({headless:true,executablePath:process.env.BBA_TEST_CHROME||'/opt/google/chrome/chrome',args:['--no-sandbox']});
     page=await browser.newPage({viewport:{width:1440,height:1000}});page.setDefaultTimeout(10000);
     page.on('response',r=>{
       const u=new URL(r.url());if(!u.pathname.startsWith('/v1/'))return;
@@ -183,20 +237,81 @@ COMMIT;`);
       const back=await api('POST','/v1/operator/notifications/'+noticeId,'operator',{expected_version:v,read:false});assert.equal(back.status,200);assert.equal(back.json.data.version,v+1);
       assert.equal(sql(`SELECT (read_at IS NULL)::text FROM core.operator_notification WHERE id='${noticeId}';`),'true');await refresh();await page.locator(`[data-notice-read="${noticeId}"]`).waitFor();
     });
-    await check('real delayed notification POST after navigation reproduces route loading bug',async()=>{
-      const h=await holdResponse('/v1/operator/notifications/'+noticeId);
-      const b=page.locator(`[data-notice-read="${noticeId}"]`);await b.click();
-      const event=await Promise.race([h.arrived,sleep(10000).then(()=>{throw Error('real response did not arrive')})]);assert.equal(event.responseStatusCode,200);
-      // Commit independently read back while browser has not consumed the response.
-      assert.equal(sql(`SELECT (read_at IS NOT NULL)::text FROM core.operator_notification WHERE id='${noticeId}';`),'true');
-      await nav('chat');await page.locator('#chat-tabs').waitFor();await shot('delayed-before-release-chat');
-      h.release();await h.finished;await page.waitForFunction(()=>!!document.querySelector('#content .loading'));
-      await sleep(350);assert.equal(new URL(page.url()).pathname,'/product/chat');assert.equal(await page.locator('#chat-tabs').count(),0);
-      assert((await page.locator('#content').textContent()).includes('正在读取通知投影'));await shot('delayed-after-release-chat');
-      findings.push({id:'late-notification-post-navigation',kind:'bug',priority:'P2',status:'CONFIRMED',acceptance:'FAIL',detail:'Go POST committed 200; delayed real response consumed after navigation to /product/chat calls loadNotify(state.seq), replacing chat with notification loading. Route guard then suppresses rendering, leaving loading.'});
-      await cdp.send('Fetch.disable');await cdp.detach();cdp=null;hold=null;
-      await page.locator('#refresh').click();await page.locator('#chat-tabs').waitFor();
+    await check(notificationCheckName,async()=>{
+      let failure;
+      try {
+        const b=page.locator(`[data-notice-read="${noticeId}"]`);
+        const beforeVersion=Number(await b.getAttribute('data-version'));
+        const h=await holdResponse('/v1/operator/notifications/'+noticeId);
+        await b.click();
+        const event=await deadline(h.arrived,'real notification response arrival');
+        assert.equal(event.request.method,'POST');assert.equal(event.responseStatusCode,200);
+        // DB + a separate HTTP GET prove commit before navigation/release.
+        const committed=JSON.parse(sql(`SELECT json_build_object('read',read_at IS NOT NULL,'version',version) FROM core.operator_notification WHERE workspace_id='b7fix-ws' AND id='${noticeId}';`));
+        const readback=await api('GET','/v1/operator/notifications?limit=100');
+        assert.equal(readback.status,200);
+        const persisted=readback.json.data.items.find(n=>n.id===noticeId);
+        save('delayed-commit-before-release.json',{before_version:beforeVersion,db:committed,api:persisted});
+        assert.deepEqual(committed,{read:true,version:beforeVersion+1});
+        assert(persisted?.read_at);assert.equal(persisted.version,beforeVersion+1);
+        await nav('chat');await page.locator(`[data-chat-conv="${emptyId}"]`).click();
+        await page.getByText('该会话暂无消息',{exact:true}).waitFor();await page.locator('#chat-form').waitFor();
+        // Playwright screenshots may restore textarea style as style="". Take
+        // the evidence image first, then freeze the unmodified comparison oracle.
+        await shot('delayed-before-release-chat');
+        const before=await chatSnapshot();save('delayed-chat-before-release.json',before);
+        assert.equal(before.auth_hidden,true);assert.equal(before.error_hidden,true);assert.equal(before.loading,false);
+        const response=observed(deadline(page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname==='/v1/operator/notifications/'+noticeId,{timeout:10000}),'browser notification response'));
+        const release=observed(deadline(h.finished,'CDP notification release'));
+        h.release();
+        // Join both bounded outcomes before throwing. No orphan waiter remains
+        // when Fetch.continueRequest fails, times out or the page is closed.
+        const [transport,received]=await Promise.all([release,response]);
+        if(transport.error)throw transport.error;
+        if(received.error)throw received.error;
+        assert(!transport.value?.error,transport.value?.error);
+        const delivered=received.value;assert.equal(delivered.status(),200);
+        assert.equal(await deadline(delivered.finished(),'browser response body completion'),null);
+        // Observe the actual browser handler after delivery, recording the
+        // complete content/session/error state throughout a bounded window.
+        const samples=[];
+        for(let i=0;i<15;i++){await sleep(50);samples.push(await chatSnapshot());}
+        save('delayed-chat-after-release.json',{before,samples});await shot('delayed-after-release-chat');
+        const afterReadback=await api('GET','/v1/operator/notifications?limit=100');assert.equal(afterReadback.status,200);
+        const afterPersisted=afterReadback.json.data.items.find(n=>n.id===noticeId);
+        assert(afterPersisted?.read_at);assert.equal(afterPersisted.version,beforeVersion+1);
+        // Return to notify even on the old buggy UI, proving the committed write
+        // was not cancelled and its new version survives route changes.
+        await nav('notify');
+        const row=page.getByRole('row').filter({has:page.getByRole('cell',{name:noticeId,exact:true})});
+        await row.waitFor();assert((await row.textContent()).includes('已读'));
+        assert.equal(await page.locator(`[data-notice-read="${noticeId}"]`).count(),0);
+        const returned=JSON.parse(sql(`SELECT json_build_object('read',read_at IS NOT NULL,'version',version) FROM core.operator_notification WHERE workspace_id='b7fix-ws' AND id='${noticeId}';`));
+        save('delayed-return-notify.json',{db:returned,api:afterPersisted,row_text:await row.textContent()});
+        assert.deepEqual(returned,committed);await shot('delayed-return-notify');
+        // Only an observed UI state mismatch establishes this product bug.
+        // CDP/DB/API/navigation/screenshot errors remain verification failures.
+        try {
+          for(const sample of samples)assert.deepEqual(sample,before,'late committed notification receipt must preserve chat content, login and error state');
+        } catch(e) {
+          e.productRegression=true;
+          findings.push({id:'late-notification-post-navigation',kind:'bug',priority:'P2',status:'REGRESSION_FAILED',acceptance:'FAIL',detail:e.message});
+          throw e;
+        }
+      } catch(e) {
+        failure=e;
+        if(!e.productRegression)e.verification='NOT_VERIFIED';
+        throw e;
+      } finally {
+        try{await closeHold()}catch(e){
+          checks.push({name:'notification CDP cleanup',status:'FAIL',error:e.message});
+          if(!failure){e.verification='NOT_VERIFIED';throw e;}
+        }
+      }
     });
+    // Recover the test session after a failed navigation regression so other
+    // permissions, pagination, header and execution-fact evidence still runs.
+    await login();
     // 51 same-type messages and notifications: known UI pagination gap, not M1 PASS.
     sql(`BEGIN;
 INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq)
@@ -239,13 +354,14 @@ COMMIT;`);
     });
   } catch(e) {checks.push({name:'acceptance setup/flow',status:'FAIL',error:e.message});console.error(e.stack);}
   finally {
-    if(hold){hold.release();await Promise.race([hold.finished,sleep(1000)]);}
-    if(cdp){try{await cdp.send('Fetch.disable');await cdp.detach();}catch{}}
-    if(browser)await browser.close();
-    await Promise.allSettled([...pending]);
+    try{await closeHold();}catch(e){checks.push({name:'CDP cleanup',status:'FAIL',error:e.message});}
+    try{if(browser)await deadline(browser.close(),'browser close',10000)}catch(e){checks.push({name:'browser cleanup',status:'FAIL',error:e.message});}
+    try{await deadline(Promise.allSettled([...pending]),'network evidence completion',10000)}catch(e){checks.push({name:'network evidence cleanup',status:'FAIL',error:e.message});}
     try {const facts=zeroFacts();save('db-after.json',facts);assertZero(facts);checks.push({name:'DB readback zero task/chat permit/dispatch permit/model request',status:'PASS'});}catch(e){checks.push({name:'DB zero external execution readback',status:'FAIL',error:e.message});}
-    save('network.jsonl',network.map(r=>JSON.stringify(r)).join('\n')+'\n');
-    const result={prefix,scope:'ISOLATED_FIXTURE',validation_checks:checks,product_findings:findings,acceptance:{M1:'PARTIAL',real_runtime_ingress:checks[0]?.status||'NOT_RUN',pagination:'PARTIAL',notification_navigation:findings.some(f=>f.id==='late-notification-post-navigation')?'FAIL':'NOT_VERIFIED'},credential_restoration_pending:restoredActive,synthetic_rows:'Retained in temporary DB; no append-only message deletion; caller must finally stop launcher.',at:new Date().toISOString()};
+    try{save('network.jsonl',network.map(r=>JSON.stringify(r)).join('\n')+'\n')}catch(e){checks.push({name:'network evidence save',status:'FAIL',error:e.message});}
+    const notificationCheck=checks.find(c=>c.name===notificationCheckName);
+    const notificationNavigation=notificationCheck?.status==='PASS'?'PASS':notificationCheck?.verification==='NOT_VERIFIED'?'NOT_VERIFIED':notificationCheck?.status||'NOT_VERIFIED';
+    const result={prefix,scope:'ISOLATED_FIXTURE',validation_checks:checks,product_findings:findings,acceptance:{M1:'PARTIAL',real_runtime_ingress:checks[0]?.status||'NOT_RUN',pagination:'PARTIAL',notification_navigation:notificationNavigation},credential_restoration_pending:restoredActive,synthetic_rows:'Retained in temporary DB; no append-only message deletion; caller must finally stop launcher.',at:new Date().toISOString()};
     save('result.json',result);
     console.log(JSON.stringify({validation_checks:checks.length,failed:checks.filter(c=>c.status==='FAIL').map(c=>c.name),product_findings:findings.length,acceptance:result.acceptance,out}));
     process.exitCode=checks.some(c=>c.status==='FAIL')?1:0;
