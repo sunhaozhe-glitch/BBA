@@ -91,3 +91,31 @@ runtime.Permissions["chat.trigger"] = true
 ## Remaining limits
 
 未运行真实 QQ、模型、外网 provider、现存业务数据库、生产部署或发布；未新增发送许可。按父审核分工，本作者不重复全套 test-all，不宣称 CI 或发布通过；父审核负责全套和 #9/#10/#11 组合验证。并发屏障覆盖 mutation 先持锁的四种 fresh 场景，replay 的权限拒绝由独立 handler 矩阵覆盖，未逐项跑并发 replay 排列。未解决其他 runtime endpoints 的锁协议，也未把 file resolver 变为热更新机制。
+
+
+## Authorized stacked integration with #9 (2026-11-04)
+
+父审核后续明确要求：#10 依赖 #9，先提交 runtime 实现，再整合通知分支；父审核负责设 PR base 为 `fix/b7-notification-scope`，本分支不推送。此后续授权扩展最初编辑边界，允许继承通知 SQL、migration、根指南与验收矩阵，并仅调整新增通知测试中的 runtime fixture；没有在通知工作树中做编辑。
+
+- [x] runtime 独立实现已提交 `5298832a611aa31440d632e2a72a776cf4c26d30`，父节点为 main `73a81569c9911419e6d26c4d50a5a5ce750b8465` 与原 #10 `770e7766b88c96c89665535b66cdf9b214d5e388`。
+- [x] `git merge --no-commit --no-ff codex/m1-notification-review`，目标精确为 `74df6694eb577e590c976db2a4a3a6a0f4fb4f1d`；无冲突，原 #9 `31489e6` 的祖先历史随分支保留。
+- [x] 完整保留 #9 的 `0017` migration、migrate/head、三处通知 SQL、kernel harness、根指南、验收矩阵和通知计划文档。相对通知分支，生产 diff 仍仅为 runtime/account 修复。
+- [x] 先运行未适配的两项通知 inbox 测试，返回 404、exit 1，确认缺少 token epoch 的组合缺口。日志 `10-stacked-fixture-red`。
+- [x] 仅修改 `b7_notification_scope_test.go` 的三个 runtime 构造：runtime A/B 分别绑定其真实账号，统一使用 `conversationRuntimeActor(runtimeID, accountID)`，OwnerEpoch=1；不放松任何测试断言。
+- [x] 组合后的两域与 resolver 定向回归均 exit 0；格式和 diff 检查通过，整合 merge 的 SHA/parents 见本地 commit.json；未运行完整 test-all。
+
+组合后的 fixture 使用 #9 的 schema head 26；本文件上面的 head 25/fingerprint 描述整合前的 runtime 红绿证据。两域组合证据以 `11-stacked-targeted` / `12-stacked-resolver` 的实际 fingerprint/head 为准。schema 25/26 与新旧写入 SQL 的兼容限制沿用通知计划文档，不能将最初 runtime 不改 DDL 的边界误读为此组合不包含通知 migration。
+
+最终提交、parents、生产源码/迁移摘要与命令退出码清单保存到本地 `evals/results/m1-runtime-20261104/commit.json`、`production-sha256.json`、`commands.json`；父审核独立进行组合完整 race、combined HTTP 与 build_inputs 对齐，本作者不借用其结论作为自测。
+
+
+组合最终作者检查：
+
+| 日志前缀 | harness 参数 | exit | 范围 |
+|---|---|---:|---|
+| `10-stacked-fixture-red` | `test -run 'TestB7Notification(ScopedEventIdentity\|ConcurrentSameScopedEventProjectsOnce)' -v` | 1 | 组合前 fixture 缺少 token epoch 的真实拒绝；随后只修 fixture |
+| `11-stacked-targeted` | `test -run 'Test(B7\|Conversation\|InboxEvent\|UnscopedOperator\|Notification\|DraftContent)' -v` | 0 | 两域完整定向，包括通知七项、25→26/旧 schema 边界、rollback、runtime 负正向和四种锁屏障 |
+| `12-stacked-resolver` | `test-all -run 'Test(Resolver\|OperatorConversationAuth\|ServerAPISurfaceRoutesOperatorConversations)' -v` | 0 | resolver 文件→Actor epoch 1/2、operator scope 格式拒绝、auth/路由；不是完整 test-all |
+| `13-stacked-checks` | `gofmt -l`、`git diff --check`、依赖文件一致性检查 | 0 | 相对通知依赖仅三个生产文件不同；通知原 migration/head/harness/文档逐字节保留 |
+
+组合 fixture 的实际 migration fingerprint 为 `2baf51257f4c452b1669368bec4a7b8cb04df7e155c55c40d6249a6e3d10526c`，head=26；所有测试由 harness 在隔离 PostgreSQL 16、禁网 Go 1.26 容器执行，race/count=1。
