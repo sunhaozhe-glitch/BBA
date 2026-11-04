@@ -4,7 +4,7 @@
 
 **Architecture:** 内部 `Actor` 兼容新增 `OwnerEpoch`，从现有 `RuntimeActor` 经 `operatorConversationAuth` 原样传递。inbox 事务先锁 account，再锁 runtime credential，最后复用 `authorizeRuntime` 验证 token、账号 owner 和持久 credential。消息读取复用现有 `Actor.AccountIDs` 语义。
 
-**Tech Stack:** Go net/http、pgx、PostgreSQL 16 隔离 harness；无 wire、DDL、生成类型或产品 UI 修改。
+**Tech Stack:** Go net/http、pgx、PostgreSQL 16 隔离 harness；相对 #9 依赖无新增 wire、DDL、生成类型或产品 UI 修改。
 
 **Spec:** 本轮用户限定的 #10 修复；根 `AGENTS.md`；现有 `base.go` runtime auth、`resolver.go`、主服务装配及 migrations。独立审核、PR、组合验证和全套 test-all 由父审核负责。本作者不再派子代理。
 
@@ -90,7 +90,7 @@ runtime.Permissions["chat.trigger"] = true
 
 ## Remaining limits
 
-未运行真实 QQ、模型、外网 provider、现存业务数据库、生产部署或发布；未新增发送许可。按父审核分工，本作者不重复全套 test-all，不宣称 CI 或发布通过；父审核负责全套和 #9/#10/#11 组合验证。并发屏障覆盖 mutation 先持锁的四种 fresh 场景，replay 的权限拒绝由独立 handler 矩阵覆盖，未逐项跑并发 replay 排列。未解决其他 runtime endpoints 的锁协议，也未把 file resolver 变为热更新机制。
+未运行真实 QQ、模型、外网 provider、现存业务数据库、生产部署或发布；未新增发送许可。按父审核分工，本作者不重复全套 test-all，不宣称 CI 或发布通过；父审核负责全套和 #9/#10 组合验证；#11 不在本轮范围。并发屏障覆盖 mutation 先持锁的四种 fresh 场景，replay 的权限拒绝由独立 handler 矩阵覆盖，未逐项跑并发 replay 排列。未解决其他 runtime endpoints 的锁协议，也未把 file resolver 变为热更新机制。
 
 
 ## Authorized stacked integration with #9 (2026-11-04)
@@ -119,3 +119,12 @@ runtime.Permissions["chat.trigger"] = true
 | `13-stacked-checks` | `gofmt -l`、`git diff --check`、依赖文件一致性检查 | 0 | 相对通知依赖仅三个生产文件不同；通知原 migration/head/harness/文档逐字节保留 |
 
 组合 fixture 的实际 migration fingerprint 为 `2baf51257f4c452b1669368bec4a7b8cb04df7e155c55c40d6249a6e3d10526c`，head=26；所有测试由 harness 在隔离 PostgreSQL 16、禁网 Go 1.26 容器执行，race/count=1。
+
+
+## Parent review and independent execution
+
+主代理审查实际 runtime/resolver 生产差异与测试，并独立在组合实现 `88833cc` 执行完整 `tools/kernel.sh test-all`，退出 0，backend/测试输入始终不变。随后同步的改动仅为指南/验收文档；代码输入摘要需在最终提交再核对。
+
+`review-combined-http-20261104/result.json` 记录当前源码构建 binary、schema check 26/head26、真实文件 resolver→HTTP 的 29 项 PASS，包含两域交互、四作用域通知、读 CAS、拒绝旧 token 的 fresh/replay、新 token 正向、#8 兼容与零 permit。容器/端口清理通过；生产构建输入摘要已与受审源码核对。该证据身份为主代理 `INDEPENDENT_EXECUTION / ISOLATED_FIXTURE`，不是作者自测、人工 approval 或生产证据。
+
+本轮保持 #10 依赖 #9，先合并通知 PR，再将 runtime PR 对齐 main、核对最新 CI；未经明确授权不合并，不操作现存数据库或部署。原始日志仅保存在忽略目录，未提交。
