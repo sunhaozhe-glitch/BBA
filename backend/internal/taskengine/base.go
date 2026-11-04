@@ -133,8 +133,10 @@ func digest(value any) (string, error) {
 
 type Actor struct {
 	WorkspaceID, PrincipalID, RuntimeID, SenderID string
-	AccountIDs                                    []string
-	Permissions                                   map[string]bool
+	// OwnerEpoch is the trusted runtime token claim; operator actors leave it zero.
+	OwnerEpoch  int64
+	AccountIDs  []string
+	Permissions map[string]bool
 }
 
 func (a Actor) require(permission string) error {

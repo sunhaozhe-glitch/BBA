@@ -327,8 +327,8 @@ func serverAPISurface(routes serverRoutes) http.Handler {
 // resolver so the operator conversation surface can authenticate both
 // identities over real HTTP: operator credentials reach the list/message/
 // draft/notification paths, and a runtime credential (never an operator one)
-// is mapped to an Actor carrying RuntimeID plus the permissions the
-// inbox event ingest path requires (chat.trigger for the runtime gate,
+// is mapped to an Actor carrying RuntimeID, the trusted OwnerEpoch, and the
+// permissions the inbox event ingest path requires (chat.trigger for the runtime gate,
 // conversation.write for the handler's generic write gate). The runtime
 // branch uses the runtime id as the principal anchor because the handler's
 // principal-existence gate runs on every path; fixtures seed a matching
@@ -352,6 +352,7 @@ func operatorConversationAuth(operator func(*http.Request) (taskengine.Actor, er
 			WorkspaceID: runtimeActor.WorkspaceID,
 			PrincipalID: runtimeActor.RuntimeID,
 			RuntimeID:   runtimeActor.RuntimeID,
+			OwnerEpoch:  runtimeActor.OwnerEpoch,
 			AccountIDs:  append([]string(nil), runtimeActor.AccountIDs...),
 			Permissions: map[string]bool{"chat.trigger": true, "conversation.write": true},
 		}, nil

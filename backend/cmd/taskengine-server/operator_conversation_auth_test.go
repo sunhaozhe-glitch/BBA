@@ -43,6 +43,10 @@ func TestResolverGrantConversationPermissionsOnRealFile(t *testing.T) {
 		TokenSHA256: digestOf(fixtureRuntimeToken),
 		WorkspaceID: "b7fix-ws", RuntimeID: "rt-b7fix", OwnerEpoch: 1,
 		AccountIDs: []string{"acct-qq-1", "acct-qq-2"},
+	}, {
+		TokenSHA256: digestOf(fixtureRuntimeToken + "-epoch2"),
+		WorkspaceID: "b7fix-ws", RuntimeID: "rt-b7fix", OwnerEpoch: 2,
+		AccountIDs: []string{"acct-qq-1", "acct-qq-2"},
 	}}})
 	file.Close()
 	if err != nil {
@@ -63,7 +67,7 @@ func TestResolverGrantConversationPermissionsOnRealFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolver lookup failed: %v", err)
 	}
-	if actor.WorkspaceID != "b7fix-ws" || actor.PrincipalID != "op-b7fix" ||
+	if actor.WorkspaceID != "b7fix-ws" || actor.PrincipalID != "op-b7fix" || actor.OwnerEpoch != 0 || len(actor.AccountIDs) != 0 ||
 		!actor.Permissions["conversation.read"] || !actor.Permissions["conversation.write"] || !actor.Permissions["notification.read"] {
 		t.Fatalf("operator identity mapping wrong: %+v", actor)
 	}
@@ -73,11 +77,18 @@ func TestResolverGrantConversationPermissionsOnRealFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("runtime bridge lookup failed: %v", err)
 	}
-	if actor.RuntimeID != "rt-b7fix" || actor.PrincipalID != "rt-b7fix" || !actor.Permissions["chat.trigger"] {
+	if actor.OwnerEpoch != 1 || actor.RuntimeID != "rt-b7fix" || actor.PrincipalID != "rt-b7fix" || !actor.Permissions["chat.trigger"] {
 		t.Fatalf("runtime bridge mapping wrong: %+v", actor)
 	}
 	if len(actor.AccountIDs) != 2 {
 		t.Fatalf("runtime bridge lost the account scope: %+v", actor)
+	}
+
+	request, _ = http.NewRequest(http.MethodPost, "/v1/operator/qq-inbox/events", nil)
+	request.Header.Set("Authorization", "Bearer "+fixtureRuntimeToken+"-epoch2")
+	actor, err = combined(request)
+	if err != nil || actor.RuntimeID != "rt-b7fix" || actor.OwnerEpoch != 2 {
+		t.Fatalf("new runtime token epoch lost: %+v %v", actor, err)
 	}
 	request, _ = http.NewRequest(http.MethodGet, "/v1/operator/conversations", nil)
 	request.Header.Set("Authorization", "Bearer wrong-token")
@@ -92,5 +103,21 @@ func TestOperatorConversationAuthNilRuntimeFallsBackToOperator(t *testing.T) {
 	actor, err := auth(httptest.NewRequest(http.MethodGet, "/v1/operator/conversations", nil))
 	if err != nil || actor.PrincipalID != "p" {
 		t.Fatalf("nil runtime resolver must pass operator auth through: %+v %v", actor, err)
+	}
+}
+
+// AccountIDs on operator records remain unsupported. Handler scope checks do
+// not imply production operator tokens can be configured with an account scope.
+func TestResolverRejectsOperatorAccountScope(t *testing.T) {
+	payload, err := json.Marshal(resolverFile{Credentials: []credentialRecord{{
+		TokenSHA256: digestOf(fixtureOperatorToken),
+		WorkspaceID: "b7fix-ws", PrincipalID: "op-b7fix",
+		Permissions: []string{"conversation.read"}, AccountIDs: []string{"acct-qq-1"},
+	}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := loadResolver(writeResolverFixture(t, 0600, string(payload))); err == nil {
+		t.Fatal("operator resolver unexpectedly accepted runtime account scope")
 	}
 }
