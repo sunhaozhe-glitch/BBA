@@ -1,522 +1,434 @@
-# BBA 仓库级 Agent 指南与总体架构
+# BBA 仓库级 Agent 开发与交接指南
 
-> 本文件是 BBA 仓库级开发规则和架构约束的首要入口。它规定稳定边界、开发流程和验收原则；具体阶段任务、接口字段、数据库结构与当前状态，以对应 ADR、OpenAPI、migration、能力矩阵和本轮源码为准。
+> 本文件是仓库级开发规则和架构约束的首要入口。**规则是约束，源码是实现事实，测试记录只证明其声明范围。** 接口以 `contracts/openapi.yaml` 为准，数据结构以 migration 为准，架构决策查 `docs/adr/`；发现冲突应记录和解决，不能把设计目标当成已实现能力。
 >
-> **重要：** 本文件不是生产部署授权，也不代表任何功能已经通过真实 QQ、真实模型、MCP 或发布验收。每轮工作都必须从当前分支源码核实，不得把历史报告当作当前事实。
+> 本次源码梳理基线：2026-11-04，`origin/main` 提交 `5e44e86`。这是代码与文档核对基线，不是运行实例、独立验收或生产发布证明。后续开发须重新检查当前分支、装配、配置和证据。
 
-<!-- omh:agent-instructions:begin -->
-## ARTEX 风格 Web UI 入口与同步约定
+## 1. 项目概述、技术栈与目录
 
-- 用户确认的产品 UI 是 `/product/` 下的深色 QQ 私域运营控制台；不要误启 astra-handoffs 的早期 Python ui-preview。源码已经属于本仓库，不应重复导入或创建第二套前端。
-- 唯一源码是 `frontend/`；Go embed 副本在 `backend/cmd/taskengine-server/product/`。生成命令 `python3 tools/build-product.py`，语法检查 `node --check frontend/app.js`，同步后检查 `git diff --exit-code -- frontend backend/cmd/taskengine-server/product`。本次同步中以上命令均亲跑退出 0；完整 Go/业务验收不由这些检查替代。
-- 页面及工具目录的生成源、许可证、现有本机开发实例入口和启动限制见 `docs/artex-web-ui.md`。保留 `frontend/NOTICE` 和 licenses；不手改生成副本。
-- 同步 PR 只包含源码、必要生成资源及文档；不要提交 build/dev-stack、console-token、DSN、数据库或运行日志。恢复界面不授予 worker、真实 QQ、模型调用、迁移或合并权限。
-- 仓库当前跟踪的 Agent 规则入口是根 `AGENTS.md`，供遵循该约定的 Codex/Hermes 等代理读取；若新增子目录规则，编辑前须重新盘点并核对作用域。
-<!-- omh:agent-instructions:end -->
+BBA 面向 QQ AI 运营：统一管理账号、群聊和客户，由 Agent 分析信息、提出计划，在服务端授权和审批约束下执行动作，并保留消息、任务、许可与结果证据。当前底座是 Go Task Engine + PostgreSQL + 同源控制台，另有 Koishi 交互/采集运行时和独立 Python 研发 Controller。计划任务、CRM、完整多步运营 Agent 和产品 MCP 管理仍需建设或验收，不能由菜单存在推断完成。
 
-## 1. 产品目标
+### 1.1 技术栈与依赖来源
 
-BBA 的长期目标是一个完整的 QQ AI 运营平台：运营人员在统一控制台管理多个 QQ 账号、群聊和客户；Agent 根据运营目标分析信息、生成计划和建议；在明确授权、审批和能力约束下，通过受控运行时执行允许的动作；所有消息、任务、客户证据、审批和执行结果形成可追溯记录。
+| 层 | 已核实实现 | 版本与依赖的维护入口 |
+|---|---|---|
+| 后端 | Go、标准库 `net/http`、pgx/v5、直接 SQL；Go embed 打包静态资源 | `backend/go.mod`、`backend/go.sum`；当前声明 Go 1.26.0 |
+| 业务数据库 | PostgreSQL；`core` 与 `bridge` schema；显式 SQL migration | `backend/internal/taskengine/migrations/`；隔离 harness 使用 PostgreSQL 16 |
+| 产品前端 | 原生 HTML/CSS/JavaScript，无独立 React/Vite 应用；Python 复制/生成资源 | `frontend/`、`tools/build-product.py` |
+| HTTP 契约 | OpenAPI 3.0.3、JSON Schema/fixtures、Redocly、openapi-typescript、oapi-codegen、Go nullable | 根 `package.json`/lockfile、`tools/go.mod`、`tools/oapi-codegen.yaml`；根 Node engines 为 >=22.12.0 |
+| QQ 交互/采集 | TypeScript strict + NodeNext、Koishi、ChatLuna；两个独立 npm 包 | 各自 `package.json`/lockfile/tsconfig；Node 22，Koishi 4.18.11、ChatLuna 1.4.4，插件版本独立固定 |
+| 研发 Controller | Python >=3.11、SQLite、asyncio、stdio MCP、ACP 子进程协议 | `controller/pyproject.toml`；当前固定 `mcp==2.3.0`、`jsonschema==4.26.0`；CI 使用 Python 3.14 |
+| 开发验证 | Bash/Python、Docker 隔离 PostgreSQL/Go/Node、Python jsonschema/PyYAML、按需浏览器脚本 | `tools/`、`tests/`、`.github/workflows/` |
 
-核心业务闭环：
+根 npm 包是**契约工具包**，不统一安装两个 Koishi 包，也不构建 Controller。准确版本始终读 manifest/lockfile；不把本机已安装版本、历史测试环境或模型名称当成部署事实。
 
-```text
-运营目标 / 操作员指令
-        |
-        v
-Agent 理解、检索、分析与规划
-        |
-        v
-Proposal / 审批 / 授权裁决
-        |
-        v
-Task Engine 或独立 Chat Permit 路径
-        |
-        v
-Task Bridge / Runtime / Adapter
-        |
-        v
-Observation / Inbox / 事件归档
-        |
-        v
-客户证据、运营报表、Dashboard
-        |
-        +------> Agent 后续分析与建议
-```
+### 1.2 目录导航
 
-这是一条产品数据闭环，不代表所有操作共用同一条执行链。任务执行与日常交互聊天必须保留各自已建立的执行边界，统一的是治理要求：身份、workspace/account scope、能力、授权、许可、幂等、审计、外部副作用确认和停止机制。
+| 路径 | 职责与编辑边界 |
+|---|---|
+| `backend/cmd/taskengine-server/` | 主服务装配、鉴权 resolver、API surface、`/product/` 产品 UI 与 `/` 开发 Console |
+| `backend/cmd/task-bridge/` | 独立 loopback 网关，校验许可/身份，调用 NapCat/OneBot adapter |
+| `backend/cmd/taskengine-migrate/` | 显式初始化、检查和升级数据库 |
+| `backend/cmd/bba-operator/` | 操作员 CLI；其余 `cmd/p0-*`、`kernel-smoke`、`product-fixture` 是阶段工具/验证入口，不能当默认生产启动器 |
+| `backend/internal/taskengine/` | Task、Reserve、Bridge 状态、Chat Permit、模型/配置、内容规则、对话、通知与恢复 |
+| `backend/internal/identity/`、`backend/internal/artex/` | runtime 身份 read-back；有界 ARTEX HTTP adapter |
+| `contracts/openapi.yaml`、`contracts/schemas/`、`contracts/examples/` | HTTP/plugin wire contract、正反 fixtures |
+| `backend/internal/contract/`、`koishi/contracts/` | 生成类型及契约消费者；不手改 `types.gen.*` |
+| `frontend/` | 唯一产品源码，含 `NOTICE`、`licenses/`、工具目录输入 `napcat-initial.txt` |
+| `backend/cmd/taskengine-server/product/` | 生成的 embed 副本；`web/` 是保留的 Go 开发 Console，不是新产品源码 |
+| `koishi/character-runtime/`、`koishi/analysis-collector/` | 账号隔离的交互运行时；collection-only 采集与 Summary |
+| `controller/` | 独立研发任务 Controller；其 `schemas/` 是 MCP 合同，不能混入 QQ HTTP 执行语义 |
+| `plugins/napcat-plugin-cleaner/`、`patches/` | NapCat 适配候选及补丁；源码存在不证明已加载或可用 |
+| `tools/`、`tests/`、`docs/`、`.github/` | 构建/harness、契约及插件测试、ADR/验收/运维文档、CI |
+| `build/`、`.cache/`、`node_modules/`、`evals/results/` | 本地生成物/依赖/证据，受 `.gitignore` 管理，不提交 |
+
+接手顺序：本文件 → 相关 ADR/能力矩阵 → `taskengine-server/main.go` 和 `resolver.go` → 具体 handler/存储方法 → migration/contract → 前端或 runtime 消费者 → 对应测试。编辑前用 `rg --files -g AGENTS.md` 重新盘点规则作用域；当前跟踪入口只有根文件。
 
 ## 2. 不可违反的架构原则
 
-1. **保留现有技术底座，增量演进。** 不推倒 Go Task Engine、PostgreSQL、Task Bridge、OpenAPI、现有 Go Console、Koishi Character Runtime、Analysis Collector、ARTEX adapter/outbox。先复用、补齐和接线，只有有证据证明无法满足需求时才提出替换。
-2. **Task Engine 是任务执行唯一内核。** 不建立争夺执行所有权的第二套通用任务/Reserve 内核。允许计划定义、occurrence 状态和有界到期扫描；计划必须物化现有 Task 并复用其授权、执行和恢复协议。
-3. **聊天许可不是 Task Reserve 的别名。** `chat_permit.go` 已明确：日常聊天许可独立于 Task Engine，不创建 task、subtask、goal slot、execution、target claim 或 dispatch permit。不得为了“统一架构”把现有 Chat Permit 强行改造成加群任务链。若未来要把聊天纳入任务化管理，必须单独设计桥接、状态、幂等、审批和恢复协议。
-4. **Agent 是决策和规划层，不是权限主体。** 模型输出、Prompt、Skill、搜索结果、群摘要、客户画像、ARTEX 图数据均不能授予 QQ 权限。所有工具调用由服务端按 workspace、principal、account、action family、能力、策略、审批和当前状态裁决。
-5. **PostgreSQL 是业务与执行事实来源。** 持久化的 task/event/execution/permit/bridge/outbox/inbox/result、客户证据和审批记录是事实；内存状态、日志、UI 缓存、静态注册表、fixture、模型上下文和 ARTEX 投影都不能替代持久事实。
-6. **不确定外部副作用一律保守。** `submitted`、`pending`、`unknown` 不等于成功。发生超时、断连、进程崩溃或缺少权威回执时，不自动重发、不换账号、不释放可能仍占用的 claim/slot/预算；进入只读核对或人工处理。
-7. **能力未知即 fail closed。** 目录中存在工具、Schema 中存在动作、插件配置为 enabled、端口可连接或 fixture 成功，都不证明真实运行时具备该能力。
-8. **所有数据和动作必须有边界。** workspace/account/conversation/identity 必须隔离；mutation 必须有授权、版本或 fence、幂等和审计；QQ 外部写必须有对应动作族单次许可和可验证结果；其他外部写遵循各自授权、outbox/checkpoint/reconcile 协议。
-9. **只保留一个前端产品源码。** 产品控制台以 `frontend/` 为源码，按仓库构建流程同步到 Go embed 资源。不得另建第二套控制台或只修改生成副本。
-10. **遵守许可证与来源边界。** 检查 `frontend/NOTICE` 和各目录许可；不得宣称整个仓库是 MIT。ARTEX 仅作为信息架构/交互参考及受控集成，不得直接复制其领域模型或调度器来替代 QQ 业务内核。
+1. **增量演进。** 保留 Go Task Engine、PostgreSQL、Task Bridge、OpenAPI、Go Console、Character、Collector 和 ARTEX adapter/outbox；先复用接线，有证据证明无法满足需求才提出替换。
+2. **QQ 业务任务只有一个执行内核。** 计划必须物化现有 Task，复用 Reserve/许可/恢复。独立研发 Controller 的 SQLite 队列不是 QQ 任务或第二套业务 Reserve，禁止由其绕过 Go 权限链。
+3. **日常 Chat Permit 独立。** 发放/消费不创建 task、subtask、goal slot、execution、target claim 或 dispatch permit；聊天任务化必须另行设计桥接、审批、幂等和恢复。
+4. **Agent 不是权限主体。** 模型、Prompt、Skill、搜索、QQ 消息、Summary、CRM 证据和 ARTEX 图均不能授予 QQ 权限；服务器按 workspace/principal/account/action family/能力/策略/审批/当前状态裁决。
+5. **持久事实分域。** PostgreSQL 是 QQ 业务与执行事实来源；受保护 JSON registry 是配置及其配置回执来源；Controller SQLite 只记录研发任务。日志、内存、UI、模型上下文和外部图不能替代各域持久事实，也不能证明外部效果真实成功。
+6. **不确定副作用保守处理。** `submitted`、`pending`、`unknown` 不等于成功；超时/断连/崩溃后不自动重发、不换账号、不释放可能占用的 claim/slot/预算，只读核对或人工处理。
+7. **能力未知即 fail closed。** 工具目录、Schema、enabled 配置、端口连通、fixture 成功都不是 runtime 能力证明。区分 Tool Catalog、Tool Schema、Runtime Capability、Tool Authorization。
+8. **边界不可省略。** workspace/account/conversation/identity 隔离；mutation 要有授权、版本/fence、幂等与审计；QQ 写要有动作族单次许可，其他外部写遵循各自 outbox/checkpoint/reconcile 协议。
+9. **唯一产品前端。** 只从 `frontend/` 修改并同步 embed；不得另建控制台或只改生成副本。
+10. **许可证和来源必须保留。** 读 `frontend/NOTICE` 与 `frontend/licenses/`；ARTEX 来源同时涉及 AGPLv3/MIT 边界，不能宣称整个仓库 MIT，也不能复制其领域模型或调度器替代 QQ 内核。
 
-## 3. 当前技术架构与职责边界
+## 3. 核心模块、接口与数据流
 
-### 3.1 核心组件
+下表中未带目录的 Go 文件均位于 `backend/internal/taskengine/`。定义了 handler 不代表主服务允许访问；修改接口必须同时核对 `backend/cmd/taskengine-server/main.go`、`resolver.go`、`product.go`、HTTP handler 和消费者。
 
-| 组件 | 主要职责 | 不应承担 |
+### 3.1 业务执行内核
+
+| 模块 | 源码定位 | 关键约定 |
 |---|---|---|
-| Go Task Engine (`backend/internal/taskengine`) | 任务、账号授权、Reserve、Worker、Proposal/Work Item、状态机、持久化和恢复 | 日常 Chat Permit 的强制替代品；第二套 CRM/调度执行器 |
-| 主服务 (`backend/cmd/taskengine-server`) | HTTP 装配、resolver、API surface、provider/handler 初始化、嵌入控制台 | 绕过权限的业务逻辑；隐式数据库迁移 |
-| Task Bridge (`backend/cmd/task-bridge`) | loopback runtime gateway、单次 permit 校验、运行时身份绑定和 adapter 调用 | 自行决定业务权限或绕过 Task Engine |
-| PostgreSQL | 业务事实、执行事实、幂等、审计、恢复 | 仅作缓存或只存 UI 投影 |
-| OpenAPI (`contracts/`) | HTTP/plugin wire contract、schema、正反 fixtures | 运行时启用证明 |
-| `frontend/` | 唯一产品 UI 源码 | 以静态页面冒充后端功能 |
-| Character Runtime (`koishi/character-runtime`) | 按账号隔离的交互运行时、可信 trigger 检查、Chat Send Gate | 任意账号共享 runtime/cache/persona；绕过 Chat Permit |
-| Analysis Collector (`koishi/analysis-collector`) | collection-only 数据采集、窗口和 Summary 生产 | command/chat/model dispatch 或任何未经授权的消息发送 |
-| ARTEX adapter/outbox | 外部图同步、checkpoint 和 reconcile | BBA 任务执行事实来源 |
-| Cleaner / NapCat patches | 受控运行时适配候选与能力边界 | 未验收即视为已部署、已授权的生产 writer |
-
-### 3.2 任务执行路径
-
-任务执行沿用现有链：
+| Store/错误/身份 | `base.go`、`heartbeat.go`、`heartbeat_http.go`、`backend/internal/identity/` | pgxpool + 显式事务；会话使用 UTC；业务错误经 `Code` 映射；账号身份靠 runtime read-back |
+| Task/API | `task.go`、`task_http.go`、`p019.go` | 创建、查询、控制、候选导入/baseline；权限及幂等检查不能只放在 UI |
+| Reserve/资源 | `scheduler.go`、`lease_budget.go`、`task_lock.go` | 事务内重新裁决；`scheduler.go` 是 dispatch 资源预留，不是日历计划任务系统 |
+| Bridge/观察 | `bridge.go`、`bridge_runtime_http.go`、`observations.go`、`deadline_sweep.go` | 不可变 payload/digest、单次许可、outbox→inbox、结果归约、UNKNOWN 核对 |
+| 连续 Worker | `worker.go`、`worker_steps.go`、`worker_proposal.go`、`worker_proposal_recovery.go` | 有界扫描和持久 cursor；任务协调使用 session advisory lock，仍须 epoch/fence/version 校验 |
+| Proposal/DAG | `proposal.go`、`proposal_work.go`、`proposal_http.go`、`proposal_work_http.go` | Proposal→持久 Work Item→现有 Reserve；materialize 不调用外部 adapter |
+| 内容规则 | `content_rules.go`、`content_guard.go`、`content_http.go` | 规则版本、历史、审核回执；最终 payload 的规则检查不能被早期审核替代 |
+| ARTEX | `graph.go`、`graph_sync*.go`、`backend/internal/artex/` | 本地图投影与外部同步分层；outbox/checkpoint；不确定写走 reconcile |
 
 ```text
-Operator API
- -> resolver / workspace + permission scope
- -> Task + trusted candidate/baseline
- -> Reserve (single transaction)
- -> execution / slot / claim / budget / outbox
- -> single-use permit
- -> Task Bridge
- -> runtime identity + owner epoch/fence
- -> adapter
- -> observation / inbox reducer / result / task projection
+Operator / 前端 / CLI
+  → resolver（主体、workspace、permission）→ Task / candidate / baseline / approval
+  → Reserve 事务（execution、goal slot、claim、budget、outbox）
+  → Bridge（payload digest、runtime identity、owner epoch/fence、单次 permit）
+  → adapter → observation / bridge outbox → core inbox reducer → result / Task 投影
 ```
 
-- `Reserve` 是创建新 dispatch attempt 的事务入口；事务内重新校验任务、审批、账号身份/状态/能力、预算、目标 claim 和 slot。
-- Bridge 必须核对不可变 payload digest、scope、account/runtime/owner epoch/fence 和 permit。
-- 一个 permit 最多对应一次 adapter call。
-- proposal materialize 只创建持久 Work Item，不直接执行外部动作；后续仍由既有 worker/Reserve 链推进。
-- 任何新增任务类型必须分别声明：是否可识别、是否可创建、是否可持久化读回、是否可执行、执行证据是什么。不得用“任务中心支持”笼统覆盖这些维度。
+- Reserve 锁顺序：task → target/claim → account/usage（账号排序）→ subtask/execution/slot；事务中不得外呼网络。
+- 一个 permit 最多一次 adapter call。保持严格目标数和最终 membership 检查，不把申请已提交视为已入群；已有成员 baseline 不算新成功。
+- Worker 的协调锁不等于生产单 writer 迁移协议。账号 + action family 始终只有一个有效 writer，陈旧 owner/fence 必须被拒绝。
+- **当前主服务 `-worker` 固定使用 `WorkerFixtureTransport`**，`worker_steps.go` 内是模拟发送。开启 worker/proposal 开关不等于接通真实 QQ Bridge；有真实网关源码也不能推断连续 Worker 已走真实网关。
 
-### 3.3 独立聊天路径
-
-日常 Character 聊天沿用独立路径：
+### 3.2 Character 与 Collector
 
 ```text
-trusted inbound trigger
- -> account/runtime/context/active-speaker checks
- -> chat send request + exact text digest
- -> durable single-use Chat Permit
- -> Task Bridge / text adapter
- -> sent / unknown outcome receipt
+可信 QQ trigger → 账号/runtime/context/active-speaker 检查
+  → Character 生成文本 → exact text digest + durable Chat Permit
+  → Task Bridge / 单次 text adapter → sent 或 unknown outcome
+
+Collector 采集 → 持久窗口 → Summary producer/publisher
+  → Go Summary 校验/存储 → 不可信 GroupContext → 分析/规划/Character 上下文
 ```
 
-- Chat Permit 与任务 dispatch permit 是不同权限和状态域。
-- 当前 writer contract 不能被擅自扩展为多段、媒体或其他 QQ 动作。
-- permit 已消费但没有权威结果时视为 unresolved/unknown，不得重新发放同一动作许可。
-- 操作员 Agent 对话与 QQ 收件箱是两个信任域：Agent 消息不能自动成为 QQ 出站；QQ 入站内容不能自动成为 Agent 系统指令。
+- Go：`chat_trigger.go`、`chat_admin.go`、`chat_permit.go`、`chat_permit_http.go`、`chat_http.go`；`summary.go`、`summary_http.go`、`group_report_http.go`。
+- Character：`koishi/character-runtime/src/runtime.ts` 管账号 App 生命周期；`ingress.ts`/`gate.ts`/`transport.ts`/`ledger.ts` 约束入站、出站和重放；`backend.ts` 绑定后台协议；`durable-db.ts` 提供持久文件数据库；`group-context*.ts` 校验上下文。
+- runtime、database、cache、persona、adapter 按账号隔离；配置入口是 `src/types.ts` 的 manager/account options，不假设存在通用环境变量加载器。当前 writer 合同只允许受控文本，不擅自扩展多段/媒体。
+- permit 已消费但无权威 outcome 时是 unresolved/unknown，禁止重新发放同一动作许可。
+- Collector：`src/runtime.ts`/`config.ts`/`boundary.ts` 强制 collection-only；`summary-producer.ts`/`summary-publisher.ts` 生产发布 Summary；`semantic-analysis.ts` 有 fixture/provider 分析接口，存在接口不证明真实模型已接通。
+- Collector 独立持久目录/账号绑定，不执行 command/chat dispatch 或未经授权的模型/消息调用。Summary 必须验证 account/group/window/version/expiry 后才能进入 GroupContext，且始终是不可信输入。
 
-### 3.4 Agent、模型、Proposal 与工具
+### 3.3 运营 Agent、模型与配置
 
-当前仓库已有 Agent/Skill/Model 配置绑定、provider 调用和搜索上下文能力，也已有 Proposal、Work Item、DAG 等管线。不得描述成“完全没有 Agent 运行能力”；同样不得把已有模型调用误称为完整多步 Agent 工具执行运行时。
+- `model_http.go` 持久化模型请求、校验输出并沿既有 Proposal 通路处理；`model_provider.go` 是有界的兼容 chat-completions provider。不得复制第二条模型执行链。
+- `model_registry.go`、`model_registry_lock.go` 是 opt-in 文件 registry；`agent_config*.go` 管 Agent/Skill 版本和绑定，`agent_model_http.go` 固定配置快照并生成回执；`web_search*.go`、`global_proxy*.go` 共用 registry 的 workspace 配置。
+- registry 使用受保护 JSON、进程生命周期 flock 和持久化协议；含密钥，不能提交或直接暴露给浏览器。它不是 PostgreSQL Task 状态、CRM 或通用 Agent run 数据库。数据库先登记模型请求，bound provider 再保存文件回执，两者不是跨存储原子事务；崩溃后不能假定自动恢复完成。
+- 当前 Agent/Skill 的 `tools` 只能为空，Skill 能力只接受 `structured_output`；模型上下文明确没有 callable tools。配置字段存在不代表能注册任意工具；相关校验见 `agent_config.go` 和 `agent_model_http.go`。
+- Agent/Skill/Model CRUD、模型请求、搜索上下文已有实现；**尚不能据此认定 thread→持久多步 run/step→工具授权→停止/恢复的完整运营 Agent 已交付**。QQ 入站和操作员 Agent 消息属于不同信任域。
+- 完整 MCP 平台不是生成 Proposal 的前置条件；真正执行某个动作前，该动作的最小 adapter、能力、授权和结果证据必须就绪。
 
-后续 Agent 运行能力应在现有基础上增量补齐：
-- 对话线程如何启动、关联和查询一次 Agent run；
-- 多步 run 的持久状态、步骤、停止、超时、取消和恢复；
-- run 开始时固定 Agent、Model、Skill、规则和工具 Schema 版本；
-- 模型提出工具请求后，由服务端独立进行权限和能力裁决；
-- 工具执行结果作为不可信观察回注模型，不直接成为权限；
-- 超时、重试和崩溃恢复不得重复创建 Proposal、Task 或外部动作；
-- 运行审计能关联 thread、run、step、proposal、approval、task/permit 和最终证据。
+### 3.4 HTTP 入口与接线条件
 
-完整 MCP 管理平台不是 Agent 生成 Proposal 的前置条件。只有某一阶段明确承诺真实执行某个动作时，该动作所需的最小 adapter、runtime capability、authorization 和验收证据才是该动作上线的前置条件。
+| 路由族（省略资源 ID） | 装配/实现 | 实际边界 |
+|---|---|---|
+| `/v1/accounts`、`/v1/tasks`、任务 controls/reconcile | `resolver.go` 的 `taskEngineSurface`、`task_http.go` | 默认以读取和受控 reconcile 为主；任务写入口受 `-development-operations` 限制 |
+| 任务 plan-proposals/orchestration/materialize/work-items/graph-sync | `serverAPISurface` + 对应 handler | Proposal 接受、物化、执行分别核对开关、scope、版本和审批 |
+| `/v1/model-requests`、`/v1/agent-model-requests` | `model_http.go`、`agent_model_http.go` | 后者随 registry 装配；模型产生建议不授予 QQ 权限 |
+| `/v1/operator/models`、`/agents`、`/skills` | `main.go` 的 registry wrapper | 仅配置 `-model-registry-file` 时装配，不能只凭 OpenAPI 判断启用 |
+| `/v1/operator/conversations`、`/agent-threads/.../messages`、`/qq-drafts`、`/notifications` | `OperatorConversationHandler`，已在主服务装配 | 消息持久化、查询、草稿审核、本地通知；草稿 handler 不调用 QQ writer |
+| `/v1/operator/qq-inbox/events` | `operatorConversationAuth` + `operator_conversation.go` | 路径虽叫 operator，写入仍仅信任 runtime 身份；operator token 不能伪造 QQ 入站 |
+| `/v1/internal/group-summaries`、`/group-context`、`/chat-triggers`、`/chat-context`、`/chat-send-permits` | 主服务 runtime handlers | runtime credential/account scope；permit 子操作按 handler 核对 |
+| `/v1/internal/bridge/` 与 Chat Permit 网关操作 | 独立 `task-bridge/main.go`、`gateway.go` | 与主服务不是同一监听器；许可校验后才接 adapter |
+| `/v1/operator/dashboard`、`/tools`、`/runtime` | `product.go`、`dashboard.go`、`product_runtime.go` | dashboard 来源有可用性；tools 是静态未验证目录；runtime 返回运行配置边界 |
+| `/v1/operator/system/`、content-rules/content-reviews、login 相关路由 | settings/content/login handlers | 代理、搜索依赖 registry；work slots 在 PostgreSQL；登录取决于显式 provider |
 
-必须区分：
-1. Tool Catalog：产品可展示的工具目录；
-2. Tool Schema：输入输出结构与版本；
-3. Runtime Capability：某个具体账号/runtime 已验证具备的能力；
-4. Tool Authorization：某个主体在当前 scope/时间/策略下是否获准调用。
+这里是定位图，不复制完整 API。逐操作的 method、请求字段、权限名、错误码、分页和幂等规则读 OpenAPI、对应 handler/tests。内部实现的 API 比主服务实际暴露范围更大；`x-feature-enabled-in-p0` 不是装配证明。
 
-MCP server 注册或仓库 URL 不等于 endpoint 可用、工具已安装或动作获准。MCP 不得绕过现有执行治理。
+### 3.5 独立研发 Controller
 
-## 4. 产品信息架构与目标模块
+依据 `controller/src/bba_controller/` 与 `docs/adr/controller-phase1.md`：这是研发编排实验组件，不连接 QQ 业务数据库，也没有把产品 MCP 页面接到 Go Task Engine。
 
-产品主导航：
+- `__main__.py`/`server.py`：`python -m bba_controller` 的本地 stdio MCP；stdout 只承载协议。七工具 `bba_task_submit/status/wait/cancel/resume/list/evidence`，权威 Schema 是 `contracts.py`，`controller/schemas/` 导出须与其一致。
+- `controller.py`：启动侧授权；默认 `OBSERVE`，修改类工具要求明确授权的隔离 fixture 仓库。`DEVELOPMENT` 需额外启动授权，但第一阶段仍不开放真实仓库施工或真实模型 prompt。禁止对 BBA 真实仓库授予 fixture 身份。
+- `store.py`：SQLite 事务/CAS、request_id 幂等、依赖/写集合冲突、slot、事件/会话/证据及 `execution_cleanup`；默认 1 slot、最大 2，与 Go task work slots 无关。重启将未决执行保守恢复；任务终态不证明子进程已清理。
+- `worktrees.py`：受保护仓库绑定及独立 fixture worktree；`state-dir` 与仓库目录必须互不包含，路径/祖先 symlink 拒绝；owner flock 防止双进程恢复冲突。依赖 POSIX/Linux 进程与 `/proc` 核对，不宣称通用跨平台沙箱。
+- `acp.py`/`sim_peer.py`：有界 NDJSON、超时、取消、进程组清理、反向权限拒绝；真实 ACP 仅有受限元数据接口，真实 prompt 拒绝，UNKNOWN 不自动重放。
+- `models.py`/`model_contracts.py`：独立的模拟 profile/policy 快照和 simulation-credit 预算，不是货币/token 精确计费；本地 simulation 校验、调用预留/结算、UNKNOWN 保留预算、fallback deny；不等于真实 OMP/provider 路由控制。
+- 不直接暴露 stdio 给不可信远程用户。原始 prompt/凭据不进证据；磁盘/SQLite 不可写时不能承诺审计成功。历史 Controller 报告的“CI 未运行”或本机证据路径应按提交重新核对。
 
-1. 仪表盘
-2. 对话
-3. 任务
-4. 计划任务
-5. 资产（客户 CRM）
+## 4. 产品语义与后续实现边界
 
-系统与运营配置（保留全局代理、网络搜索、Work Agent 并发及既有作用域）：
+导航保留：仪表盘、对话、任务、计划任务、资产，以及 LLM、Agent、MCP、Skill、工具、通知推送、拦截规则、审批记录、日志、系统配置。全局代理、网络搜索、Work Agent 并发配置保留各自作用域。每个页面都要列明真实 API、持久来源、权限、空/错误/未知状态及验收证据。
 
-6. LLM
-7. Agent
-8. MCP
-9. Skill
-10. 工具
-11. 通知推送
-12. 拦截规则
-13. 审批记录
-14. 日志
-15. 系统配置
+### 4.1 双对话、草稿与通知
 
-页面存在、菜单可见或静态数据能展示，不代表功能接线完成。每个页面必须列明实际 API、持久化来源、权限范围、错误/空/未知状态及独立验收证据。
+Agent thread/message 与 QQ account/group/private conversation 分域存储；消息、附件和搜索结果不可信。当前 Agent 消息写入不自动启动多步 run；QQ 草稿审核不等于已发送。通知是持久 `local_only` 投影，不等于已推送到外部服务。
 
-### 4.1 双对话
+后续按消息、任务、CRM 各自事件逐项接线，要求 scope、去重、分页 cursor、已读并发安全与脱敏；不能预先宣称所有事件已有通知。基础对话闭环与完整 M5 Agent run 分开验收。
 
-- Agent 对话：操作员与 Agent 的 thread/run/message。
-- QQ 收件箱：按 workspace、QQ account、群聊/私聊 conversation 隔离的入站消息及出站草稿/回执。
-- 两类对话使用不同信任标记、API scope 和事件来源。
-- QQ 消息原文、附件、外部搜索内容都是不可信输入，不得当作系统/开发者指令。
-- 首轮出站可采用草稿、规则审核和 permit 状态回执；未获明确授权不得调用真实 QQ writer。
+### 4.2 五种业务任务
 
-### 4.2 任务中心
-
-当前 `qq03-task-type-matrix.md` 所列五类任务的状态必须逐项维护，不能推断执行能力：
-
-| 类型 | 当前已知边界 |
+| 类型 | 当前代码边界 |
 |---|---|
-| `group.acquire` | 保留既有加群执行链；具体真实能力仍需按当前 adapter 和 live 证据判定 |
-| `group.analyze` | 可识别/创建/读回；执行依赖 Summary/Collector 的只读证据，当前矩阵标记 unsupported |
-| `chat` | 可识别/创建/读回；日常聊天走独立 Chat Permit，不混用任务执行；任务化桥接另行设计 |
-| `customer.add_me` | 可识别、创建 DRAFT、持久化读回，执行 unsupported；必须先定义动作语义和可观察完成证据，不得猜好友 API |
-| `customer.add_customer` | 可识别、创建 DRAFT、持久化读回，执行 unsupported；必须先定义动作语义和可观察完成证据，不得猜好友 API |
+| `group.acquire` | 保留既有 Task/Reserve/Bridge 链；真实能力须单独核对 runtime/adapter/live 证据 |
+| `group.analyze` | 可识别、创建 DRAFT、读回；执行 unsupported，未来才接 Summary/Collector 证据 |
+| `chat` | 可识别、创建 DRAFT、读回；任务执行 unsupported；日常 Chat Permit 保持独立 |
+| `customer.add_me`、`customer.add_customer` | 可识别、创建 DRAFT、读回；执行 unsupported；动作语义和好友能力尚不能猜测 |
 
-任务状态、能力状态和外部效果状态必须分开表达。`CAPABILITY_UNAVAILABLE` 是明确拒绝，不是待重试任务。未知结果不自动重发。
+`task.go` 的类型从 canonical `core.task.request_payload` 派生，不是独立数据库 type 列。后四种只允许 dry_run/read_only，`approval_ref` 必须存在且为 null，join 文本占位为空，fixed 候选恰好一个；submit 在写入前以 `CAPABILITY_UNAVAILABLE` 拒绝。细节查 `qq03ValidateCreateRequest`、`qq03_task_types_test.go`、`docs/qq03-task-type-matrix.md`。生命周期、能力状态和外部效果分开显示；明确拒绝不能伪装成待重试。
 
-### 4.3 计划任务 / Scheduler
+### 4.3 计划任务（设计约束，尚不是 `scheduler.go` 已有能力）
 
-计划任务复用现有 Task Engine，负责将规则物化为现有 Task，允许 occurrence 状态机及有界扫描，不另建通用任务执行器。
+实施前形成 Scheduler ADR，定义以下协议，再复用 Task Engine：
 
-设计和实现必须先定义以下一致性策略：
+- occurrence 唯一键绑定 schedule ID + 规范化触发时刻；版本是快照属性，不能靠版本递增重复触发。保存 IANA timezone、本地表达式和 UTC 时刻；DST 不存在/重复本地时间须明确策略并测试。
+- occurrence→Task 优先同一 PostgreSQL 事务写入事件/幂等。跨事务必须有稳定幂等键、中间状态、owner/expiry/CAS 租约、唯一约束和崩溃恢复；重跑只能读回同一个 Task。
+- 定义 pending→claimed/materializing→materialized 及可重试/永久拒绝状态。默认不无限补跑；misfire 明确容忍窗口和 skip 原因，coalesce/catch-up 设时间与数量上限。
+- 默认 forbid overlap；前次运行、待审批或 UNKNOWN 时不得绕过，按配置 skip/排队并记录原因。
+- 编辑/暂停/删除递增 schedule version；创建 Task 前重验版本/enabled，旧 occurrence 进入 superseded/cancelled；跨版本同刻最多一个 Task。已物化 Task 必须走自身取消/审批/UNKNOWN 规则。
+- 创建计划不自动授权每次外部动作。每次执行重验当前能力、授权、审批期限、预算和规则；低风险模板授权需单独风险评估。
+- 覆盖领取及 Task 创建前后崩溃、多 worker、重启、时钟漂移、版本修改、审批撤销和数据库恢复。
 
-- **Occurrence 身份：** 每次计划触发有稳定唯一键，绑定 schedule ID 与规范化目标触发时刻；计划版本作为快照属性，不因版本递增允许同次触发重复物化；时区使用 IANA TZ 数据，存储 UTC 时间及原始本地计划信息。
-- **Occurrence → Task 原子性：** 优先在同一 PostgreSQL 事务中创建 occurrence 与 task，并写入事件/幂等记录。若现有边界无法同事务，必须使用稳定幂等键、明确中间状态、租约过期恢复和唯一约束；崩溃后重跑只能读回同一个 task，不能创建第二个。
-- **领取状态：** occurrence 采用可恢复状态机，例如 pending → claimed/materializing → materialized，失败状态需可区分可重试与永久拒绝。租约必须有 owner、expiry 和版本/CAS。
-- **错过触发：** 默认不无限补跑。每个 schedule 必须声明 misfire policy；先在 ADR 明确容忍窗口，避免正常扫描延迟被一律跳过；skip 记录原因。若启用 coalesce/catch-up，必须配置时间窗口和最大补偿数量。
-- **重叠：** 默认 forbid overlap。上一次仍运行、待审批或 UNKNOWN 时，不允许新 occurrence 绕过旧动作；按计划配置 skip 或排队，并保留原因。
-- **修改/暂停/删除：** schedule 版本递增。创建 task 前重验版本与 enabled；旧 occurrence 明确进入 superseded/cancelled 等终态。跨版本替代/更新必须有唯一性仲裁及竞态测试，同刻最多物化一个 task；已 materialize 的 task 不可静默删除，必须走 Task 自身的取消/审批/UNKNOWN 规则。
-- **审批：** 创建计划的审批不自动等于每次外部动作的授权。默认每个 occurrence 在执行前重新校验当前授权、账号能力、预算、规则版本和审批有效期；只有经风险评估明确批准的低风险动作，才可设计受限的模板授权。
-- **时区/DST：** 保存 IANA timezone 和本地计划表达式；不存在的本地时间、重复的本地时间必须有明确策略并写测试，不能依赖服务器本地时区。
-- **恢复：** 覆盖领取后崩溃、task 创建后进程崩溃、多个 worker 并发、时钟漂移、版本修改、审批撤销和数据库恢复。
+### 4.4 CRM（产品约束，不是已交付的客户表）
 
-以上是架构默认约束；具体 misfire、overlap、DST 策略须在对应 Scheduler ADR/任务书中落定后再实现，不得让代码偶然决定业务行为。
+- 核心是**有原始证据的明确意向**，识别成功即可计入引流成功，好友关系是独立属性，不是计数门槛；群成员数不是客户数。
+- workspace 内按稳定 QQ identity 或可审计人工确认去重；不按昵称合并，不把跨群/跨账号贡献简单相加，也不把跨 workspace 全局身份库作为首期前置条件。
+- 区分当前有效意向、历史确认记录/人数、撤销/纠错和好友关系；生命周期状态与当前是否计数独立，纠错追加而非抹除历史。
+- 证据关联 customer/workspace/account/conversation/message/event、rule/model/skill version、decision/review/correction/attribution；模型置信度/理由是判断，不是客户自述事实。
+- stop-contact 是执行约束：workspace/account/customer 范围、原因、审计和撤销屏障；建任务/草稿及最终 dispatch 均检查，撤销未执行授权并禁止换账号绕过。已 dispatch/UNKNOWN 不能假装取消。
+- 不默认永久保留原文，也不臆造统一保留天数；先明确法域/业务目的、最小化采集、受控删除/脱敏/tombstone、证据失效和备份清除。tombstone 不等于删除原文；不得绕过 `operator_message` 的 append-only 触发器。
+- 新持久化域同阶段验证隔离、幂等和当前 schema 的恢复，先证据链/统计口径，再复杂 UI。
 
-### 4.4 客户资产 / CRM
+### 4.5 Dashboard、审批与日志
 
-CRM 的核心是“有证据的明确意向客户”，不是群成员数量，也不要求先建立好友关系。
-
-业务语义：
-- 明确意向识别成功即可计入引流成功客户；好友关系若可观察，作为独立属性/事件记录。
-- 模型判断、置信度和理由是识别结果，不是客户自述事实；必须关联原始证据、规则/模型版本、识别时间和来源。
-- 统计默认在 workspace 内去重；不建设跨 workspace 全局身份库作为第一阶段前置条件。
-- 同一客户在多个群、多个账号出现，只计一个 workspace 内客户；来源与账号贡献保留多条归因，不能把账号贡献数简单相加作为客户总数。
-- 至少区分：
-  - 当前有效意向客户数：去重客户中至少有一条当前有效的明确意向；
-  - 历史确认记录数/人数：历史曾确认的记录，包含后来撤销或纠正的历史；
-  - 撤销/纠错记录：追加记录，不无痕覆盖旧判断；
-  - 好友关系状态：单独记录，不作为意向计数门槛。
-- 客户合并必须基于稳定 QQ identity 或可审计的人工确认；不能只因昵称相同就自动合并。
-- 证据记录应关联 workspace、customer identity、conversation/source、message/event reference、rule/model/skill version、decision、review/correction 和 attribution。
-- 生命周期状态与是否计入当前有效意向分开建模；无效、撤销、拒绝联系不能通过改状态抹掉历史。
-
-**停止联系是执行约束，不是 UI 标签：**
-- 建立 workspace/account/customer 维度的 suppression/stop-contact 状态和审计原因。
-- 创建任务/草稿时检查一次；最终 adapter dispatch 前必须再次检查。
-- 停止联系后撤销尚未执行的相关授权/待执行动作，并阻止新动作。
-- 已经 dispatch 或结果未知的动作不能假装取消成功，必须保留 UNKNOWN 并只读核对。
-- 退订/拒绝联系的处理必须可追溯，并尊重适用平台规则和法律要求。
-
-**数据生命周期：**
-- 不默认永久保留所有消息原文。按部署地区、业务目的和法律评估制定可配置保留期限、最小化采集、脱敏/删除和备份过期策略。
-- 当前 operator message 表存在禁止 UPDATE/DELETE 的触发器；任何变更必须设计受控删除/脱敏或 tombstone 机制、证据失效语义、审计保留与备份清除，不得直接绕过触发器。
-- 在未完成法域与业务评估前，不在代码中臆造统一保留天数，也不宣称某种保留方式必然合规。
-
-### 4.5 Dashboard、通知、日志与审批
-
-- 沿用 ARTEX 主要布局：账号在线/离线/异常/总数替代“确认发现”，资产为意向客户数；删除流量交互、活动流、发现和流量状态码。
-- Dashboard 读可回溯持久事实/投影，缓存可重建且有新鲜度，不用演示数字冒充事实。
-- 账号状态区分 online/offline/error/unknown/stale；未知或过期不能显示成离线，也不能显示在线。
-- 任务状态按真实生命周期区分 queued/running/completed/failed/unknown 等；UNKNOWN 不能计入成功。
-- 客户统计使用 CRM 去重口径；来源账号贡献可多归因但不得重复加总。
-- 通知跟随对应业务事件逐项接线：消息通知随双对话、任务结果通知随任务事件、客户意向通知随 CRM，不预先把尚未实现的事件算作已交付。
-- 通知必须支持 workspace/account scope、去重、分页 cursor、未读/已读并发安全、脱敏及明确的 local-only 状态。
-- 审批必须绑定具体 digest、scope、主体、资源、版本、期限和预算；内容或授权版本变化后需重新审批。
-- 日志必须可关联 request、thread/run、task、execution、permit、bridge operation、observation 和审计主体，且不得泄漏凭据或不必要的消息原文。
+沿用 ARTEX 布局，但账号在线/离线/异常/总数替代“确认发现”，资产用意向客户口径，不引入流量交互、活动流、发现和流量状态码。指标必须有可追溯来源与新鲜度；unknown/stale 不显示为 offline/online，UNKNOWN 不计成功，不能用演示数字填空。审批绑定 digest、scope、主体、资源、版本、期限、预算，变化后重审。日志按实际链路关联 request/thread/run/task/execution/permit/bridge operation/observation 和审计主体，禁止凭据及不必要原文。
 
 ## 5. 阶段路线与依赖
 
-路线是按可验收垂直切片推进，不是承诺当前功能已完成。阶段可拆多个单一目的 PR，以可验证证据和明确的 out-of-scope 结束。
+| 阶段 | 工作边界 |
+|---|---|
+| M0 基线 | 锁定 commit/工作树/build/schema，核对真实装配与矩阵；缺陷按 P0 安全/数据损坏/越权、P1 核心阻断、P2 功能缺口、P3 文档体验分级；不做无边界历史报告清零 |
+| M1 双对话 | 在已有 handler/路由/存储上补缺，分别验收 QQ 入站/草稿/通知和 Agent 基础消息；首轮不调真实 writer；多步 run 不作为基础消息前置条件 |
+| M2 账号/任务 | 复用 identity/runtime/owner epoch；逐类型验收识别、创建、读回、执行、证据，分配重验在线/能力/暂停/UNKNOWN/预算/范围 |
+| M3 计划 | 先 ADR 定义 occurrence/misfire/overlap/DST/授权，再实现与恢复测试 |
+| M4 CRM | 先去重、证据、纠错、stop-contact、生命周期，再 UI；同期恢复/隔离验证 |
+| M5 运营 Agent | 复用 registry/provider/Proposal；补 thread→run、持久 step、版本快照、幂等、取消/超时/恢复、服务端工具裁决；首期按角色配置，不另建多套 Agent 服务 |
+| M6 工具/MCP | 按业务需要接最小可验收工具，分开 Catalog/Schema/Capability/Authorization/lifecycle；研发 Controller 不代表此阶段完成 |
+| M7 整合/发布 | 汇总指标、备份恢复、限流/密钥/停止/告警与发布演练；各域 Dashboard/通知随域交付，不拖到最后首次接线 |
 
-### M0 — 基线与当前提交收敛
-- 锁定本轮基线 commit、工作树状态、当前 schema head、构建版本。
-- 盘点主服务真实装配、resolver/API surface、OpenAPI、migration、前端源码/嵌入资源、CI 和产品验收矩阵。
-- 修正文档与源码冲突；不开展无边界的“全仓历史报告清零”。
-- 将缺陷分级：P0 安全/数据损坏/越权；P1 核心功能阻断；P2 一般功能缺口；P3 文档/体验。
-- 当前 B7 已有主服务装配，后续必须基于当前提交做增量独立复核，不能沿用过期任务书声称 handler 尚未接线。
-
-### M1 — 双对话基础闭环与通知
-分开验收：
-1. 基础消息闭环：QQ 入站持久化、conversation 隔离、分页、去重、收件箱 API/UI、出站草稿/拦截回执、通知投影。
-2. Agent 线程基础闭环：线程/消息持久化与查询、信任域隔离。已有模型与 Proposal 通路按实际消费者增量验收；thread-to-run、多步运行、step、停止/恢复与工具执行授权属于 M5，不作为基础消息验收的隐含条件。
-
-先检查当前已有 handler、route assembly、migration 和前端消费者；只补实际缺口。Agent 对话与 QQ 收件箱保持信任域隔离。首轮不调用真实 QQ writer。
-
-### M2 — 多账号与任务产品化
-- 复用 account/runtime/owner epoch/identity read-back 体系。
-- 展示账号身份、登录会话、心跳、能力、风险、暂停和 runtime 归属。
-- 对每种任务类型分别验收识别、创建、持久化读回、执行、观察证据；unsupported 类型保持明确拒绝。
-- 账号分配必须校验在线/身份/能力/暂停/UNKNOWN/预算/授权范围。
-- 不以端口、昵称、文件名或静态配置替代账号身份。
-
-### M3 — 计划任务
-- 先形成 Scheduler ADR，明确 occurrence 状态机、事务/幂等恢复、misfire、overlap、DST、schedule version、审批和授权策略。
-- 再复用 Task Engine 落地最小闭环。
-- 验证多 Worker、崩溃点、重启、重复领取、时区边界和 UNKNOWN 阻断。
-
-### M4 — 客户 CRM
-- 先定义客户去重、当前/历史意向、来源归因、证据撤销、人工纠错、停止联系和数据生命周期。
-- 复用现有 schema 与事件模型，只有必要时才新增 migration。
-- 先实现证据链与统计口径，再实现复杂客户运营 UI。
-- 新增 CRM 持久化域时，同一阶段完成隔离 fixture、当前 schema 的恢复验证和数据隔离测试。
-
-### M5 — Agent 运营能力
-- 复用现有 Agent/Skill/Model registry、provider、Proposal/Work Item，不另建模型通路。
-- 补齐 thread-to-run、持久多步运行、step、停止/恢复、工具授权、版本快照和幂等。
-- 首期可按运营角色配置 Agent/Skill，不以建设多个独立 Agent 服务为前置条件。
-- Skill 是版本化流程定义，不是权限凭证；模型输出只产生建议/Proposal。
-- 每个真实动作必须先有可验收 adapter、runtime capability、authorization 和观察证据。
-
-### M6 — MCP 与工具生态
-- 分阶段实现 Tool Catalog、Schema、Runtime Capability、Authorization 和 MCP server lifecycle。
-- 先接入确有业务需要且能独立验收的工具；不要求一次性接入所有 MCP。
-- MCP 连接/工具调用不得直接绕过 Task Engine 或 Chat Permit。
-- 任何新外部动作先交付最小安全闭环，再扩展管理界面。
-
-### M7 — Dashboard、可观测性与发布验收
-- 各业务域交付时同步增加对应 Dashboard/通知消费者，不把首次集成推迟到最后。
-- 汇总客户、账号、任务、Agent、审批、风险和运行指标。
-- 完成当前 schema 的备份恢复、生产运行手册、权限/密钥/限流/停止机制、告警和发布演练。
-- 真实 QQ、真实模型、MCP、ARTEX 和生产发布分别独立授权、独立验收；一个域的 live 证据不自动覆盖其他域。
+各阶段拆为有界 PR。真实 QQ、模型、MCP、ARTEX、生产发布分别授权、分别验收，一个域的 live 证据不覆盖其他域。
 
 ## 6. 状态与证据模型
 
-不得只用一个五级状态标签概括功能。每项能力至少分开记录以下维度：
+每项能力分开记录：
 
-- **实现状态：** `NOT_IMPLEMENTED` / `PARTIAL` / `IMPLEMENTED`；
-- **接线状态：** `NOT_WIRED` / `PARTIAL` / `WIRED_TO_CONSUMER`，并记录真实 handler、route、worker、adapter 或 UI consumer；
-- **验证身份：** `AUTHOR_SELF_TEST` / `INDEPENDENT_SOURCE_REVIEW` / `INDEPENDENT_EXECUTION` / `NOT_REVIEWED`；
-- **验证环境：** `UNIT` / `CONTRACT` / `ISOLATED_FIXTURE` / `CONTROLLED_LIVE` / `PRODUCTION`；
-- **验收结论：** `PASS` / `FAIL` / `BLOCKED` / `NOT_RUN`；
-- **发布状态：** `NOT_RELEASED` / `RELEASE_CANDIDATE` / `RELEASE_ACCEPTED`。
+| 维度 | 允许的状态 |
+|---|---|
+| 实现 | `NOT_IMPLEMENTED` / `PARTIAL` / `IMPLEMENTED` |
+| 接线 | `NOT_WIRED` / `PARTIAL` / `WIRED_TO_CONSUMER`，指明真实 consumer |
+| 验证身份 | `AUTHOR_SELF_TEST` / `INDEPENDENT_SOURCE_REVIEW` / `INDEPENDENT_EXECUTION` / `NOT_REVIEWED` |
+| 环境 | `UNIT` / `CONTRACT` / `ISOLATED_FIXTURE` / `CONTROLLED_LIVE` / `PRODUCTION` |
+| 结论 | `PASS` / `FAIL` / `BLOCKED` / `NOT_RUN` |
+| 发布 | `NOT_RELEASED` / `RELEASE_CANDIDATE` / `RELEASE_ACCEPTED` |
 
-每份证据记录适用字段；未记录的历史字段不得补造。未提交树测试另记 diff/文件摘要，提交后核对内容一致：
-- commit SHA；
-- binary/build identity（适用时）；
-- schema head / migration set（涉及数据库时）；
-- 测试命令、退出码和原始日志；
-- fixture/live 的边界；
-- 账号/workspace/action scope（如适用，脱敏）；
-- 证据生成时间；
-- 实际作者/执行者/审查者及其验证方式，未独审标记 NOT_REVIEWED；
-- 未覆盖风险。
+证据记录 commit、适用的 binary/build identity、schema/migration set、命令/退出码/原始日志、时间、执行者/审查者及方式、脱敏 scope、fixture/live 边界和未覆盖风险。未提交树另记 diff/文件摘要，提交后核对内容一致；历史未记字段不能补造。
 
-`IMPLEMENTED` 不等于已接线；作者测试不等于独立验收；fixture 通过不等于真实受控通过；真实受控通过不等于生产可运行；CI 通过不等于产品发布批准。
+实现≠接线，自测≠独审，fixture≠受控 live，live≠生产，CI≠发布批准。验收矩阵逐行按证据范围判断，不计算虚假的完成百分比；历史报告必须按日期/commit/schema 读取。
 
-产品验收矩阵是按行、按证据范围判断，不是产品完成百分比。历史报告必须标注日期、commit 和当时 schema，不能覆盖当前验证。
+## 7. 数据模型、迁移与契约
 
-## 7. 数据库、契约与兼容性规则
+### 7.1 PostgreSQL 业务域
 
-1. migration 源码和当前 binary 的 `SchemaHead()` 是 schema 版本事实来源；不要在本文件或任务书中长期硬编码容易过期的 head 数字。
-2. 每次涉及数据库的变更，核对 migration tail/head、`SchemaHead()`、server schema gate、Bridge schema gate、迁移测试、`taskengine-migrate --check` 和隔离数据库实际 head。
-3. migration 只追加，不重编号已发布 migration；保持事务、约束、审计和升级语义；不做隐式 startup migration，不自行引入 down migration。
-4. 对 schema 变更同时测试从受支持旧版本升级、当前版本启动、隔离恢复和关键查询。
-5. `contracts/openapi.yaml` 是 HTTP/plugin wire contract 的规范来源；schema/fixtures 与生成 Go/TS 类型保持一致。
-6. 修改 OpenAPI/schema 时先更新正反 fixtures，再运行 `bash tools/contract.sh check`；只有确实需要时才运行 `generate`。永远不要手改 `types.gen.*`。
-7. `x-feature-enabled-in-p0` 等合同元数据不证明运行时 handler 已装配。
-8. 每个新增持久化域都要在本阶段验证 workspace/account 隔离、幂等、恢复和删除/保留语义；不能把所有恢复验证推迟到最终发布阶段。
+权威 DDL 在 `backend/internal/taskengine/migrations/`，下表仅是实体关系导航；复合键/外键中 workspace/account 边界不可省略。
 
-## 8. 安全、隐私与外部动作
+| 域 | 主要实体及关系 |
+|---|---|
+| 身份/授权 | `workspace`→`principal`/`account`；runtime credential/heartbeat、approval、account action lock |
+| 任务 | `task`→`task_account`/`task_target`→target/baseline/subtask；execution 绑定任务、目标、账号、runtime、digest/fence |
+| 资源/效果 | goal_slot、target_claim、account_usage、dispatch_permit；membership/result 区分既有关系与本次结果；retry 保留原尝试关联 |
+| 审计/传递 | task_event 有任务内 seq；core.outbox→bridge.gateway_operation/bridge.outbox→core.inbox；idempotency 按 workspace/principal/method/path/key 约束 |
+| 聊天 | chat_send_policy、group_binding、chat_trigger、chat_send_usage、chat_send_permit/outcome、专用幂等记录；独立于任务域 |
+| 规划/知识 | model_request、plan_proposal/application/basis、group_summary；work_materialization/item/attempt；本地图投影与 graph_sync_outbox/checkpoints |
+| 产品支持 | login_session/event、content_rule/history/review、workspace_work_settings/audit |
+| 双对话 | operator_conversation→operator_message→qq_draft；operator_notification 按 event_key 去重、保存 read/version，delivery_state 约束为 local_only |
 
-- 不得把 token、API key、DSN 密码、OneBot/WebUI 凭据写入仓库、日志、PR、截图、证据包或浏览器持久化。公开个人标识合成/脱敏；业务所需身份仅在授权受控存储最小化使用。
-- operator/runtime credential 分离，先鉴权再返回 replay，保持 Host/Origin 限制。resolver/model provider/ARTEX provider/Task Bridge JSON 与 operator token 文件须常规文件、mode 0600 或更严及当前大小上限。DSN 仅从环境读取，不加命令行入口；默认 loopback，不 startup 自动迁移，不承诺通用 .env loader。
-- QQ 写使用对应 Task/Chat 许可、runtime identity/fence、幂等和 observation；ARTEX 等外部写沿用各自授权/outbox/checkpoint/reconcile，不强套 QQ permit。
-- 最终 QQ 文本检查规则，按动作重验 owner、能力、目标、适用审批/授权/预算。CRM 联系动作上线前须接入 stop-contact 最终 dispatch 检查；本节未来要求不代表现有链已具备全部能力。
-- 写请求 timeout/transport failure 视为 UNKNOWN；只对证明可安全重放的读取做有界 retry。
-- 账号身份来自 runtime read-back；online 必须有新鲜心跳和身份绑定。过期状态为 stale/unknown，不得伪装 offline。
-- 不得用模型输出、群聊内容、客户证据、网页搜索、Skill 文本或 ARTEX 数据覆盖服务端权限。
-- 所有外部操作必须支持限流、停止、审计和故障恢复；遵守 QQ 平台规则、用户隐私和适用法律。
-- 未获用户明确授权，不登录 QQ、不发消息、不加群/好友、不触发真实 NapCat/OneBot/ARTEX 写、不连接生产数据库、不调用付费模型、不修改真实运行目录、不重启服务或切换 writer。
-- 本地 fixture 必须使用隔离 PostgreSQL/loopback fake HTTP/假 adapter；不得将生产 DSN 传入 fixture runner。
+`operator_message` 只追加，禁止 UPDATE/DELETE；QQ 事件按会话/event_id 去重，消息有 seq/body_digest。当前 migration 没有独立 CRM、日历 occurrence 或运营 Agent run/step 持久化域，不得把相似名称当成已实现。
 
-- 外部请求保持 timeout、响应体/并发上限、redirect policy、secret-safe errors。
-- stop-contact 明确 workspace/customer/account 范围、撤销屏障及禁止换账号绕过；tombstone 不等于删除原文。
+**其他持久化：** 模型/Agent/Skill/搜索/代理配置及相关回执在 `model_registry.go` 定义的受保护 JSON；Character/Collector 的账号隔离 JSON 数据文件是运行时本地状态；Controller 的 `controller.sqlite3` 有 tasks/events/submit_requests/sessions/artifacts/slots/cleanup 和独立 model policy/budget/call 表。这些状态不能相互冒充业务执行结果。
 
-- 持久化记录证明已记录的状态，不自动证明证据内容真实或外部动作成功。Reserve 事务内不发外部网络请求；writer ownership 按 account + action family 保持单一有效 owner，拒绝陈旧 owner/fence。
-- Character runtime/database/cache/persona/adapter 按账号隔离。Collector 保持 collection-only，Summary 经 account/group/window/version/expiry 校验后进入不可信 GroupContext。
-- Go 使用 gofmt；TS 沿用 strict/NodeNext 与相对 `.js` import。只改 src、不手改 dist/lib；保留 pinned ChatLuna lifecycle patch，升级须重验。ID 按 schema 保持，QQ ID/epoch/fence/sequence 十进制字符串不转为丢精度 JS number，保持 required/nullable 严格解码；本地 `$ref` 禁远端、绝对、父目录及软链逃逸。
-- run 版本快照不替代执行前当前授权与撤销检查。常规可逆实现选择自行推进，仅实质影响业务或授权的未决信息才追问。
+### 7.2 迁移和兼容性
+
+1. `migrate.go` 注册 migration tail/head，`migrate_head.go` 暴露 `SchemaHead()`。**SQL 文件序号不是 schema version**；初始 migration 就写入了较高的历史版本。不要在长期指南固定“当前 head”。
+2. 主服务 `validateServerSchema` 是最低版本门，Bridge `validateGatewaySchema` 要精确匹配 `SchemaHead()`，两者不同。启动门通过不证明所有新页面的数据表已齐全；部署应显式对齐本次 schema。
+3. `Store.Open`/服务启动不迁移。`taskengine-migrate` 无参数仅初始化空库；`--check --expected-version N [--expect-head H]` 只读；`--upgrade --expected-version N [--expect-head H]` 显式升级，N/H 从本轮读取获得，不能照抄历史示例。
+4. migration 只追加，不重编号已发布文件、不引入隐式 startup/down migration；保持事务、约束、升级/审计语义。
+5. 涉库变更同时核对 migration tail/head、binary、server/Bridge gate、迁移测试、`--check`、隔离数据库实际 head；验证受支持旧版升级、当前启动、关键查询、隔离恢复及保留/删除语义。
+
+### 7.3 契约与编码
+
+- `contracts/openapi.yaml` 是 HTTP/plugin 规范；先更新正反 fixtures，再 `bash tools/contract.sh check`，必要时才 `generate`。`check` 不等于全部生成类型 smoke；不手改 `types.gen.go`/`types.gen.ts`。
+- `$ref` 仅本地受限引用，禁止远端、绝对路径、父目录及软链逃逸。保留 required/nullable 区别；Go nullable 用于区分缺失、null 和有值。
+- QQ ID、wire epoch/fence/sequence 按 schema 用十进制字符串，不转成丢精度 JS number；Go 内部 int64 不改变 wire 约定。
+- Go 修改使用 gofmt；TS 保持 strict/NodeNext 和相对 `.js` import，只改 `src/`，不手改 `dist/`/`lib/`。保留 Character 的 pinned ChatLuna lifecycle patch，升级依赖必须重验。
+- Controller MCP 合同独立维护于 `contracts.py`/`model_contracts.py` 和导出 schemas；不把其 Python/SQLite 模型写入 Go 生成类型。
+
+## 8. 配置、凭据与外部动作
+
+### 8.1 配置入口
+
+| 入口 | 配置方式及边界 |
+|---|---|
+| Go 数据库 | `BBA_TASKENGINE_DSN`，仅环境变量；server、Bridge、migrator 使用；不新增 CLI DSN 或臆造 `.env` 自动加载 |
+| 主服务监听/身份 | `-listen` 默认 `127.0.0.1:18421`，`-origin` 与 Host 匹配，必需 `-resolver-file`；格式查 `resolver.go` |
+| resolver JSON | `credentials` 中 `token_sha256`、workspace、principal/permissions 或 runtime/owner_epoch/account_ids；operator/runtime 记录分离，不能混填 |
+| Worker/任务开关 | `-development-operations`、`-worker`、`-worker-recover`、`-proposal-execution` 默认关闭；`-task-work-slots` 初始默认 1、范围 1..8；poll/batch/worker-id 查 `main.go` |
+| 登录与规划 provider | `-login-provider-file` / `-login-fixture`，`-model-provider-file` / `-model-fixture`；真实与 fixture 配置互斥；模型文件和 API key 文件格式查 `product_runtime.go` |
+| 模型/Agent/Skill registry | `-model-registry-file` 必须绝对路径、私有父目录；`-model-registry-approved-private-http-base` 是精确私网 HTTP 端点审批，不是任意内网放行 |
+| ARTEX | `-artex-provider-file`；`backend/internal/artex/providerfile.go` 定义 base/token/allow_writes/timeout/retry；加载后主服务装配独立 graph worker，需单独核对副作用授权 |
+| Dashboard | `-dashboard-account-source=projection` 默认；可选 `local6300` 与受保护 `-dashboard-account-mapping`，特殊本机读源不是通用账号发现 |
+| 独立 Bridge | 默认 `127.0.0.1:18422`，`-origin`、必需 `-config`；runtime/account/owner_epoch、token digest、OneBot/WebUI loopback 端点与凭据查 `task-bridge/main.go` |
+| 操作员 CLI | `backend/cmd/bba-operator/`：URL + `-token-file`，不要在参数中传 token 内容 |
+| 隔离测试 | harness 注入 `BBA_FIXTURE_ONLY`、`BBA_FIXTURE_DSN`、`CONTRACT_ROOT`；`kernel.sh` 需要存在的可写 `TMPDIR` |
+| 本地 dev-stack | `BBA_DEV_STACK_NAME/DB_PORT/HTTP_PORT/STATE_DIR` 等查 `tools/dev-stack.sh`；默认 HTTP 18431、DB 18432，区别于 server 直接启动默认端口 |
+| Character/Collector | 各包 `src/types.ts`/配置 resolver 的显式 options：stateDir、身份、账号/runtime、backend/gateway 等；没有统一可照搬的生产 `.env` |
+| Controller | `--repository`、`--state-dir` 必需；`--mode`、`--slots`、fixture/development 授权均为启动侧参数，MCP 请求不能升级授权 |
+
+### 8.2 安全边界
+
+- token、API key、DSN 密码、OneBot/WebUI 凭据不进入仓库、日志、PR、截图、证据包、模型上下文或浏览器持久化。公开个人标识合成/脱敏。
+- resolver/provider/Bridge JSON 和 operator token 文件为常规文件、0600 或更严，遵守各 loader 大小上限；registry 父目录私有且单进程所有。不要读取/打印本机真实凭据来补文档示例。
+- 保持 loopback、固定 Host/Origin、operator/runtime credential 分离、先鉴权再 replay。外呼有 timeout、响应体/并发上限、redirect policy 和 secret-safe errors。
+- 真实 QQ 写必须按动作重验 owner、能力、目标、审批、预算、文本规则和许可；CRM 联系动作上线前接入最终 stop-contact 检查。配置快照不替代当前撤销检查。
+- 仅对证明可重放的读取做有界 retry；写入 timeout/transport failure 视为 UNKNOWN。ARTEX 使用其自身 reconcile 协议，不强套 QQ permit。
+- 未经明确授权，不登录 QQ、发消息、加群/好友、触发真实 NapCat/OneBot/ARTEX 写、连接生产数据库、调用付费模型、修改真实运行目录、重启服务或切换 writer。文档整理、fixture 测试不构成这些授权。
+- fixture 只用隔离 PostgreSQL/loopback fake HTTP/假 adapter；不可传入生产 DSN。新动作必须具备限流、停止、审计和故障恢复，并遵守平台与适用隐私要求。
 
 ## 9. 前端与生成资源
 
-- 唯一产品 UI 源码：`frontend/`。
-- 修改前端后运行仓库当前 `tools/build-product.py` 同步流程，检查源码与 `backend/cmd/taskengine-server/product/` 嵌入资源一致。
-- 不直接编辑生成的嵌入副本作为唯一变更；不把待接入页面视为 API 已完成。
-- 对新增/修改页面验证真实 HTTP API、权限、空状态、错误状态、未知状态、分页、刷新和浏览器行为。
-- CI 当前覆盖范围不等于全部产品质量门禁；凡本次改动触及 Collector、前端嵌入一致性或浏览器交互，应在 PR 增加相应验证。是否将其纳入常驻 CI，应作为单独 CI 改进提交，不能假设当前 workflow 已覆盖。
+<!-- omh:agent-instructions:begin -->
+### ARTEX 风格 Web UI 入口与同步约定
 
-## 10. 开发与验证命令
+- 产品是 `/product/` 的深色 QQ 私域运营控制台；不要误启 astra-handoffs 早期 Python ui-preview，不重复导入源码。
+- 唯一源码 `frontend/`；`tools/build-product.py` 将 HTML/CSS/JS 复制到 `backend/cmd/taskengine-server/product/`，并由 `frontend/napcat-initial.txt` 生成 `tools.json`，不需要外部 ARTEX checkout。保留 `NOTICE`/licenses。
+- `tools.json` 是未验证的目录，条目 disabled/schema unverified 不代表可调用；不能把“工具数量”当真实能力数量。
+- 运行 `python3 tools/build-product.py` 和 `node --check frontend/app.js`。无 UI 变更时 `git diff --exit-code -- frontend backend/cmd/taskengine-server/product` 应为空；有意修改时审查两侧 diff，再次构建应无新增变化，并逐文件比对源码与副本。Git diff 非空本身不能判定同步失败。
+- 页面及工具来源见 `docs/artex-web-ui.md`；其中本机实例地址是历史定位提示，使用前核实实际监听/进程，不默认启动或重启。
+- 同步 PR 只包含源码、必要生成资源与文档；不提交 dev-stack 状态、token、DSN、数据库或运行日志。恢复 UI 不授予 worker、真实 QQ、模型、迁移或合并权限。
+<!-- omh:agent-instructions:end -->
 
-从仓库根目录执行。先检查 `npm run`、package scripts 和当前文件，确认命令存在后再运行。
+`frontend/app.js` 使用内存 bearer token、请求 AbortController 和 session/route/detail 序列避免旧响应跨会话覆盖；修改异步 UI 时保留这些边界、HTML 转义与同源 CSP。验证真实 API、权限、空/错误/未知状态、分页、刷新和浏览器交互。新增 Collector/嵌入一致性/浏览器 CI 应单独提交，不能假定现有 workflow 已覆盖。
+
+## 10. 开发、验证与部署流程
+
+### 10.1 按变更选择验证
+
+以下除注明外均从仓库根运行。先核对 scripts/`npm run`、工具版本、Docker 和依赖缓存；只跑相关且必要的检查，扩大范围说明理由，失败必须调查。
 
 ```sh
-# OpenAPI / contract 校验（不生成文件）
+# 契约：缺缓存且确有需要时才显式联网 prefetch
+bash tools/contract.sh prefetch
 bash tools/contract.sh check
+# 改 Schema 且需要重建类型时才运行：bash tools/contract.sh generate
 
-# Go Task Engine 隔离 PostgreSQL race suite
-bash tools/kernel.sh test-all
-
-# 主服务隔离 smoke / schema smoke
-bash tools/kernel.sh smoke
+# Go：必须使用隔离 harness，先设置专用可写 TMPDIR
+mkdir -p "$PWD/build/test-tmp"
+TMPDIR="$PWD/build/test-tmp" bash tools/kernel.sh test-all
+TMPDIR="$PWD/build/test-tmp" bash tools/kernel.sh smoke
 bash tools/kernel.sh schema
 
-# Character Runtime（Node 22；按本轮改动选择相关命令）
-cd koishi/character-runtime
-npm ci --ignore-scripts --no-audit --no-fund
-npm run build
-npm run typecheck
-npm test
+# 前端及候选插件
+python3 tools/build-product.py
+node --check frontend/app.js
+node --test tests/plugin/*.mjs
 
-# 产品离线验收（仅在任务要求时生成新的证据目录）
-cd ../..
+# Controller：先按 pyproject 安装到独立 Python 环境；只执行隔离模拟测试
+PYTHONPATH=controller/src python3 -m unittest discover -s controller/tests -v
+```
+
+Go 测试不得裸跑 `go test ./...` 绕过 harness 或掩盖缺 DSN skip。`kernel.sh` 用无网络容器与 Unix socket、不发布 DB host 端口；`schema` 是隔离 SQL 应用 smoke，不替代 server/Bridge 启动门测试。`prefetch` 准备缓存后契约 Node/Go 阶段使用 `--network none`。根 `contract:check` 只含 refgate/validator/Python tests/lint，完整类型生成与 smoke 见 `generate`。
+
+两个 Koishi 包分别安装和验证（Node 22）；Collector 的 file 依赖要求先准备 Character：
+
+```sh
+(cd koishi/character-runtime && npm ci --ignore-scripts --no-audit --no-fund && npm run build && npm run typecheck && npm test)
+(cd koishi/analysis-collector && npm ci --ignore-scripts --no-audit --no-fund && npm run check)
+```
+
+`prebuild`/`pretest` 会调用固定 ChatLuna patch；`--ignore-scripts` 安装不代表可以跳过后续 build。Collector 使用 `lib/`，Character 使用 `dist/`，都不能以旧编译产物替代源码验证。
+
+只有任务要求产品验收时才创建新证据目录（占位路径需替换）：
+
+```sh
 bash tools/product-acceptance.sh fixture --output <new-evidence-directory>
 bash tools/product-acceptance.sh verify --package <evidence-directory>
 bash tools/product-acceptance.sh release-check --package <evidence-directory>
 ```
 
-- Go 仓库测试通过 `bash tools/kernel.sh test-all` 的隔离环境运行；不要用裸 `go test ./...` 绕过 harness。
-- `contract.sh prefetch` 可能联网，仅在工具缓存缺失且任务需要时运行。
-- `contract.sh generate` 会改写生成代码；先确认任务需要，运行后审查完整 diff。
-- Collector 的脚本和宿主依赖需按当前 package scripts/lockfile 核验；不要把 `lib/` 编译副本当作 `src/` 的验证结果。
-- 只运行与本次变更相关且必要的验证；扩大验证范围时说明原因。任何失败必须调查，不能隐藏或通过删测试规避。
+### 10.2 本地开发与发布
+
+- `tools/dev-stack.sh start|stop|status` / 根 `npm run dev:stack` 启动的是持久本地 fixture（Docker DB、显式 migration、种子数据、fixture Worker），不是生产部署。使用新实例名/独立目录并先核对端口；`reset` 删除对应 fixture 状态/volume，`env/token/runtime-token` 会输出凭据，不采入日志/公开材料。
+- 构建前先同步产品资源。从 `backend/` 构建 `./cmd/taskengine-server`、`./cmd/taskengine-migrate`、`./cmd/task-bridge`、`./cmd/bba-operator`；Go module 根在 `backend/`，不是仓库根。
+- 发布流程以 `docs/product-release-runbook.md` 为程序参考：核对本次 binary/schema/授权 → 受保护配置 → 备份与隔离恢复验证 → drain/reconcile 未决动作 → 显式迁移 → 启动门/身份核对 → 单 writer 切换及有证据的验收 → 监控与回滚点。任何真实步骤仍需对应授权。
+- 不从历史 runbook 复制 schema 常量/DSN/实例地址；恢复后也不能自动重放 UNKNOWN。没有经过本轮演练，不能声称具备生产部署或回滚保障。
+
+### 10.3 CI 实际范围
+
+- `.github/workflows/ci.yml`：PR 和 main push 触发 `contracts`（契约、TS 类型检查、前端语法、插件测试）、`backend`（隔离 race suite + build）、`character`（安装/build/typecheck/tests）。
+- `.github/workflows/controller.yml`：仅匹配 `controller/**`、自身 workflow 或 `docs/adr/controller-phase1.md` 时触发 Controller unittest/stdio MCP fixture；只改根 `AGENTS.md` 不会触发它。
+- 当前没有常驻 Collector、产品 embed 同步完整性或完整浏览器验收作业。CI 绿灯仅支持已运行项目；分支保护/required checks/approval 每次从 GitHub 实际设置读取，不在指南写死。
 
 ## 11. 强制 GitHub Pull Request 工作流
 
-**每一轮开发必须遵循 PR 工作流。禁止直接修改主分支、跳过 CI、强制合并或忽略失败检查。**
+**每轮开发都走独立分支和 PR；禁止直改/直推主分支、跳过 CI、强制合并或忽略失败。**
 
-### 11.1 开始前
-1. 检查 `git status`、当前分支、remote、主分支名称和最近提交；确认没有覆盖用户未提交改动。
-2. 获取最新远端主分支：`git fetch origin`。
-3. 基于最新 `origin/main`（若仓库主分支名称不同，以实际 remote HEAD 为准）创建独立开发分支。建议命名：`feat/<scope>`、`fix/<scope>`、`docs/<scope>`、`test/<scope>`。
-4. 禁止在 `main` 上直接编辑、提交或推送。若工作树不干净，先保护并确认已有改动归属，不得擅自 stash、丢弃或覆盖。
+1. 开始检查 `git status`、当前分支、remote/remote HEAD、近期提交与未提交改动归属；`git fetch origin`，基于最新远端主分支建独立分支。工作树脏时先保护，可用独立 worktree；不擅自 stash、覆盖或丢弃用户改动。
+2. 阅读本文件、相关 ADR/矩阵与当前装配，确认缺口后实施单一目的变更；适用时同步契约、migration、测试、前端副本和文档。
+3. 提交前审查完整 diff、`git diff --check`、敏感信息、生成物和许可证；记录命令、退出码、结果。未跑写 `NOT_RUN` 和原因，阻塞写 `BLOCKED`，不造 PASS。
+4. 提交、推送独立分支并创建 PR。描述背景/目标、最终变更、API/schema/权限/外部动作影响、验证和 CI、风险/未覆盖/回滚以及 fixture/live/production 边界；有 issue/template 则关联/使用。
+5. 等待**最新 head commit** 的 required checks；无 required checks 时也核对预期实际作业全通过，空列表不是成功。失败须调查修复、重新验证推送并等新 head，不能用旧绿灯。
+6. 核实实际 review approval/branch protection/rulesets；Agent 自审不替代必需 approval，不改治理配置，不用 admin bypass。只有检查与审查满足且本轮有适用的明确合并授权才合并，否则交付可审查 PR。
+7. 获授权合并后记录 merge commit，fast-forward 本地主分支，核对远端 SHA/工作树，按策略清理；不得覆盖其他工作树的未提交改动。报告 PR/CI/验证/风险并核对相关矩阵与 runbook 是否需更新。
 
-### 11.2 开发与本地验证
-1. 先阅读本文件、相关 ADR、产品验收矩阵、能力矩阵、对应源码和测试。
-2. 先确认当前实现和主服务实际装配；不要照搬过期任务书，不重复实现已存在的 handler/route。
-3. 变更保持单一目的、最小范围；同时更新契约、migration、测试、文档和前端生成资源（适用时）。
-4. 执行本文件第 10 节及本次改动涉及的 lint、typecheck、test、build、browser/collector/security/recovery 验证。
-5. 提交前检查 `git diff --check`、完整 diff、敏感信息、生成文件、migration 和许可证边界。
-6. 记录每条验证命令、退出码和实际结果。未运行必须写 `NOT_RUN` 和原因，不得声称通过。
+## 12. 完成定义
 
-### 11.3 提交与 PR
-1. 在独立分支提交清晰、可审查的 commit。
-2. 推送开发分支并创建 GitHub PR；不得直接推送主分支。
-3. PR 描述至少包含：
-   - 背景/问题与目标；
-   - 变更范围和关键设计；
-   - 涉及的 API/schema/migration/权限/外部动作；
-   - 本地验证命令、退出码和结果；
-   - CI 状态；
-   - 风险、未覆盖项和回滚/恢复考虑；
-   - fixture、controlled live、production 的明确边界。
-4. PR 应关联 issue/task（如存在），并使用仓库 PR template（如存在）。
+按适用范围逐项验收；不适用在 PR 说明原因：
 
-### 11.4 CI、审查与合并
-1. 等待 PR **最新 head commit** 对应的所有 required CI checks 完成并通过。旧 commit 的绿色 CI 不算当前 PR 通过。
-2. 任一检查失败，必须定位原因、修复、重新运行本地相关验证并推送新 commit，等待新 commit 的 CI 重新通过。
-3. 必须满足仓库实际配置的 review approval、branch protection、required status checks 和其他规则；先检查实际设置，不得假设已启用或已满足。
-4. 不得使用 admin bypass、强制合并、跳过检查、忽略 review 或把失败标记为非阻断来绕过规则。
-5. 只有 required checks 全绿、审查规则满足且用户已授权本轮或有明确适用的持续合并授权时，才可合并。未获合并授权时，停在可审查 PR 并报告状态。
-6. 不得把本地测试通过描述成 GitHub CI 通过，也不得把 CI 通过描述成真实 QQ/生产验收。
+- 目标、非目标、授权边界清楚；来自最新主分支的独立分支，未覆盖用户工作。
+- 修改与真实 handler/consumer 一致，没有重复执行器；契约/DDL/生成类型/UI 副本同步。
+- 相关隔离、权限负向、幂等/并发/超时/UNKNOWN/取消/恢复测试通过；新增持久化域有保留/删除与恢复验证。
+- 本地命令、退出码、日志可追溯；最新 PR head 实际 CI 通过，独审和生产证据状态如实记录。
+- 文档/能力矩阵不夸大；未覆盖项和回滚方式明确；合并必须满足审查及用户授权。
+- 凭据、生产数据/备份、运行二进制、依赖缓存和本地历史证据包不提交公开仓库。
 
-无 required checks 时仍核实预期实际触发作业在最新 head 全通过；空列表不是成功。不擅自更改治理配置。
+## 13. 已知缺口、冲突与易踩坑
 
-### 11.5 合并后收尾
-1. 确认 PR 已按规则合并，记录 merge commit。
-2. 更新本地主分支并核对远端状态；按仓库策略清理已合并开发分支。
-3. 检查是否需要同步更新 AGENTS.md、ADR、验收矩阵、能力矩阵、runbook 和 README；文档必须反映实际代码和证据。
-4. 汇报 PR 链接、merge commit、CI 结果、验证命令、未覆盖风险和下一步任务。
-5. 凭据、生产数据、数据库备份、运行二进制和本地历史证据包不得提交到公开仓库。
+以下为梳理基线的源码观察，后续修复后更新本表；不是本轮执行测试结论。
 
-合并后 fast-forward 本地主分支，核对 remote SHA 和工作树。公开仓库不提交依赖缓存；Agent 审读不替代 GitHub 必需 approval。
+| 项目 | 事实、影响与核对位置 |
+|---|---|
+| 连续 Worker 的真实接线 | `taskengine-server/main.go` 明确 fixture transport；不能把 `-worker`、独立网关或旧 live 报告视为真实连续链已验收 |
+| 任务执行覆盖 | `task.go` 后四种类型明确 unsupported；不要把 DRAFT 创建/读回算执行成功 |
+| 日历/CRM/运营 Agent run | 当前 DDL/主服务无这些完整持久化链；`scheduler.go`、Controller tasks 和 Agent registry 分别不是这三项的完成证明 |
+| CRM UI 文案冲突 | `frontend/app.js` 的 assets `pendingText` 仍有“意向 + 至少一个运营 QQ 好友关系才算引流成功”的旧文案，与第 4.4 节冲突；后续 UI 修复须按明确意向独立计数，不据旧文案改业务规则 |
+| 双对话状态 | B7 主路由/handler 已装配；`operator_conversation.go` 只做消息/草稿/本地通知，不证明 Agent 自动回复、多步 run 或 QQ 出站已接通 |
+| Schema 日志/文档漂移 | Bridge 启动日志仍含固定历史 schema 值；runbook 含历史 head/命令，不能作为实际读数。读 `SchemaHead()`、gate 和数据库；最低启动门不等于全部页面兼容 |
+| 配置与备份 | registry 与模型请求数据库无跨存储事务；文件当前上限 4 MiB，历史/回执增长会触及拒绝写入边界。PostgreSQL 备份不覆盖 registry、runtime 文件/Controller SQLite；需按域规划归档、备份和恢复 |
+| Controller 与产品 MCP | 独立 stdio 模拟研发控制器存在；产品 MCP 菜单/工具目录不因此具备真实连接或业务工具执行能力；真实 OMP 路由/隐式调用/fallback 未闭合 |
+| 历史文档与证据 | `docs/README.md` 主要是早期契约及阶段记录；验收/runbook/Controller 报告可能含旧 SHA/schema/本机缺失证据路径，不是当前运行证据 |
+| CI 缺口 | Collector、embed 完整性、完整浏览器行为需按改动另验；Controller workflow 有 paths filter |
+| 脚本副作用 | generate 覆盖输出，dev-stack start 启动/迁移 fixture，reset 删除状态，产品 fixture 新建资源/证据，token/env 输出秘密；先核对命令目标 |
+| Adapter/ARTEX/身份 | 候选插件、补丁、静态 enabled、端口或昵称不证明账号身份及能力；图同步不证明 QQ 效果，不确定外部写禁止盲目重发 |
 
-## 12. 每个任务的完成定义（Definition of Done）
+## 14. 权威索引与维护方式
 
-一个开发任务只有同时满足适用项才可标记完成：
+| 需要解决的问题 | 先读 |
+|---|---|
+| 产品入口/本仓库规则 | `README.md`、本文件；README 的概述不替代当前模块盘点 |
+| Wire contract/生成 | `contracts/openapi.yaml`、`contracts/schemas/`、`contracts/examples/`、`tools/contract.sh` |
+| 基础执行/身份/许可证决策 | `docs/adr/p0-decisions-2026-10-24.md`、`docs/adr/stage-a-console-2026-10-29.md` |
+| Agent/Skill、ARTEX 映射 | `docs/adr/20261031-b2-agent-skill-registry.md`、`docs/adr/bba-artex-mapping-2026-10-29.md`、`docs/adr/2026-10-31-artex-phase-a.md` |
+| 任务类型/能力/产品验收 | `docs/qq03-task-type-matrix.md`、`docs/capabilities/`、`docs/product-acceptance-matrix.md` |
+| 产品 UI | `docs/artex-web-ui.md`、`frontend/NOTICE`、`tools/build-product.py` |
+| 部署/恢复程序 | `docs/product-release-runbook.md`、`tools/product-restore.sh`、migrator 源码；历史命令先校准版本 |
+| 研发 Controller | `docs/adr/controller-phase1.md`、`controller/README.md`、`controller/src/bba_controller/`、`controller/tests/` |
+| 验证自动化 | `.github/workflows/ci.yml`、`.github/workflows/controller.yml`、各 package scripts |
 
-- [ ] 目标、范围、非目标和授权边界清楚。
-- [ ] 已从当前主分支基线创建独立开发分支。
-- [ ] 修改与当前源码/实际 handler 装配一致，没有重复造轮子。
-- [ ] API、OpenAPI、schema、migration、前端源码和嵌入资源（适用时）一致。
-- [ ] workspace/account/permission/identity 隔离有测试。
-- [ ] 幂等、并发、超时、UNKNOWN、取消、重启恢复（适用时）有测试。
-- [ ] 负向测试证明未授权动作不会发生。
-- [ ] 本地相关验证已运行，命令/退出码/日志可追溯。
-- [ ] 当前 PR head 的 required CI 全部通过。
-- [ ] Review/branch protection 满足，合并经过授权。
-- [ ] 验收矩阵/文档更新且没有夸大能力。
-- [ ] fixture、live 和 production 结论严格区分。
+维护本文件时记录稳定边界和可跳转路径，不粘贴完整接口/DDL/凭据，不把一次 PASS 永久写成能力。架构、装配、持久化域、配置入口或工作流变化时同步更新对应章节；历史报告保留原日期和范围，不批量改写成当前事实。保留仍有效的安全、产品语义与交付规则。常规可逆选择自行推进，仅实质影响业务/授权的未决信息需确认。
 
-若某项不适用，必须在 PR 中写明理由；若被阻塞，状态应为 BLOCKED，不得以口头说明代替验收。
+## 15. 未决决策：实施前不得猜测
 
-## 13. 当前事实核验与易踩坑
+1. `customer.add_me` / `customer.add_customer` 的具体动作、可观察完成证据及真实 adapter 能力。
+2. Scheduler 各任务的 misfire/overlap/DST/审批策略及 occurrence 事务恢复协议。
+3. CRM 意向规则/人工纠错、原文与证据保留期限、删除/脱敏和备份清除策略；先明确法域和业务目的。
+4. 运营 Agent 的最大步数、超时/并发/预算、工具失败、停止/恢复策略及 thread/run/step 关联；版本化配置和测试固定，不能由模型自行决定。
+5. 每阶段哪些动作仅草稿/fixture，哪些可受控 live；真实 QQ、模型、MCP、ARTEX、生产发布逐项授权。
+6. Controller 未来真实研发写入、真实 ACP/OMP 模型路由与预算控制如何验收；不得把当前模拟策略或 `is_local` 标签当真实模型认证。
 
-每次开发前以当前分支为准复核，以下是长期易错点：
-
-1. **Schema 版本核对：** 当前 `SchemaHead()` 以 migration 源码和当前 binary 的实际结果为准。开始涉库工作时重新核对 migrations、`SchemaHead()`、server/bridge gate、迁移测试及隔离数据库，不在长期指南中固定当前 head。区分当前 migration head、主服务最低启动版本、Bridge 精确 head 门与历史证据版本；它们不是同一个值，不应机械替换为相同数字。
-2. **B7 主路由：** 当前 GitHub `main` 的主服务已有对话/通知相关装配证据；后续是对当前提交做增量复核，不得沿用过期任务书声称完全未装配。每次仍须检查实际 `main.go`、resolver/API surface、handler、feature flags 和前端消费者。
-3. **Agent 能力：** 已有 Agent/Skill/Model 绑定、provider 调用和搜索上下文；不等于完整多步工具执行 Agent Runtime。新增需求应明确具体缺口，不得低估或夸大。
-4. **任务类型：** QQ-03 矩阵当前把四种新任务类型的执行标为 unsupported；“可识别/创建/读回”不等于可执行。
-5. **Chat Permit：** 与 Task Engine Reserve 独立；不得强制统一成一条执行链。
-6. **计划任务：** occurrence 与 task 创建必须有事务或稳定幂等恢复协议；原子领取本身不足以证明不漏单、不重单。
-7. **CRM 计数：** 明确意向按 workspace 内去重；当前有效意向、历史确认、撤销和多账号归因分开统计；好友关系独立。
-8. **消息不可变与隐私：** 当前消息表有禁止 UPDATE/DELETE 的触发器。任何生命周期设计都必须覆盖原文保留、脱敏/删除、证据失效、审计和备份清除；不得直接绕过约束。
-9. **CI 覆盖：** 当前 workflow 覆盖 contracts、backend 和 Character 等指定作业；Collector、嵌入资源一致性和真实浏览器验证需按改动补充，不能假设已被 CI 覆盖。
-10. **历史证据：** 历史 schema、commit、fixture 和作者报告只支持其原始范围；新代码/新 schema 必须产生新证据。
-11. **UI 资源：** `frontend/` 与 Go embed 资源可能漂移；修改后必须运行同步脚本并检查 diff。
-12. **Cleaner / adapter：** 候选代码和离线测试不证明已部署、已加载或真实 QQ 能力。
-13. **ARTEX：** graph/outbox 是外部引用和同步边界，不是 BBA Task Engine 执行事实；ambiguous write 必须 reconcile，不得盲目重发。
-
-14. 脚本副作用：dev-stack reset 删除对应 fixture 状态；generate 覆盖输出；产品 fixture 新建隔离资源/证据，先核对目标。
-15. Bridge 历史日志 schema=22 不是数据库读数，核对当前 gate、core.schema_version、binary SchemaHead()。
-
-## 14. 权威文档索引
-
-开始具体任务时按需阅读：
-
-- `README.md`：项目入口和验证摘要。
-- `AGENTS.md`：本仓库开发与架构规则。
-- `contracts/openapi.yaml`、`contracts/schemas/`、`contracts/examples/`：API 契约及正反 fixtures。
-- `docs/adr/`：已接受架构决策；冲突先提出，不静默绕过。
-- `docs/product-acceptance-matrix.md`：按行能力状态与证据边界。
-- `docs/qq03-task-type-matrix.md`：QQ 任务类型当前支持矩阵。
-- `docs/capabilities/`：adapter/runtime 能力事实与未知项。
-- `docs/product-release-runbook.md`：备份、迁移、drain、恢复和发布流程；执行前核对当前 binary/schema。
-- `frontend/NOTICE`：前端来源与许可证边界。
-- 对应阶段任务书：仅作为该任务范围输入，必须与当前源码和本文件交叉核对。
-
-## 15. 未决产品决策：不得擅自猜测
-
-以下问题必须在对应任务开始实施前形成 ADR/任务书决策：
-
-1. `customer.add_me` 的精确定义：是接收对方好友申请、引导对方添加，还是其他事件/动作？完成证据是什么？
-2. `customer.add_customer` 的精确定义：是主动发送好友申请、处理已有请求，还是其他动作？真实 adapter 能力是否存在？
-3. Scheduler 对每类任务的 misfire、overlap、DST 和审批策略；默认策略按第 4.3 节保守处理。
-4. CRM 原文和证据的保留期限、删除/脱敏和备份清除策略；需按部署地区与业务目的评估，不由 Agent 自行编造期限。
-5. 各阶段哪些动作仅生成草稿，哪些允许 fixture，哪些允许受控 live；真实外部动作必须逐项授权。
-6. Agent 多步运行的最大步数、超时、并发、停止/恢复和工具失败策略；必须通过版本化配置和测试固定，不能靠模型自行决定。
-
-**最终原则：先核实当前实现，再定义最小缺口；先建立授权和证据，再开放动作；先通过独立 PR 与 CI，再合并主分支。**
+**先核实当前实现，再定义最小缺口；先建立授权和证据，再开放动作；通过独立 PR 与 CI 后，仅在获得合并授权时合并。**
