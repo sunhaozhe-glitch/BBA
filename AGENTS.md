@@ -303,7 +303,7 @@ Agent thread/message 与 QQ account/group/private conversation 分域存储；�
 - 同步 PR 只包含源码、必要生成资源与文档；不提交 dev-stack 状态、token、DSN、数据库或运行日志。恢复 UI 不授予 worker、真实 QQ、模型、迁移或合并权限。
 <!-- omh:agent-instructions:end -->
 
-`frontend/app.js` 使用内存 bearer token、请求 AbortController 和 session/route/detail 序列避免旧响应跨会话覆盖；修改异步 UI 时保留这些边界、HTML 转义与同源 CSP。验证真实 API、权限、空/错误/未知状态、分页、刷新和浏览器交互。新增 Collector/嵌入一致性/浏览器 CI 应单独提交，不能假定现有 workflow 已覆盖。
+`frontend/app.js` 使用内存 bearer token、请求 AbortController 和 session/route/detail 序列；双对话另以 `chatSeq` 绑定页签、会话 ID 和页面代次，写表单还绑定 DOM 实例，拒绝迟到消息、错误、401 和保存回执污染当前视图。切换会话先清空旧消息，加载/失败不显示为空会话；忽略旧写回执不代表取消后端写入，不自动重试。修改异步 UI 时保留这些边界、HTML 转义与同源 CSP。验证真实 API、权限、空/错误/未知状态、分页、刷新和浏览器交互。新增 Collector/嵌入一致性/浏览器 CI 应单独提交，不能假定现有 workflow 已覆盖。
 
 ## 10. 开发、验证与部署流程
 
