@@ -149,7 +149,7 @@ Collector 采集 → 持久窗口 → Summary producer/publisher
 
 ### 4.1 双对话、草稿与通知
 
-Agent thread/message 与 QQ account/group/private conversation 分域存储；消息、附件和搜索结果不可信。当前 Agent 消息写入不自动启动多步 run；QQ 草稿审核不等于已发送。通知是持久 `local_only` 投影，不等于已推送到外部服务。
+Agent thread/message 与 QQ account/group/private conversation 分域存储；消息、附件和搜索结果不可信。Agent 消息追加前须在事务中核对目标会话属于 Agent 域（kind、conversation_kind、无 QQ account）；`INSERT ... ON CONFLICT DO NOTHING` 不等于来源校验。现有合法 Agent 行允许内部 `id` 与 `conversation_id` 不同，不能用两者相等作为来源判断。当前 Agent 消息写入不自动启动多步 run；QQ 草稿审核不等于已发送。通知是持久 `local_only` 投影，不等于已推送到外部服务。
 
 后续按消息、任务、CRM 各自事件逐项接线，要求 scope、去重、分页 cursor、已读并发安全与脱敏；不能预先宣称所有事件已有通知。基础对话闭环与完整 M5 Agent run 分开验收。
 
@@ -398,6 +398,7 @@ bash tools/product-acceptance.sh release-check --package <evidence-directory>
 | 日历/CRM/运营 Agent run | 当前 DDL/主服务无这些完整持久化链；`scheduler.go`、Controller tasks 和 Agent registry 分别不是这三项的完成证明 |
 | CRM UI 文案冲突 | `frontend/app.js` 的 assets `pendingText` 仍有“意向 + 至少一个运营 QQ 好友关系才算引流成功”的旧文案，与第 4.4 节冲突；后续 UI 修复须按明确意向独立计数，不据旧文案改业务规则 |
 | 双对话状态 | B7 主路由/handler 已装配；`operator_conversation.go` 只做消息/草稿/本地通知，不证明 Agent 自动回复、多步 run 或 QQ 出站已接通 |
+| B7 HTTP 契约覆盖 | 当前 `contracts/openapi.yaml` 未列出 conversations、agent-threads、qq-drafts、qq-inbox/events、operator notifications 路由；handler/主服务已有实现不代表 OpenAPI 已覆盖。变更需核对实际实现与测试，后续单独补齐规范和正反 fixtures，不能用契约 CI 绿灯认定这些接口已验收 |
 | Schema 日志/文档漂移 | Bridge 启动日志仍含固定历史 schema 值；runbook 含历史 head/命令，不能作为实际读数。读 `SchemaHead()`、gate 和数据库；最低启动门不等于全部页面兼容 |
 | 配置与备份 | registry 与模型请求数据库无跨存储事务；文件当前上限 4 MiB，历史/回执增长会触及拒绝写入边界。PostgreSQL 备份不覆盖 registry、runtime 文件/Controller SQLite；需按域规划归档、备份和恢复 |
 | Controller 与产品 MCP | 独立 stdio 模拟研发控制器存在；产品 MCP 菜单/工具目录不因此具备真实连接或业务工具执行能力；真实 OMP 路由/隐式调用/fallback 未闭合 |

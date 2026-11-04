@@ -109,6 +109,18 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 
 从新的最新 main 锁定 commit/build/schema，用隔离 fixture 执行上表现有测试和真实服务/浏览器链，逐行记录命令、退出码、原始证据与缺口；优先核验 account scope、分页、并发/重放与会话切换。不重复实现已有 handler。任何发现的缺陷单独复现、修复、验证，不能凭本次审读标全项 PASS。始终不登录/发送/加群/好友，不调用付费模型，不接生产数据库。
 
+### 2026-11-04 M1：PR #8 来源边界增量核验（候选分支）
+
+基线 main `d43f91a9ecac6fc3f8d704a660f8882f64f40721`，当前工作分支 `codex/m1-b7-source-boundary`；保留原 #8 提交祖先并整合该 main，未将候选分支写成已合并或发布。下面是 `AUTHOR_SELF_TEST` / `ISOLATED_FIXTURE` 的增量证据，不改写上表历史独立执行状态。
+
+- **基线失败已复现：** 隔离 harness 中 `TestConversationAgentAppendOnExistingQQID` 向 QQ 会话的 Agent 消息路径请求时错误返回 201；对应请求能通过现有主服务 operator 路由，不只是假想的未来 account scope。
+- **候选兼容性失败已修正：** 原 #8 要求内部 `id == conversation_id`，会拒绝 migration 允许且现有 B7 seed 使用的合法 Agent 行；新用例 `TestConversationAgentAppendToExistingNamedThread` 在原补丁下 404，在调整后 201。当前检查同一事务中的 Agent kind/type 及无 QQ account，不新增 ID 等式约束。
+- **定向测试：** `TMPDIR="$PWD/build/test-tmp" bash tools/kernel.sh test -run '^TestConversationAgentAppend' -v` 退出 0；覆盖 QQ 群/私聊拒绝、runtime 身份拒绝、合法创建/追加、跨 workspace 及拒绝时消息/通知边界。
+- **真实主程序隔离 HTTP：** 新建 Go binary + PostgreSQL fixture，operator 对 QQ 群/私聊的 Agent POST 均 404/RESOURCE_NOT_FOUND，reader 为 403，runtime 为 401；四次拒绝前后会话/消息/通知/Chat Permit/dispatch permit 总数一致。已有命名 Agent 追加和新 Agent 创建/再次追加成功，QQ 会话无 Agent 来源消息；最终两类 permit 数均为 0。
+- **既有浏览器流程：** 同一临时服务上 B7 smoke 13 断言通过；schema check 为 25/head=25，临时容器与端口清理通过。
+
+范围仅支持 B7-01/02/05 的上述子项；未验证 #9 通知身份、#10 account/runtime 撤销与 epoch、#11 principal 幂等/精确重放，未覆盖分页、所有并发或真实 QQ。原始日志、构建身份和范围在本机未跟踪证据目录与 [本轮实施记录](superpowers/plans/2026-11-04-b7-agent-source-boundary.md) 中定位。CI、审查及合并状态须在原 PR #8 的最新 head 核对，不能沿用旧绿灯。
+
 ### CI 与仓库治理核对（2026-11-02 快照）
 
 - 当前 `.github/workflows/ci.yml`：contracts（合同/TS/前端语法/插件）、backend（隔离 Go race/build）、character（build/typecheck/test）。未独立覆盖 Collector、完整产品浏览器、frontend/embed 一致性。本轮仅补文档；这三项增强作为独立 CI PR，路径条件设计需避免必需检查被跳过后永久 pending，不混入业务 PR。
