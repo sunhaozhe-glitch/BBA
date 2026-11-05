@@ -1,5 +1,7 @@
 # ADR: Stage A Operator Console (2026-10-29)
 
+> **2026-11-05 范围说明：** 本文保留早期开发 Console 的只读决定和事实，不把它作为产品只能只读的永久边界。确认的产品入口为 `/product/`，唯一产品前端源码为 `frontend/`，见[产品 UI 说明](../artex-web-ui.md)及[根规则](../../AGENTS.md)。任何产品写入口仍须对应服务端授权与验收；本次不变更业务行为。
+
 - Status: Accepted for the local development surface
 - Scope: Authenticated, read-only account/task browser views served by `taskengine-server`.
 

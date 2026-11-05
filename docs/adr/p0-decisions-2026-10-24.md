@@ -1,5 +1,7 @@
 # ADR: P0 Decisions (2026-10-24)
 
+> **2026-11-05 后续适用说明：** 保留本文 P0 决定、授权与验证原文；D2/D5/D6 等未知结果、writer 和持久审计约束继续适用。任务 Reserve 不扩展到日常聊天；独立 Chat Permit 和后续规划协调边界见[收口 ADR 补充](bba-final-closeout-2026-10-31.md#任务独立聊天与最终门禁)。下文“单环境无部署数据库”的兼容性豁免只属于当时阶段，不能豁免后续升级/隔离恢复验证；以[运行手册](../product-release-runbook.md#5-schema-migration-existing-database)为后续程序。历史账号、地址、调用额度、模型名称及到期日不构成本轮或后续授权。
+
 - Status: Accepted by product owner on 2026-10-24
 - Scope: Contract and deterministic kernel implementation authorization P0-01 through P0-11 only. This ADR does not authorize P0-12 or later, live QQ reads/writes, deployment, production writer switching, or frozen NapCat runtime modifications.
 - Supersedes: `docs/pre-implementation-decisions.md` recommendations and unresolved labels. That report is retained as the decision process record; this ADR is normative where they differ.

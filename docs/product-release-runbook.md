@@ -4,12 +4,14 @@ Scope: deploy, backup, schema migration, drain, single-writer ownership, restart
 rollback and monitoring for the BBA Task Engine. Every command below is the real
 binary or script in this repository. Nothing here grants live QQ, login, ARTEX,
 model or production-database authorization: those remain fail-closed
-prerequisites (`release/evidence.json`, see [Live authorization](#live-authorization-prerequisites)).
+prerequisites (`release/evidence.json`, see [Live authorization](#10-live-authorization-prerequisites)).
 
 Status of this document: engineering procedure plus an isolated rehearsal that
 `tools/product-restore.sh` executes on demand. The rehearsal record at the end is
 meaningful only when it names an actual run directory produced by that command;
 it is never prefilled with invented results.
+
+> 2026-11-05 后续运行约束：本文保留后半部历史演练记录，旧 schema 数值、日志、实例和 fixture 结果不作为当前部署证据。设计适用[收口 ADR 补充](adr/bba-final-closeout-2026-10-31.md#后续适用规则2026-11-05)，当前授权/未决事项见[任务交接](astra-omp-continuation-prompt.md#2026-11-05-本轮文档统一交接)。下列程序是待授权时的要求，不表示本轮执行。
 
 ## 1. Invariants
 
@@ -22,9 +24,11 @@ it is never prefilled with invented results.
    `taskengine-migrate --upgrade --expected-version N`. The default mode
    (no flags) still initializes exactly one empty database and refuses anything
    else.
-4. **One scheduler, one bridge.** One server process runs the worker
-   (`-worker`) and one `task-bridge` process serves the NapCat gateway. The
-   database fences below make a second writer fail instead of splitting traffic.
+4. **One effective writer per account and action family.** Inventory every
+   task, Character/chat, plugin and direct adapter writer. Task leases, planning
+   coordination and writer ownership are different controls; database fences
+   alone do not prove an old process has stopped. Task Reserve and independent
+   Chat Permit keep their separate authorization and recovery protocols.
 5. **UNKNOWN is not success and is never retried automatically.** A pending or
    unknown external effect keeps its goal slot, target claim, send lock and
    permit; restart only observes or quarantines it.
@@ -55,15 +59,17 @@ from command-line arguments:
 | `task-bridge` | `BBA_TASKENGINE_DSN`, `-config` (mode 0600 runtime/credential file), `-origin`, `-listen` (loopback) |
 | `bba-operator` | `-url`, `-token-file` (mode 0600) |
 
-Current registered schema head for this build is **21**
-(`0010_proposal_work.sql` → 19, `0011_artex_sync.sql` → 20,
-`0012_login_sessions.sql` → 21). Always confirm with the binary, never with
-this document:
+Read the migration registry, `migrate_head.go` / `SchemaHead()`, actual binary
+identity and authorized database readback for this release. SQL filename numbers
+are not schema versions. The historical schema-21 rehearsal below remains a
+historical result. Set `CURRENT` to the observed database version and
+`SCHEMA_HEAD` to the verified target binary head; neither is a copied constant:
+
 
 ```bash
 BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
-  --check --expected-version "$CURRENT"
-# check schema=21 expected_version=21 head=21 upgrade_required=false result=match
+  --check --expected-version "$CURRENT" --expect-head "$SCHEMA_HEAD"
+# Compare schema/head/upgrade_required with this release record.
 ```
 
 ## 3. Deploy
@@ -71,9 +77,9 @@ BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
 ```bash
 # 1. Pre-flight: the database is at the version this build expects.
 BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
-  --check --expected-version 21 --expect-head 21
+  --check --expected-version "$SCHEMA_HEAD" --expect-head "$SCHEMA_HEAD"
 
-# 2. Start the single writer pair (server hosts the worker; bridge is loopback).
+# 2. Template only: verify transport wiring and sole-writer handover first.
 BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-server \
   -listen 127.0.0.1:18421 -origin "$OPERATOR_ORIGIN" \
   -resolver-file /etc/bba/resolver.json \
@@ -89,10 +95,19 @@ Use it only for the first start after an unclean stop; it replays
 `RecoverDispatching`, permit expiry and timeout reconciliation without creating
 new external attempts. Do not leave it on as a periodic substitute for draining.
 
-Startup lines to confirm: `taskengine listening origin=… schema=… pid=… worker=…`
-and `task-bridge listening origin=… runtimes=… schema=14 pid=…`. A process that
-exits on `Task Engine requires schema >= …` means migration did not run; do not
-"fix" it by pointing at another database.
+Startup logs are diagnostics, not authoritative schema readback. The server's
+`validateServerSchema` is a minimum-version gate; Bridge's
+`validateGatewaySchema` requires exact `SchemaHead()`. A historical fixed schema
+number in a Bridge log proves neither. Verify both gates and the database;
+passing the minimum does not prove new pages have all required tables. On a
+mismatch, stop and check the intended build/database/migration, rather than
+pointing at another database.
+
+The main server currently assembles `WorkerFixtureTransport` in `-worker` mode;
+this flag and the existence of a bridge binary do not connect continuous work to
+live QQ. The commands above are not a production writer-wiring acceptance. Any
+live path requires its actual transport, identity and final dispatch gates to
+be separately verified under authorization.
 
 Live deployment additionally requires the authorizations in section 10. A
 fixture deployment may use `-development-operations`; a live deployment must not.
@@ -117,8 +132,13 @@ Rules:
 - Keep the dump, list, checksum and schema version together; the release record
   references the checksum, not a path.
 - Do not back up with `--data-only`; restore-to-new-database needs the schema.
-- Never overwrite a previous dump. Retention is an operator decision, but a dump
-  referenced by a release record must not be deleted.
+- Never overwrite a previous dump. Apply the approved retention, privacy and
+  evidence-expiry policy; release references do not grant indefinite retention.
+  Record any controlled expiry/deletion without silently rewriting history.
+- PostgreSQL dumps do not cover the protected model/Agent/Skill/search/proxy
+  registry, Character/Collector state or development Controller SQLite. Inventory
+  each needed domain, secret-safe backup and compatible isolated restore; a DB
+  rehearsal alone cannot establish whole-product recovery.
 
 ## 5. Schema migration (existing database)
 
@@ -155,7 +175,7 @@ Procedure:
 ```bash
 # 1. Pre-flight on the live database (read-only).
 BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
-  --check --expected-version 19 --expect-head 21
+  --check --expected-version "$CURRENT" --expect-head "$SCHEMA_HEAD"
 
 # 2. Take a fresh backup as in section 4 and record its checksum.
 
@@ -163,23 +183,37 @@ BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
 
 # 4. Upgrade exactly that version.
 BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
-  --upgrade --expected-version 19 --expect-head 21
-# upgraded from=19 to=21 expected_version=19 head=21
+  --upgrade --expected-version "$CURRENT" --expect-head "$SCHEMA_HEAD"
+# Record actual from/to/expected_version/head and exit code.
 
 # 5. Post-check and redeploy.
 BBA_TASKENGINE_DSN="$DSN" ./build/release/taskengine-migrate \
-  --check --expected-version 21 --expect-head 21
+  --check --expected-version "$SCHEMA_HEAD" --expect-head "$SCHEMA_HEAD"
 ```
 
 - Rerunning after a successful upgrade with the old `N` is a deliberate
-  refusal (`schema version 21 does not match expected 19`), not a silent no-op.
+  refusal when the version no longer matches `N`, not a silent no-op.
   Re-run `--check` and use the observed version.
 - `already_at_head` is exit 0 and writes nothing.
-- Migrations are additive. There is no down-migration command; see section 9.
+- Migrations are append-only; never rewrite or renumber released migrations or
+  migrate at startup. Verify supported-version upgrade, current startup gates,
+  key queries, isolation and restore with the target build. The historical P0
+  single-environment compatibility waiver is not a later release waiver.
+- `0017_operator_notification_scope.sql` changes uniqueness and three writer
+  conflict targets. Stop old writers before explicit migration and switch to
+  matching binaries; mixed old/new SQL is unsupported. Migration does not
+  reconstruct historical missed notifications.
+- There is no down-migration command; see section 9.
 
 ## 6. Drain
 
 Order matters: stop the producer of new external work first, the sender last.
+Inventory and stop new work from planning/automation and independent Character/
+chat writers too; task execution queries alone cannot establish chat quiescence.
+Check the corresponding Chat Permit/outcome records and any active adapter call.
+Global stop blocks new dispatch and further automatic advancement; it cannot
+recall an in-flight or UNKNOWN action. Test its concurrency with final dispatch.
+Late results may be archived/reconciled but must not restart stopped planning.
 
 ```bash
 # 1. Stop the server (worker stops on SIGTERM; HTTP gets a 10s graceful shutdown;
@@ -210,8 +244,10 @@ kill -TERM "$BRIDGE_PID"; wait_for_exit "$BRIDGE_PID"
 
 ## 7. Single-writer ownership
 
-A healthy deployment has exactly one worker-bearing server and one bridge per
-database. The database enforces this even if a second process is started:
+A release must prove one effective writer per account/action family, including
+plugins and independent chat paths. The deployment shape alone does not prove
+this. The following task/graph controls cover their own participating paths;
+they do not prove cross-process old-owner shutdown or every writer's coverage:
 
 - **Worker lease:** a PostgreSQL session advisory lock held per task for the
   duration of one step. A concurrent worker skips the task; a crashed worker's
@@ -265,19 +301,25 @@ There is **no `--rollback` flag and no down-migration**. The supported rollback
 is application rollback plus restore-to-new-database:
 
 ```bash
-# A. Application rollback: deploy the previous binary only if its own
-#    validateServerSchema minimum is <= the current head. Additive migrations
-#    mean the previous build can read the newer schema; never downgrade the
-#    database in place.
+# A. Application rollback: require tested compatibility for the exact old
+#    binary, current schema, writer SQL and all relevant gates. A passing
+#    server minimum or additive DDL alone does not prove compatibility.
+#    Never downgrade the database in place.
 
 # B. Data rollback: restore the last verified dump into a NEW database and
 #    repoint BBA_TASKENGINE_DSN.
-createdb -T template0 "bba_restore_$(date -u +%Y%m%dT%H%M%SZ)"
+RESTORE_DB="bba_restore_$(date -u +%Y%m%dT%H%M%SZ)"
+createdb -T template0 "$RESTORE_DB"
 pg_restore --exit-on-error --single-transaction \
-  --dbname="bba_restore_$(date -u +%Y%m%dT%H%M%SZ)" /secure/bba-<stamp>.dump
+  --dbname="$RESTORE_DB" /secure/bba-<stamp>.dump
 # then run the same --check on the restored database, start server+bridge against
 # it, and only then retire the old database after the retention window.
 ```
+
+Agent/Draft request identity and replay protocol changes also require stopping
+old writers even without a new migration. Reverting an old binary can restore
+the original defect or treat a new request as a new write; do not claim lossless
+rollback. See [contract compatibility](README.md#契约与双对话兼容约束2026-11-05-承接).
 
 Consequences to state in the incident record:
 
@@ -499,3 +541,15 @@ empty row means "not yet rehearsed", not "passed".
 | Ultimate hashes | acceptance `faf274855fb538a6598dec83edc1ad059c1231892abea15faaa6746496464596`; package manifest `0eab0c713080b9bae4921cc8f404053c3e36d571d9c5712e009f5b652780642e`; source manifest `91fa52d674aa65ac83e434415aff93a449d6d1aef298a1ee5a3bb695b915809d` |
 | Ultimate verify / tamper / release | product `verify` exit `0`; all three rehashed tamper copies rejected and original unchanged; `release-check` exit `3`, `RELEASE_BLOCKED`; all 10 live prerequisites missing |
 | Ultimate browser / restore / isolation | Browser PASS; restore schema `21`, schema/data fingerprints matched, adapter calls `0`, claimable `0`; owned resources removed; production DSN `false`; source stable during fixture `true`; history unchanged `true` |
+
+## 受保护配置、请求与恢复检查（2026-11-05 承接）
+
+以下承接原根规则中的运行要求，不是本轮运行结果。
+
+- resolver/provider/Bridge JSON、operator token 文件按 loader 要求使用常规文件、0600 或更严及大小上限；registry 父目录私有、单进程持有 lifetime flock。不要读取/打印真实凭据补示例；token、API key、DSN 密码、OneBot/WebUI 凭据不进仓库、日志、PR、截图、模型上下文或浏览器持久化。
+- 保留 loopback、固定 Host/Origin、operator/runtime credential 分离及先鉴权再 replay；外呼保持 timeout、响应体/并发上限、redirect policy 和 secret-safe errors。读取重试须证明安全，限制总超时、次数、退避与停止条件；QQ 写未知不自动重发、不换账号、不释放可能占用的 claim/slot/预算。ARTEX 等外部写按自身 outbox/checkpoint/reconcile 协议处理；模型调用按 provider/run 约束处理可能重复计费及重复/迟到响应。
+- 模型 registry 文件与 PostgreSQL 请求账本没有跨存储事务；崩溃遗留 started 需按协议核对。4 MiB 文件上限、历史/配置回执增长及备份均须纳入检查，不直接扩大或清除历史绕过拒绝写入。
+- 真实动作前重新核对 baseline、身份/owner、能力、范围、审批、预算、文本规则、停止/撤销、自动发送及 stop-contact。快照不替代当前撤销检查。盘点每个实际 writer 的最终门禁，未知能力即拒绝；没接入 stop-contact 的联系动作不得上线。
+- fixture 仅隔离 PostgreSQL、loopback fake HTTP 和假 adapter，不传生产 DSN；本地开发 start 会显式迁移 fixture 并启动模拟 Worker，reset 会删除该实例状态，env/token 会输出秘密，先核对目标、独立实例名与目录。构建工具 generate 会覆盖生成资源，不能作为只读检查运行。
+- Character/Collector 配置从各自 `src/types.ts` 和 resolver 的显式 options 核对 stateDir、身份、账号/runtime 与 backend/gateway；没有统一生产 `.env` 可照抄。Controller 的 repository/state-dir、mode/slots 与研发授权由启动侧约束，MCP 请求不得升级；其 SQLite/进程组清理、UNKNOWN 和模拟预算不证明 QQ 运行安全或真实模型路由。
+- 未获本轮明确授权，不操作 QQ、真实模型（含本地模型）、搜索/MCP/ARTEX 等真实业务服务，不连接生产库、不改真实运行目录、不重启服务、不切 writer。本手册命令及历史授权都不自动授权这些动作。
