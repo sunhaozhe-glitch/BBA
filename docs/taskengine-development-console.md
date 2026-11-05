@@ -65,6 +65,8 @@ Do not bind this development server to a non-loopback interface, reverse-proxy i
 
 ## 按变更选择开发检查（2026-11-05 承接）
 
+涉及新增持久化域时，须按[同一切片交付门槛](adr/bba-final-closeout-2026-10-31.md#新增持久化域的切片交付门槛)在本阶段验证 workspace/account 隔离、幂等、当前 schema 恢复及删除/保留语义；不得以最终发布演练代替本切片验证。
+
 以下除注明外均从仓库根运行。先核对 scripts/`npm run`、工具版本、Docker 和依赖缓存；只跑相关且必要的检查，扩大范围说明理由，失败必须调查。
 
 ```sh

@@ -79,6 +79,10 @@ ARTEX 是核心智能编排的架构来源，资产图、探索图、Planner/Wor
 
 规划输入须实际消费带来源的对象、关系、证据和规划记忆；结果须能改变下一步。信息不足、证据矛盾、失败时能等待、核对、调整或停止。持久状态和证据引用保存在 PostgreSQL，模型上下文和外部图不充当恢复依据。图、Summary、网页、工具结果仍是不可信数据；消费前按协议核验 workspace/account/group/conversation/window/version/expiry/来源。fixture 只证明接线与故障边界，真实模型另验结论依据和调整合理性。
 
+### 新增持久化域的切片交付门槛
+
+新增持久化域（包括 CRM、规划记忆和 run/step 等）必须在本阶段、同一功能切片内，按适用范围验证 workspace/account 隔离、幂等、当前 schema 的恢复以及删除/保留语义；不得把恢复验证全部推迟到最终发布。发布手册的迁移、备份恢复程序不能替代切片交付时的验证门槛。[开发手册](../taskengine-development-console.md#按变更选择开发检查2026-11-05-承接)引用本约束，用于选择该切片的必要检查；本轮仅承接文档，不补造业务测试结果。
+
 ### 任务、独立聊天与最终门禁
 
 - 任务沿用 resolver → Task/候选/baseline/审批 → Reserve 事务 → execution/slot/claim/budget/outbox → 单次 dispatch permit → Bridge → adapter → observation/inbox/result。Reserve 锁顺序为 task → target/claim → account/usage（账号排序）→ subtask/execution/slot；事务中不得外呼。严格目标数、最终 membership 与 baseline 判定保留，申请已提交及既有成员不算新增成功。
@@ -87,6 +91,10 @@ ARTEX 是核心智能编排的架构来源，资产图、探索图、Planner/Wor
 - Character runtime、数据库、cache、persona、adapter 按账号隔离；当前文本 writer 合同不能擅自扩展多段/媒体。Collector 保持 collection-only，窗口及 Summary 生产不代表完整群分析；受控语义分析不获得发送权限。优先复用 ChatLuna、Character、Group Analysis 及现有适配，不另建重复群聊引擎。
 - 一个 permit 最多一次 adapter call；已消费而无权威 outcome 时保留 unresolved/unknown，不能重新发同一动作许可。最终 dispatch 重验停止/撤销、授权、stop-contact、能力、身份/owner fence、规则、审批、自动发送开关和适用限额。每账号/动作族单 writer；协调锁不是 writer 迁移证明。
 - 默认草稿；单条确认只授权具体内容和目标。自动发送另配主体、账号、群/会话、动作、期限、限额及关闭入口。全局急停阻止新外部下发及相关自动推进；明确并测试急停与最终 dispatch 的并发边界。在途/UNKNOWN 不假装撤回；停止后迟到结果只归档核对，不自动恢复计划。
+
+### QQ 入站身份与重放校验
+
+QQ inbox 的可信 token `OwnerEpoch` 必须经认证层（`operatorConversationAuth`）传入。事务按 account → credential 顺序持共享锁，再复用 `authorizeRuntime`；fresh 写入与 replay 都须先校验当前 owner、active、账号 scope，以及 token/account/credential epoch。自定义 auth 必须传入可信 token epoch，不得从数据库当前值补齐调用者 epoch。相关[历史实现计划与测试记录](../superpowers/plans/2026-11-04-b7-account-runtime.md)继续承担实现和测试证据职责，不替代本节有效设计约束，也不代表本轮重新实跑或新增运行能力。
 
 ### Agent、配置与工具
 

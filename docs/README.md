@@ -261,6 +261,8 @@ The separate P0-20 worker source is implemented and the full backend `tools/kern
 
 ### 双对话来源、幂等与重放
 
+QQ inbox 的可信 token epoch、account→credential 共享锁及 fresh/replay 身份校验，适用[有效设计补充：QQ 入站身份与重放校验](adr/bba-final-closeout-2026-10-31.md#qq-入站身份与重放校验)；历史计划仅保留实现与测试证据职责。
+
 Agent thread/message 与 QQ account/group/private conversation 分域存储；消息、附件和搜索结果不可信。Agent 消息追加前须在事务中核对目标会话属于 Agent 域（kind、conversation_kind、无 QQ account）；`INSERT ... ON CONFLICT DO NOTHING` 不等于来源校验。现有合法 Agent 行允许内部 `id` 与 `conversation_id` 不同，不能用两者相等作为来源判断。当前 Agent 消息写入不自动启动多步 run；QQ 草稿审核不等于已发送。通知是持久 `local_only` 投影，不等于已推送到外部服务。
 
 后续按消息、任务、CRM 各自事件逐项接线，要求 scope、去重、分页 cursor、已读并发安全与脱敏；不能预先宣称所有事件已有通知。基础对话闭环与完整 M5 Agent run 分开验收。
