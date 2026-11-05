@@ -40,6 +40,11 @@ func main() {
 	modelRegistryPath := flag.String("model-registry-file", "", "opt-in protected workspace model registry; private parent directory required")
 	modelRegistryApproved := flag.String("model-registry-approved-private-http-base", "", "trusted exact private HTTP model endpoint approval")
 	flag.Parse()
+	// Reject live provider configuration before reading startup inputs or
+	// opening a database. The registry remains available for fixture snapshots.
+	if *goalFixture && (*artexFile != "" || *loginProviderFile != "" || *modelProviderFile != "") {
+		log.Fatal("offline-goal-fixture forbids live provider files")
+	}
 	dsn := os.Getenv("BBA_TASKENGINE_DSN")
 	if dsn == "" || *resolverPath == "" {
 		log.Fatal("BBA_TASKENGINE_DSN and -resolver-file are required")
@@ -58,7 +63,12 @@ func main() {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	store, err := taskengine.Open(ctx, dsn)
+	var store *taskengine.Store
+	if *goalFixture {
+		store, err = taskengine.OpenGoalFixture(ctx, dsn)
+	} else {
+		store, err = taskengine.Open(ctx, dsn)
+	}
 	if err != nil {
 		log.Fatalf("open Task Engine store: %v", err)
 	}

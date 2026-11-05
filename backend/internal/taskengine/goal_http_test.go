@@ -11,6 +11,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func TestGoalHTTPFixtureGateScopeAndSnapshots(t *testing.T) {
@@ -441,5 +444,20 @@ func TestGoalHTTPRequiredMembersAndExpiredConfirmation(t *testing.T) {
 	rec := call("/v1/operator/goal-runs/"+r.ID+"/confirm", map[string]any{"expected_version": ready.Version})
 	if rec.Code != 409 || !strings.Contains(rec.Body.String(), "WINDOW_EXPIRED") {
 		t.Fatal("expired confirmation wire", rec.Code)
+	}
+}
+
+func TestGoalDeploymentRejectsRemoteFallbackBeforeQuery(t *testing.T) {
+	g, _, _ := goalFixture(t)
+	t.Setenv("BBA_FIXTURE_ONLY", "1")
+	cfg := g.store.Pool.Config()
+	cfg.ConnConfig.Fallbacks = append(cfg.ConnConfig.Fallbacks, &pgconn.FallbackConfig{Host: "203.0.113.19", Port: 5432})
+	pool, err := pgxpool.NewWithConfig(context.Background(), cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pool.Close()
+	if err := ValidateGoalFixtureDeployment(context.Background(), &Store{Pool: pool}, true, true); err == nil {
+		t.Fatal("remote fallback accepted as isolated fixture")
 	}
 }

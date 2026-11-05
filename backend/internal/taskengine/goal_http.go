@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -19,26 +18,15 @@ func ValidateGoalFixtureDeployment(ctx context.Context, s *Store, enabled, devel
 	if !development || os.Getenv("BBA_FIXTURE_ONLY") != "1" {
 		return errors.New("offline-goal-fixture requires explicit isolated development fixture")
 	}
-	cfg := s.Pool.Config().ConnConfig
-	ip := net.ParseIP(cfg.Host)
-	if cfg.Host != "/fixture" && (ip == nil || !ip.IsLoopback()) {
-		return errors.New("offline-goal-fixture requires a local isolated database")
+	if err := validateGoalFixtureConnConfig(s.Pool.Config().ConnConfig); err != nil {
+		return err
 	}
-	var head int
-	if e := s.Pool.QueryRow(ctx, "SELECT max(version) FROM core.schema_version").Scan(&head); e != nil {
-		return e
+	conn, err := s.Pool.Acquire(ctx)
+	if err != nil {
+		return err
 	}
-	if head != SchemaHead() {
-		return errors.New("offline-goal-fixture requires current schema; apply explicit migration first")
-	}
-	var user, db string
-	if e := s.Pool.QueryRow(ctx, "SELECT current_user,current_database()").Scan(&user, &db); e != nil {
-		return e
-	}
-	if user != "bba_fixture" && (user != "bba_dev" || db != "bba_dev") {
-		return errors.New("offline-goal-fixture database identity is not an isolated fixture")
-	}
-	return nil
+	defer conn.Release()
+	return validateGoalFixtureConnection(ctx, conn.Conn())
 }
 
 type goalControlRequest struct {
