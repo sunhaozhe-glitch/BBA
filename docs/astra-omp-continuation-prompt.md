@@ -1,5 +1,21 @@
 # 给 OMP 的 BBA 续建任务书
 
+## 2026-11-05 本轮文档统一交接
+
+本节是本轮范围；下方原交接全文保留为历史任务记录，旧“继续实现”、服务地址、安装/模型建议和测试结论均不构成当前授权。已从最新 `origin/main` `18dc42fc103da04b57137220e2e6e5608f28e3bb` 建独立分支（提交标识以本轮 Git 读回为准）。本轮只落实用户最终 [AGENTS.md](../AGENTS.md)、承接详细约束、修正文档冲突、检查引用并创建文档 PR；不修改业务代码、不恢复 provider/真实模型、不调用真实业务服务、不连接生产库、不部署、不切 writer、不合并。
+
+待后续实施决定：
+
+- ARTEX 具体上游版本、可复用模块与直接复用/适配/独立进程/本地实现范围：先由 Agent 调查并推荐，再由用户确认；历史 REST 集成和前端移植不能代替此决定。
+- 真实模型选择、本地/云端偏好、数据使用和费用：保持现状；未明确时不指定端点、不启云端回退，不从既有 provider 分支续作。
+- 真实动作的主体、账号、群/会话、内容/策略、动作、期限、限额和停止条件：须具体授权；本轮均未开放。
+- Scheduler 的 misfire/overlap/DST/审批策略；CRM 意向规则、纠错和数据保留/删除；run 的步数、超时、并发、预算及恢复策略：按[有效设计约束](adr/bba-final-closeout-2026-10-31.md#后续适用规则2026-11-05)调查推荐后，在对应实施任务确定。
+- `customer.add_me` / `customer.add_customer` 的动作语义、可观察完成证据和真实 adapter 能力仍待确认；本轮不猜测。研发 Controller 的真实写入及 ACP/OMP 路由仍须各自授权与验收。
+
+承接位置：设计 → [收口 ADR 补充](adr/bba-final-closeout-2026-10-31.md#后续适用规则2026-11-05)；运行/恢复 → [发布手册](product-release-runbook.md)；契约兼容 → [文档入口](README.md)；开发检查 → [开发手册](taskengine-development-console.md)；前端规则 → [UI 说明](artex-web-ui.md)；能力与验收 → [验收矩阵](product-acceptance-matrix.md)。本节不是业务实施方案或完成报告。
+
+## 原交接（历史保留）
+
 ## 目标与工作方式
 
 项目目录：`/run/media/sun/6F53FE6DFAA8CECF/QQ群项目/BBA`

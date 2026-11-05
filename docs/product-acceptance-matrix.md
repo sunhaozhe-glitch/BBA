@@ -1,5 +1,22 @@
 # Product Acceptance Matrix
 
+## 2026-11-05 产品目标与验收适用范围
+
+长期目标适用[根规则](../AGENTS.md)，详细设计承接到[收口 ADR 的后续适用规则](adr/bba-final-closeout-2026-10-31.md#后续适用规则2026-11-05)。下方 S1–S6 与各日期分节保留原实现/接线/验证范围，不表示截至今日重新实跑；旧 Console 证据不代表 `/product/` 全部能力，历史 M0–M7 不作为默认开发顺序。先核实已有成果，再优先验证双图、规划记忆和结果驱动调整，不以外围菜单齐备为前置条件。
+
+| 能力 | 已有成果与本次核对边界 | 后续验收条件 | 本轮状态 |
+|---|---|---|---|
+| 双图进入规划输入与规划记忆 | 既有 graph sync、snapshot、Proposal 记录仍按历史证据范围；图 REST 不等于 planner | 可追溯对象/关系/证据实际进入规划，后续决策消费记忆；真实模型检查依据、矛盾处理与调整合理性 | 本轮仅文档；完整能力未验证，未发布 |
+| 主协调与多角色结果驱动重规划 | registry、Work Item、Worker 不自动代表完整 run；研发 Controller 不代表产品多 Agent | 明确主协调身份及版本/fence，分析结果能改变下一步；不足/失败时等待、核对、调整或停止，重启可恢复 | 复用范围待调查确认；本轮未实现/未实跑 |
+| 任务与日常聊天许可 | 任务 Reserve/dispatch permit 与独立 Chat Permit 分域 | 任务沿既有内核；日常聊天不创建任务资源；操作员确认不可伪装可信 QQ trigger；一 permit 最多一次 adapter call | 保留各历史 fixture 结论；本轮未实跑 |
+| 草稿、自动发送、急停与限额 | 现有草稿/permit 不自动证明所有 writer 门禁完整 | 单条确认不授权连续发送；自动化主体/范围/期限/限额可关闭；急停与最终 dispatch 竞态、迟到结果、撤销与 stop-contact 有测试 | 全覆盖未验证；无真实动作授权 |
+| Scheduler | `scheduler.go` 的资源 Reserve 不等于日历计划 | occurrence 唯一性、时区/DST、misfire/overlap、审批及崩溃恢复按有效设计验证，物化同一 Task | 待策略决定及实施；本轮不实现 |
+| CRM 与意向指标 | 资产占位/图不能当 CRM；明确意向即可计数，好友独立 | workspace 稳定身份去重、原始证据、追加纠错、stop-contact、删除及证据失效，指标回读 | 待实施/验收；不补演示数字 |
+
+沿用各条目的六维证据口径：实现 `NOT_IMPLEMENTED/PARTIAL/IMPLEMENTED`；接线 `NOT_WIRED/PARTIAL/WIRED_TO_CONSUMER`（注明 consumer）；验证身份 `AUTHOR_SELF_TEST/INDEPENDENT_SOURCE_REVIEW/INDEPENDENT_EXECUTION/NOT_REVIEWED`；环境 `UNIT/CONTRACT/ISOLATED_FIXTURE/CONTROLLED_LIVE/PRODUCTION`；结论 `PASS/FAIL/BLOCKED/NOT_RUN`；发布 `NOT_RELEASED/RELEASE_CANDIDATE/RELEASE_ACCEPTED`。证据需含 commit/build/schema、配置或输入版本、命令/退出码、实际执行者、环境、未覆盖风险；未提交内容记摘要并在提交后核对。历史缺字段不补造，自测不冒充独立执行。当前待决事项见[任务交接](astra-omp-continuation-prompt.md#2026-11-05-本轮文档统一交接)。
+
+## S1–S6 历史验收基线
+
 Status vocabulary: `未实现` = no implementation found; `实现未接线` = source exists without an active consumer; `fixture通过` = the named isolated path and its negative cases pass; `真实受控通过` = a bounded real external action was exercised under explicit authorization; `可运行发布` = deployed and operationally accepted. Status is scoped to the row and is not a product completion percentage.
 
 The current closeout is based on the S1–S6 implementation in this tree and the permanent product runner. Historical fourth-round packages remain immutable evidence; they are not re-finalized. The final candidate must be generated after source closure with `tools/product-acceptance.sh fixture` and independently checked with `verify`.

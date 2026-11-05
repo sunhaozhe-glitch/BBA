@@ -1,5 +1,7 @@
 # P0-01 Contract Tooling
 
+> 当前入口：[根规则](../AGENTS.md) → [有效设计及历史适用范围](adr/bba-final-closeout-2026-10-31.md#后续适用规则2026-11-05) → [产品验收矩阵](product-acceptance-matrix.md)。[发布手册](product-release-runbook.md)、[开发手册](taskengine-development-console.md)及 [UI 说明](artex-web-ui.md)承接运行与检查要求；[本轮交接](astra-omp-continuation-prompt.md#2026-11-05-本轮文档统一交接)记录授权及未决事项。下方各日期的测试数、schema 和外部来源均为历史记录，不能当当前实跑结果。
+
 `contracts/openapi.yaml` is the normative HTTP and plugin wire contract. Its named schemas live under `contracts/schemas/`; positive and negative fixtures live under `contracts/examples/`. Generated Go and TypeScript types are build outputs and must not be hand-edited.
 
 ## Validation
@@ -231,7 +233,7 @@ P0-18 remains **PARTIAL; NOT ACCEPTED**. The final isolated PostgreSQL 16 dump/r
 P0-19 isolated source/fixture acceptance passed for the minimal Task Engine CLI and HTTP surface. The [P0-19 report](p0-19-operator-interface-2026-10-27.md) records account/task listing, confirmed/pending/unknown counters, pause/cancel/reconcile receipts, replay behavior, and verification commands. Account listing follows the design's `operator.read` permission (also allowed for `task.manage_all`; task-only and runtime task-entry identities are denied). `tools/kernel.sh test-all` passed with race detection. No production database, deployed API, QQ interface, or external write was accessed. Reconcile records a durable read-only request but has no external membership-read consumer; the CLI is not connected to a deployed authentication resolver/server. P0-18 remains partial/not accepted and P0-20 is not ready.
 ### Ordered R21 Follow-up (2026-10-28)
 
-The current authorized follow-up rechecked the four bound QQ accounts read-only: 12 OneBot calls, zero retries or writes; identities match, all four currently report online/good. The earlier `local-3212` waiting-QR condition is not present in this recheck. A fresh comparison of the historical `/home/sun/Napcat` installation metadata paths found zero differences. This does not attribute the historical NapCat runtime-state changes, which remain unresolved; see [current B2r recheck](../evals/results/ordered-live-20261028T135541Z/B2R-CURRENT-RECHECK.md). No login recovery, service restart, installation mutation or QQ business write occurred in the recheck.
+The current authorized follow-up rechecked the four bound QQ accounts read-only: 12 OneBot calls, zero retries or writes; identities match, all four currently report online/good. The earlier `local-3212` waiting-QR condition is not present in this recheck. A fresh comparison of the historical `/home/sun/Napcat` installation metadata paths found zero differences. This does not attribute the historical NapCat runtime-state changes, which remain unresolved; see `evals/results/ordered-live-20261028T135541Z/B2R-CURRENT-RECHECK.md`（历史本机证据定位，未随仓库交付；本轮未验证）. No login recovery, service restart, installation mutation or QQ business write occurred in the recheck.
 
 The P0-14 isolated engine smoke passed with independent SQL proof. The P0-18 PostgreSQL dump/restore run passed; unresolved external states remained visible and recovery added no new execution, permit, retry, result or adapter call. The user confirmed that target group `829117089` has no pending join requests; this is recorded as owner-provided confirmation, not a trusted API query. The cleaner still has no pending-request query endpoint.
 
@@ -245,3 +247,30 @@ The separate P0-20 worker source is implemented and the full backend `tools/kern
 
 ## ARTEX产品第一批
 见 sol-artex-phase-a-progress.md，限定第一批自测完成，待Astra亲跑，其余产品范围未完成。
+
+## 契约与双对话兼容约束（2026-11-05 承接）
+
+本节承接原根指南的有效协议细节，适用于后续相关修改；不是本轮新增能力或测试结果。
+
+- `contracts/openapi.yaml` 是 HTTP/plugin 规范；先更新正反 fixtures，再 `bash tools/contract.sh check`，必要时才 `generate`。`check` 不等于全部生成类型 smoke；不手改 `types.gen.go`/`types.gen.ts`。
+- `$ref` 仅本地受限引用，禁止远端、绝对路径、父目录及软链逃逸。保留 required/nullable 区别；Go nullable 用于区分缺失、null 和有值。
+- QQ ID、wire epoch/fence/sequence 按 schema 用十进制字符串，不转成丢精度 JS number；Go 内部 int64 不改变 wire 约定。
+- B7 既有双对话接口的 `seq/version/rules_version/unread_count` 是 JSON 数字（有界遗留协议），不能在仅补契约时改成字符串。成功 envelope 为 `data`，分页 `data.next_cursor` 末页为空串；独立错误 Schema 兼容 minimal `error.code` 与完整 `error/meta`，`operatorDecode` 的 400/415 使用 `text/plain` 承载带末尾换行的 JSON 错误文本，其媒体 Schema 是 string；只有另行 JSON 解析后才按错误对象 Schema 检查。B7 时间字段允许 RFC3339 offset，不能由数据库 session UTC 推断响应尾部必为 Z。请求文本/Agent 与 Draft 幂等键的 UTF-8 字节限额以 handler 为准，Schema 字符上限不能证明完整字节校验。通知 `read` 可省略/null，按 false 解码；Draft GET 的历史 evidence 是任意 JSON，不能由当前 create 的 content guard 对象推断其历史类型。
+- Go 修改使用 gofmt；TS 保持 strict/NodeNext 和相对 `.js` import，只改 `src/`，不手改 `dist/`/`lib/`。保留 Character 的 pinned ChatLuna lifecycle patch，升级依赖必须重验。
+- Controller MCP 合同独立维护于 `contracts.py`/`model_contracts.py` 和导出 schemas；不把其 Python/SQLite 模型写入 Go 生成类型。
+
+### 双对话来源、幂等与重放
+
+QQ inbox 的可信 token epoch、account→credential 共享锁及 fresh/replay 身份校验，适用[有效设计补充：QQ 入站身份与重放校验](adr/bba-final-closeout-2026-10-31.md#qq-入站身份与重放校验)；历史计划仅保留实现与测试证据职责。
+
+Agent thread/message 与 QQ account/group/private conversation 分域存储；消息、附件和搜索结果不可信。Agent 消息追加前须在事务中核对目标会话属于 Agent 域（kind、conversation_kind、无 QQ account）；`INSERT ... ON CONFLICT DO NOTHING` 不等于来源校验。现有合法 Agent 行允许内部 `id` 与 `conversation_id` 不同，不能用两者相等作为来源判断。当前 Agent 消息写入不自动启动多步 run；QQ 草稿审核不等于已发送。通知是持久 `local_only` 投影，不等于已推送到外部服务。
+
+后续按消息、任务、CRM 各自事件逐项接线，要求 scope、去重、分页 cursor、已读并发安全与脱敏；不能预先宣称所有事件已有通知。基础对话闭环与完整 M5 Agent run 分开验收。
+
+Agent 消息/QQ 草稿的持久请求身份是 workspace + principal + method + 规范 path + Idempotency-Key；消息事件使用带版本的 JSON 分帧摘要，不使用正文或裸请求键代替主体范围。复用 `core.idempotency`，按 principal→conversation 行锁分配 seq，并在同一事务写入消息/草稿/通知/账本。重放前仍检查当前认证、权限、主体、账号和会话来源；Draft 请求摘要含全部有效字段，重放返回持久原 decision/版本，不重新评审当前规则。响应解码须保留整数（含嵌套 evidence），不能经 float64 中转。
+
+Agent/Draft 新写只接受规范路径；直接 handler 的末尾 `/` 写入拒绝，主服务仍按既有 router 返回未匹配。规范请求有界兼容规范 path 和一个末尾 `/` 的历史账本，两份记录不一致则冲突。旧裸 event_id 有账本时重放原回执，不改历史消息；无账本时，Agent 当前 thread/key 无法确定原主体，保守冲突，Draft 按 workspace/created_by/raw key 跨历史目标冲突，不靠换目标绕过，不补造历史回执。新旧写入版本不应混跑；即使无新 migration，也须停止旧 Agent/Draft 写入后切换，回退旧 binary 会恢复缺陷并可能将新请求当新写，不能宣称无损回退。
+
+上述会话锁仅覆盖参与该协议的 Agent/Draft 写入；当前 inbox 不锁会话行，Draft/inbox 并发仍可能由 seq 唯一约束拒绝一个事务。不得把这次范围标为完整 M1 并发验收。
+
+日志须按实际链路关联 request/thread/run/task/execution/permit/bridge operation/observation 及审计主体，不记凭据或不必要原文。业务写入与历史迁移的切换及回退要求另见[发布手册](product-release-runbook.md)。

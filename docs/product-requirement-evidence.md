@@ -1,5 +1,7 @@
 # Final product requirement-to-evidence matrix
 
+> **2026-11-05 阅读范围：** 本表保留 S1–S6 历史证据与原外部来源定位；来源未随仓库交付时不能当作必读文件或当前证据。长期目标及后续验收以[根规则](../AGENTS.md)、[有效设计补充](adr/bba-final-closeout-2026-10-31.md#后续适用规则2026-11-05)和[产品验收矩阵](product-acceptance-matrix.md)为准。图同步、旧 Console、fixture 及历史接受状态均不证明 ARTEX 核心 planner、真实模型或完整产品已交付。
+
 Source: `../astra-handoffs/BBA-final-closeout-omp.md` S1–S6 and `/run/media/sun/6F53FE6DFAA8CECF/BBA/qq-automation-design/{01-architecture,02-contracts,03-implementation-plan}.md`. This is the final closeout tracking matrix. Fourth-round artifacts are preserved historical baselines, not new product acceptance.
 
 `PENDING` means no final-closeout proof yet. `FIXTURE_ACCEPTED` requires the real module chain against boundary fixtures. `LIVE_REQUIRED` identifies separately authorized external acceptance. Only the final acceptance runner can produce `ENGINEERING_ACCEPTED`; release prerequisites remain separate.
