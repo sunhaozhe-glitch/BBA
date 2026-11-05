@@ -41,10 +41,11 @@ type GoalConfiguration struct {
 	Analyst AgentReceipt `json:"analyst"`
 }
 type GoalMemory struct {
-	Summary             string   `json:"summary"`
-	InformationGaps     []string `json:"information_gaps"`
-	ConsumedEvidenceIDs []string `json:"consumed_evidence_ids"`
-	UpdatedRound        int      `json:"updated_round"`
+	Summary             string                 `json:"summary"`
+	InformationGaps     []string               `json:"information_gaps"`
+	ConsumedEvidenceIDs []string               `json:"consumed_evidence_ids"`
+	UpdatedRound        int                    `json:"updated_round"`
+	Conflicts           []GoalEvidenceConflict `json:"conflicts,omitempty"`
 }
 type GoalAsset struct {
 	ID    string `json:"id"`
@@ -116,13 +117,27 @@ type GoalRun struct {
 	Evidence              []GoalEvidence    `json:"evidence"`
 }
 type GoalService struct {
-	store    *Store
-	registry *ModelRegistry
-	fixture  bool
+	store          *Store
+	registry       *ModelRegistry
+	fixture        bool
+	reasoner       *GoalReasoner
+	implementation string
 }
 
 func NewGoalService(s *Store, r *ModelRegistry, fixture bool) *GoalService {
-	return &GoalService{s, r, fixture}
+	implementation := "disabled"
+	if fixture {
+		implementation = "deterministic_fixture"
+	}
+	return &GoalService{store: s, registry: r, fixture: fixture, implementation: implementation}
+}
+
+func NewGoalServiceWithReasoner(s *Store, r *ModelRegistry, reasoner *GoalReasoner) *GoalService {
+	return &GoalService{store: s, registry: r, reasoner: reasoner, implementation: "bounded_model"}
+}
+
+func (g *GoalService) enabled() bool {
+	return g.fixture || g.reasoner != nil
 }
 func goalTerminal(state string) bool {
 	return state == "CONFIRMED" || state == "STOPPED" || state == "TIMED_OUT" || state == "LIMIT_REACHED"
@@ -196,7 +211,7 @@ func (g *GoalService) Start(ctx context.Context, a Actor, key string, b GoalStar
 	if e := g.authorize(ctx, a, true); e != nil {
 		return GoalRun{}, e
 	}
-	if !g.fixture {
+	if !g.enabled() {
 		return GoalRun{}, problem("GOAL_FIXTURE_DISABLED")
 	}
 	if !taskValidID(b.PlannerRef.ID) || b.PlannerRef.Version < 1 || !taskValidID(b.AnalystRef.ID) || b.AnalystRef.Version < 1 || !taskValidID(b.ThreadID) || !taskValidQQID(b.GroupID) || strings.TrimSpace(b.Goal) == "" || len(b.Goal) > 1000 || key == "" || len(key) > 128 {
@@ -289,6 +304,7 @@ func (g *GoalService) Get(ctx context.Context, a Actor, id string) (GoalRun, err
 		if e != nil {
 			return e
 		}
+		out.Implementation = g.implementation
 		rows, e := tx.Query(ctx, "SELECT number,state,change_reason,consumed_evidence_ids FROM core.goal_round WHERE workspace_id=$1 AND run_id=$2 ORDER BY number", a.WorkspaceID, id)
 		if e != nil {
 			return e
@@ -405,7 +421,7 @@ func (g *GoalService) Inject(ctx context.Context, a Actor, id, key string, b Goa
 	if e := g.authorize(ctx, a, true); e != nil {
 		return GoalRun{}, e
 	}
-	if !g.fixture {
+	if !g.enabled() {
 		return GoalRun{}, problem("GOAL_FIXTURE_DISABLED")
 	}
 	if key == "" || len(key) > 128 {
@@ -475,7 +491,7 @@ func (g *GoalService) Control(ctx context.Context, a Actor, id, action string, v
 	if e := g.authorize(ctx, a, true); e != nil {
 		return GoalRun{}, e
 	}
-	if !g.fixture {
+	if !g.enabled() {
 		return GoalRun{}, problem("GOAL_FIXTURE_DISABLED")
 	}
 	if (action != "stop" && action != "confirm") || key == "" || len(key) > 128 {
@@ -563,12 +579,56 @@ type GoalJob struct {
 	Memory      GoalMemory
 	Goal        string
 	Plan        *goalOutput
+	Snapshot    GoalPlanningSnapshot
+	RequestID   string
 }
 type goalInput struct {
-	Window GoalWindow  `json:"window"`
-	Memory GoalMemory  `json:"memory"`
-	Goal   string      `json:"goal"`
-	Plan   *goalOutput `json:"plan,omitempty"`
+	Window   GoalWindow           `json:"window"`
+	Memory   GoalMemory           `json:"memory"`
+	Goal     string               `json:"goal"`
+	Plan     *goalOutput          `json:"plan,omitempty"`
+	Snapshot GoalPlanningSnapshot `json:"snapshot"`
+}
+
+func goalSnapshotEvidence(ctx context.Context, tx pgx.Tx, ws, runID string, w GoalWindow, round int) ([]GoalSnapshotEvidence, error) {
+	out := make([]GoalSnapshotEvidence, 0, len(w.Messages)+16)
+	rows, err := tx.Query(ctx, `SELECT id,kind,text,round FROM core.goal_evidence WHERE workspace_id=$1 AND run_id=$2 ORDER BY round,id LIMIT 48`, ws, runID)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var id, kind, text string
+		var evidenceRound int
+		if err := rows.Scan(&id, &kind, &text, &evidenceRound); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		out = append(out, GoalSnapshotEvidence{ID: id, Version: 1, Kind: kind, Source: goalEvidenceSource(kind), Text: text, Round: evidenceRound})
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, err
+	}
+	rows.Close()
+	for _, message := range w.Messages {
+		out = append(out, GoalSnapshotEvidence{ID: graphID("synthetic", w.GroupID, w.EventID, message.ID), Version: 1, Kind: "raw", Source: "raw_message", Text: message.Text, Round: round})
+	}
+	return out, nil
+}
+
+func goalEvidenceSource(kind string) string {
+	switch kind {
+	case "summary":
+		return "summary"
+	case "model_judgment":
+		return "analysis_judgment"
+	case "hint":
+		return "unverified_hint"
+	case "raw":
+		return "raw_message"
+	default:
+		return "unverified_hint"
+	}
 }
 
 func (g *GoalService) publish(ctx context.Context) error {
@@ -618,13 +678,42 @@ func (g *GoalService) publish(ctx context.Context) error {
 		if _, e = tx.Exec(ctx, "INSERT INTO core.goal_round(workspace_id,run_id,number,event_id,state) VALUES($1,$2,$3,$4,'RUNNING')", ws, id, n, event); e != nil {
 			return e
 		}
-		in := goalJSON(goalInput{Window: w, Memory: r.Memory, Goal: r.Goal})
+		evidence, err := goalSnapshotEvidence(ctx, tx, ws, id, w, n)
+		if err != nil {
+			return err
+		}
+		var previous *GoalDecision
+		if g.reasoner != nil {
+			var rawPrevious []byte
+			err = tx.QueryRow(ctx, "SELECT output FROM core.goal_step WHERE workspace_id=$1 AND run_id=$2 AND role='planner' AND state='COMPLETED' ORDER BY round DESC LIMIT 1", ws, id).Scan(&rawPrevious)
+			if err == nil {
+				var candidate GoalDecision
+				if json.Unmarshal(rawPrevious, &candidate) == nil && candidate.SchemaID == goalDecisionSchemaID {
+					previous = &candidate
+				}
+			} else if err != pgx.ErrNoRows {
+				return err
+			}
+		}
+		snapshot, err := buildGoalPlanningSnapshot(ws, id, n, r.Goal, r.GroupID, r.Graph, evidence, r.Memory, previous)
+		if err != nil {
+			return err
+		}
+		inValue, err := goalSnapshotInput(snapshot, w)
+		if err != nil {
+			return err
+		}
+		in := goalJSON(inValue)
+		snapshotDigest, err := digest(snapshot)
+		if err != nil {
+			return err
+		}
 		for _, role := range []string{"planner", "analyst"} {
 			state := "BLOCKED"
 			if role == "planner" {
 				state = "READY"
 			}
-			if _, e = tx.Exec(ctx, "INSERT INTO core.goal_step(workspace_id,run_id,round,id,role,state,input) VALUES($1,$2,$3,$4,$5,$6,$7)", ws, id, n, graphID("gstep", ws, id, fmt.Sprintf("%d:%s", n, role)), role, state, in); e != nil {
+			if _, e = tx.Exec(ctx, "INSERT INTO core.goal_step(workspace_id,run_id,round,id,role,state,input,context_snapshot,context_version,context_digest) VALUES($1,$2,$3,$4,$5,$6,$7,$8,1,$9)", ws, id, n, graphID("gstep", ws, id, fmt.Sprintf("%d:%s", n, role)), role, state, in, goalJSON(snapshot), snapshotDigest); e != nil {
 				return e
 			}
 		}
@@ -682,8 +771,12 @@ func (g *GoalService) claim(ctx context.Context) (*GoalJob, error) {
 		j.Memory = in.Memory
 		j.Goal = in.Goal
 		j.Plan = in.Plan
+		j.Snapshot = in.Snapshot
 		j.Attempt++
-		if _, e = tx.Exec(ctx, "UPDATE core.goal_step SET state='RUNNING',attempt=$3,lease_until=clock_timestamp()+interval '30 seconds' WHERE workspace_id=$1 AND id=$2", ws, j.ID, j.Attempt); e != nil {
+		if g.reasoner != nil {
+			j.RequestID = goalModelRequestID(j)
+		}
+		if _, e = tx.Exec(ctx, "UPDATE core.goal_step SET state='RUNNING',attempt=$3,lease_until=clock_timestamp()+interval '30 seconds',model_request_id=$4 WHERE workspace_id=$1 AND id=$2", ws, j.ID, j.Attempt, j.RequestID); e != nil {
 			return e
 		}
 		out = &j
@@ -700,13 +793,31 @@ func goalFailRound(ctx context.Context, tx pgx.Tx, ws, id string, n int, reason 
 	_, e := tx.Exec(ctx, "UPDATE core.goal_run SET state='WAITING_INPUT',reason=$3,version=version+1 WHERE workspace_id=$1 AND id=$2", ws, id, reason+"；请提供有效窗口或人工补充")
 	return e
 }
+func goalModelRequestID(j GoalJob) string {
+	d, _ := digest(struct {
+		Workspace string
+		Run       string
+		Step      string
+		Attempt   int
+	}{j.WorkspaceID, j.RunID, j.ID, j.Attempt})
+	return "goalreq_" + d[:32]
+}
+
 func (g *GoalService) submit(ctx context.Context, j GoalJob, output json.RawMessage) error {
-	if _, e := validateGoalOutput(j, output); e != nil {
+	if g.reasoner != nil {
+		if j.Role == "planner" {
+			if _, e := validateGoalDecision(j.Snapshot, output); e != nil {
+				return e
+			}
+		} else if _, e := validateGoalAnalysis(j.Snapshot, output); e != nil {
+			return e
+		}
+	} else if _, e := validateGoalOutput(j, output); e != nil {
 		return e
 	}
 	d, _ := digest(json.RawMessage(output))
 	var existing string
-	e := g.store.Pool.QueryRow(ctx, `INSERT INTO core.goal_result(workspace_id,step_id,attempt,run_id,output,digest) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(workspace_id,step_id,attempt) DO UPDATE SET digest=core.goal_result.digest RETURNING digest`, j.WorkspaceID, j.ID, j.Attempt, j.RunID, []byte(output), d).Scan(&existing)
+	e := g.store.Pool.QueryRow(ctx, `INSERT INTO core.goal_result(workspace_id,step_id,attempt,run_id,output,digest,model_request_id) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(workspace_id,step_id,attempt) DO UPDATE SET digest=core.goal_result.digest RETURNING digest`, j.WorkspaceID, j.ID, j.Attempt, j.RunID, []byte(output), d, j.RequestID).Scan(&existing)
 	if e == nil && existing != d {
 		return problem(taskCodeIdempotency)
 	}
@@ -749,58 +860,164 @@ func (g *GoalService) apply(ctx context.Context) error {
 			j.Memory = in.Memory
 			j.Goal = in.Goal
 			j.Plan = in.Plan
-			out, e := validateGoalOutput(j, raw)
-			if e != nil {
-				return e
-			}
+			j.Snapshot = in.Snapshot
 			if e = validateGoalWindow(j.Window, r.GroupID, time.Now()); e != nil {
-				out.ErrorCode = Code(e)
-			}
-			if out.ErrorCode != "" {
-				if e = goalFailRound(ctx, tx, ws, id, j.Round, out.ErrorCode); e != nil {
+				if e = goalFailRound(ctx, tx, ws, id, j.Round, Code(e)); e != nil {
 					return e
 				}
-			} else {
-				if _, e = tx.Exec(ctx, "UPDATE core.goal_step SET state='COMPLETED',output=$3 WHERE workspace_id=$1 AND id=$2", ws, step, raw); e != nil {
-					return e
-				}
+			} else if g.reasoner != nil {
 				if j.Role == "planner" {
-					if _, e = tx.Exec(ctx, "UPDATE core.goal_round SET change_reason=$4,consumed_evidence_ids=$5 WHERE workspace_id=$1 AND run_id=$2 AND number=$3", ws, id, j.Round, out.ChangeReason, goalJSON(out.ConsumedEvidenceIDs)); e != nil {
-						return e
+					decision, decisionErr := validateGoalDecision(j.Snapshot, raw)
+					if decisionErr != nil {
+						return decisionErr
 					}
-					intent := graphID("intent", ws, id, fmt.Sprint(j.Round))
-					r.Graph.Nodes = append(r.Graph.Nodes, GoalNode{intent, "intent", out.ChangeReason, "planned"})
-					r.Graph.Edges = append(r.Graph.Edges, GoalEdge{id, intent, "spawns"})
-					r.Graph.Anchors = append(r.Graph.Anchors, GoalAnchor{intent, r.Graph.Assets[0].ID})
-					for _, ref := range j.Memory.ConsumedEvidenceIDs {
-						r.Graph.Edges = append(r.Graph.Edges, GoalEdge{intent, ref, "derived_from"})
-					}
-					if _, e = tx.Exec(ctx, "UPDATE core.goal_run SET graph=$3,version=version+1 WHERE workspace_id=$1 AND id=$2", ws, id, goalJSON(r.Graph)); e != nil {
-						return e
-					}
-					in.Plan = &out
-					if _, e = tx.Exec(ctx, "UPDATE core.goal_step SET state='READY',input=$4 WHERE workspace_id=$1 AND run_id=$2 AND round=$3 AND role='analyst' AND state='BLOCKED'", ws, id, j.Round, goalJSON(in)); e != nil {
+					if e = g.applyGoalDecision(ctx, tx, ws, id, &r, j, in, decision); e != nil {
 						return e
 					}
 				} else {
-					if e = g.finishAnalysis(ctx, tx, ws, &r, j, out); e != nil {
+					analysis, analysisErr := validateGoalAnalysis(j.Snapshot, raw)
+					if analysisErr != nil {
+						return analysisErr
+					}
+					if e = g.finishGoalAnalysis(ctx, tx, ws, &r, j, analysis); e != nil {
 						return e
 					}
 				}
+			} else {
+				out, outputErr := validateGoalOutput(j, raw)
+				if outputErr != nil {
+					return outputErr
+				}
+				if out.ErrorCode != "" {
+					if e = goalFailRound(ctx, tx, ws, id, j.Round, out.ErrorCode); e != nil {
+						return e
+					}
+				} else {
+					if _, e = tx.Exec(ctx, "UPDATE core.goal_step SET state='COMPLETED',output=$3 WHERE workspace_id=$1 AND id=$2", ws, step, raw); e != nil {
+						return e
+					}
+					if j.Role == "planner" {
+						if _, e = tx.Exec(ctx, "UPDATE core.goal_round SET change_reason=$4,consumed_evidence_ids=$5 WHERE workspace_id=$1 AND run_id=$2 AND number=$3", ws, id, j.Round, out.ChangeReason, goalJSON(out.ConsumedEvidenceIDs)); e != nil {
+							return e
+						}
+						intent := graphID("intent", ws, id, fmt.Sprint(j.Round))
+						r.Graph.Nodes = append(r.Graph.Nodes, GoalNode{intent, "intent", out.ChangeReason, "planned"})
+						r.Graph.Edges = append(r.Graph.Edges, GoalEdge{id, intent, "spawns"})
+						r.Graph.Anchors = append(r.Graph.Anchors, GoalAnchor{intent, r.Graph.Assets[0].ID})
+						for _, ref := range j.Memory.ConsumedEvidenceIDs {
+							r.Graph.Edges = append(r.Graph.Edges, GoalEdge{intent, ref, "derived_from"})
+						}
+						if _, e = tx.Exec(ctx, "UPDATE core.goal_run SET graph=$3,version=version+1 WHERE workspace_id=$1 AND id=$2", ws, id, goalJSON(r.Graph)); e != nil {
+							return e
+						}
+						in.Plan = &out
+						contextDigest, digestErr := digest(in.Snapshot)
+						if digestErr != nil {
+							return digestErr
+						}
+						if _, e = tx.Exec(ctx, "UPDATE core.goal_step SET state='READY',input=$4,context_snapshot=$5,context_version=2,context_digest=$6 WHERE workspace_id=$1 AND run_id=$2 AND round=$3 AND role='analyst' AND state='BLOCKED'", ws, id, j.Round, goalJSON(in), goalJSON(in.Snapshot), contextDigest); e != nil {
+							return e
+						}
+					} else {
+						if e = g.finishAnalysis(ctx, tx, ws, &r, j, out); e != nil {
+							return e
+						}
+					}
+				}
 			}
+
 			inboxState = "applied"
 		}
 		_, e = tx.Exec(ctx, "UPDATE core.goal_result SET state=$4 WHERE workspace_id=$1 AND step_id=$2 AND attempt=$3 AND state='pending'", ws, step, attempt, inboxState)
 		return e
 	})
 }
-func (g *GoalService) finishAnalysis(ctx context.Context, tx pgx.Tx, ws string, r *GoalRun, j GoalJob, out goalOutput) error {
-	refs := goalRefs(j.Window)
-	evidence := []GoalEvidence{}
-	for i, m := range j.Window.Messages {
-		evidence = append(evidence, GoalEvidence{refs[i], "raw", m.Text, []string{}, j.Round, j.Window.ExpiresAt})
+func (g *GoalService) applyGoalDecision(ctx context.Context, tx pgx.Tx, ws, id string, r *GoalRun, j GoalJob, in goalInput, decision GoalDecision) error {
+	if _, err := tx.Exec(ctx, "UPDATE core.goal_step SET state='COMPLETED',output=$3 WHERE workspace_id=$1 AND id=$2", ws, j.ID, goalJSON(decision)); err != nil {
+		return err
 	}
-	evidence = append(evidence, GoalEvidence{j.ID + "_summary", "summary", out.Summary, refs, j.Round, j.Window.ExpiresAt}, GoalEvidence{j.ID + "_judgment", "model_judgment", "确定性测试判断：" + out.Summary, refs, j.Round, j.Window.ExpiresAt})
+	intent := graphID("intent", ws, id, fmt.Sprint(j.Round))
+	label := decision.Rationale
+	state := "planned"
+	if decision.Decision != GoalDecisionAnalyze {
+		state = string(decision.Decision)
+	}
+	r.Graph.Nodes = append(r.Graph.Nodes, GoalNode{intent, "intent", label, state})
+	r.Graph.Edges = append(r.Graph.Edges, GoalEdge{id, intent, "spawns"})
+	if len(r.Graph.Assets) > 0 {
+		r.Graph.Anchors = append(r.Graph.Anchors, GoalAnchor{intent, r.Graph.Assets[0].ID})
+	}
+	for _, ref := range decision.EvidenceRefs {
+		r.Graph.Edges = append(r.Graph.Edges, GoalEdge{intent, ref.ID, "derived_from"})
+	}
+	consumed := make([]string, 0, len(decision.EvidenceRefs))
+	for _, ref := range decision.EvidenceRefs {
+		consumed = append(consumed, ref.ID)
+	}
+	if decision.Decision == GoalDecisionAnalyze {
+		if _, err := tx.Exec(ctx, "UPDATE core.goal_round SET change_reason=$4,consumed_evidence_ids=$5 WHERE workspace_id=$1 AND run_id=$2 AND number=$3", ws, id, j.Round, decision.Rationale, goalJSON(consumed)); err != nil {
+			return err
+		}
+		in.Snapshot.PreviousDecision = &decision
+		contextDigest, digestErr := digest(in.Snapshot)
+		if digestErr != nil {
+			return digestErr
+		}
+		if _, err := tx.Exec(ctx, "UPDATE core.goal_step SET state='READY',input=$4,context_snapshot=$5,context_version=2,context_digest=$6 WHERE workspace_id=$1 AND run_id=$2 AND round=$3 AND role='analyst' AND state='BLOCKED'", ws, id, j.Round, goalJSON(in), goalJSON(in.Snapshot), contextDigest); err != nil {
+			return err
+		}
+		_, err := tx.Exec(ctx, "UPDATE core.goal_run SET graph=$3,version=version+1 WHERE workspace_id=$1 AND id=$2", ws, id, goalJSON(r.Graph))
+		return err
+	}
+	if _, err := tx.Exec(ctx, "UPDATE core.goal_step SET state='STOPPED' WHERE workspace_id=$1 AND run_id=$2 AND round=$3 AND state IN ('READY','BLOCKED','RUNNING')", ws, id, j.Round); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx, "UPDATE core.goal_round SET state='COMPLETED',change_reason=$4,consumed_evidence_ids=$5 WHERE workspace_id=$1 AND run_id=$2 AND number=$3", ws, id, j.Round, decision.Rationale, goalJSON(consumed)); err != nil {
+		return err
+	}
+	state, reason := "WAITING_INPUT", string(decision.Decision)+"："+decision.Reason
+	if decision.Decision == GoalDecisionSuggestComplete {
+		state, reason = "AWAITING_CONFIRMATION", "suggest_complete："+decision.Reason
+	}
+	memory := r.Memory
+	memory.ConsumedEvidenceIDs = make([]string, 0, len(decision.EvidenceRefs))
+	for _, ref := range decision.EvidenceRefs {
+		memory.ConsumedEvidenceIDs = append(memory.ConsumedEvidenceIDs, ref.ID)
+	}
+	memory.UpdatedRound = j.Round
+	_, err := tx.Exec(ctx, "UPDATE core.goal_run SET state=$3,reason=$4,memory=$5,graph=$6,version=version+1 WHERE workspace_id=$1 AND id=$2", ws, id, state, reason, goalJSON(memory), goalJSON(r.Graph))
+	return err
+}
+
+func (g *GoalService) finishGoalAnalysis(ctx context.Context, tx pgx.Tx, ws string, r *GoalRun, j GoalJob, analysis GoalAnalysis) error {
+	out := goalOutput{SchemaID: "GoalAnalysis.v1", Role: "analyst", ConsumedEvidenceIDs: make([]string, 0, len(analysis.EvidenceRefs)), Summary: analysis.Summary, InformationGaps: append([]string(nil), analysis.InformationGaps...), SuggestedComplete: len(analysis.InformationGaps) == 0}
+	for _, ref := range analysis.EvidenceRefs {
+		out.ConsumedEvidenceIDs = append(out.ConsumedEvidenceIDs, ref.ID)
+	}
+	for _, conflict := range analysis.Conflicts {
+		out.InformationGaps = append(out.InformationGaps, "证据矛盾需核对："+conflict.Summary)
+	}
+	return g.finishAnalysisWithConflicts(ctx, tx, ws, r, j, out, analysis.Conflicts)
+}
+
+func (g *GoalService) finishAnalysis(ctx context.Context, tx pgx.Tx, ws string, r *GoalRun, j GoalJob, out goalOutput) error {
+	return g.finishAnalysisWithConflicts(ctx, tx, ws, r, j, out, nil)
+}
+
+func (g *GoalService) finishAnalysisWithConflicts(ctx context.Context, tx pgx.Tx, ws string, r *GoalRun, j GoalJob, out goalOutput, conflicts []GoalEvidenceConflict) error {
+	refs := out.ConsumedEvidenceIDs
+	if len(refs) == 0 {
+		refs = goalRefs(j.Window)
+	}
+	evidence := []GoalEvidence{}
+	rawRefs := goalRefs(j.Window)
+	for i, m := range j.Window.Messages {
+		evidence = append(evidence, GoalEvidence{rawRefs[i], "raw", m.Text, []string{}, j.Round, j.Window.ExpiresAt})
+	}
+	if len(refs) == 0 {
+		refs = rawRefs
+	}
+	evidence = append(evidence, GoalEvidence{j.ID + "_summary", "summary", out.Summary, refs, j.Round, j.Window.ExpiresAt}, GoalEvidence{j.ID + "_judgment", "model_judgment", "模型分析：" + out.Summary, refs, j.Round, j.Window.ExpiresAt})
 	for i, gap := range out.InformationGaps {
 		evidence = append(evidence, GoalEvidence{fmt.Sprintf("%s_hint%d", j.ID, i), "hint", gap, refs, j.Round, j.Window.ExpiresAt})
 	}
@@ -830,7 +1047,17 @@ func (g *GoalService) finishAnalysis(ctx context.Context, tx pgx.Tx, ws string, 
 		state = "LIMIT_REACHED"
 		reason = "ROUND_LIMIT：证据仍不足，停止自动规划"
 	}
-	memory := GoalMemory{out.Summary, out.InformationGaps, refs, j.Round}
+	mergedConflicts := make([]GoalEvidenceConflict, 0, len(r.Memory.Conflicts)+len(conflicts))
+	seenConflicts := make(map[string]bool)
+	for _, item := range append(append([]GoalEvidenceConflict(nil), r.Memory.Conflicts...), conflicts...) {
+		key := fmt.Sprintf("%s:%s", strings.Join(item.EvidenceIDs, ","), item.Summary)
+		if seenConflicts[key] || len(mergedConflicts) >= 16 {
+			continue
+		}
+		seenConflicts[key] = true
+		mergedConflicts = append(mergedConflicts, item)
+	}
+	memory := GoalMemory{Summary: out.Summary, InformationGaps: out.InformationGaps, ConsumedEvidenceIDs: refs, UpdatedRound: j.Round, Conflicts: mergedConflicts}
 	if _, e := tx.Exec(ctx, "UPDATE core.goal_round SET state='COMPLETED' WHERE workspace_id=$1 AND run_id=$2 AND number=$3", ws, r.ID, j.Round); e != nil {
 		return e
 	}
@@ -873,7 +1100,7 @@ func (g *GoalService) expire(ctx context.Context) error {
 	})
 }
 func (g *GoalService) Tick(ctx context.Context) error {
-	if !g.fixture {
+	if !g.enabled() {
 		return problem("GOAL_FIXTURE_DISABLED")
 	}
 	if e := g.expire(ctx); e != nil {
@@ -891,14 +1118,31 @@ func (g *GoalService) Tick(ctx context.Context) error {
 	}
 	callCtx, cancel := context.WithTimeout(ctx, goalAttemptTimeout)
 	defer cancel()
-	out, e := deterministicGoalModel(callCtx, *j)
-	if e != nil {
-		return e
+	var out json.RawMessage
+	if g.reasoner != nil {
+		if j.Role == "planner" {
+			decision, reasonerErr := g.reasoner.DecideWithRequestID(callCtx, j.Snapshot, j.RequestID)
+			if reasonerErr != nil {
+				return reasonerErr
+			}
+			out = goalJSON(decision)
+		} else {
+			analysis, reasonerErr := g.reasoner.AnalyzeWithRequestID(callCtx, j.Snapshot, j.RequestID)
+			if reasonerErr != nil {
+				return reasonerErr
+			}
+			out = goalJSON(analysis)
+		}
+	} else {
+		out, e = deterministicGoalModel(callCtx, *j)
+		if e != nil {
+			return e
+		}
 	}
 	return g.submit(ctx, *j, out)
 }
 func (g *GoalService) Run(ctx context.Context) error {
-	if !g.fixture {
+	if !g.enabled() {
 		return problem("GOAL_FIXTURE_DISABLED")
 	}
 	backoff := 200 * time.Millisecond

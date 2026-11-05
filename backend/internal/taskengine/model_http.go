@@ -438,3 +438,19 @@ func modelResponse(request contract.ModelRequest, proposal contract.PlanProposal
 	response.Usage.CostMicros.SetNull()
 	return response
 }
+
+// StructuredModelCall is a bounded, non-tool model request used by the goal
+// reasoner. It deliberately has no endpoint, model, budget, URL, SQL, shell or
+// MCP fields; those remain deployment controlled.
+type StructuredModelCall struct {
+	WorkspaceID  string
+	RequestID    string
+	SchemaID     string
+	SystemPrompt string
+	UserPrompt   string
+	MaxTokens    int
+}
+
+type StructuredModelProvider interface {
+	CompleteStructured(context.Context, StructuredModelCall) (ModelCompletion, error)
+}
