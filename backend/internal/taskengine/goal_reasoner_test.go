@@ -327,6 +327,68 @@ func TestGoalModelServiceUsesFakeHTTPAndChangesDecisionWithNewEvidence(t *testin
 	}
 }
 
+type scriptedStructuredProvider struct {
+	fn func(StructuredModelCall) (ModelCompletion, error)
+}
+
+func (p scriptedStructuredProvider) Complete(context.Context, ModelCall) (ModelCompletion, error) {
+	return ModelCompletion{}, nil
+}
+
+func (p scriptedStructuredProvider) CompleteStructured(ctx context.Context, call StructuredModelCall) (ModelCompletion, error) {
+	return p.fn(call)
+}
+
+func TestGoalAnalysisConflictNeverSuggestsComplete(t *testing.T) {
+	g, actor, run := goalFixture(t)
+	provider := scriptedStructuredProvider{fn: func(call StructuredModelCall) (ModelCompletion, error) {
+		start := strings.Index(call.UserPrompt, "{")
+		if start < 0 {
+			return ModelCompletion{}, problem("GOAL_PROVIDER_FAILED")
+		}
+		var snapshot GoalPlanningSnapshot
+		if err := json.Unmarshal([]byte(call.UserPrompt[start:]), &snapshot); err != nil {
+			return ModelCompletion{}, err
+		}
+		refs := make([]GoalEvidenceReference, 0, len(snapshot.Evidence))
+		for _, evidence := range snapshot.Evidence {
+			refs = append(refs, GoalEvidenceReference{ID: evidence.ID, Version: evidence.Version, Kind: evidence.Kind, Source: evidence.Source})
+		}
+		if call.SchemaID == goalDecisionSchemaID {
+			decision := GoalDecision{
+				SchemaID: goalDecisionSchemaID, WorkspaceID: snapshot.WorkspaceID, RunID: snapshot.RunID,
+				Scope: snapshot.Scope, Round: snapshot.Round, Decision: GoalDecisionAnalyze, EvidenceRefs: refs,
+				Rationale: "先分析当前窗口中的目标证据", AnalysisKind: "window_summary",
+			}
+			return ModelCompletion{Content: string(reasonerJSON(decision))}, nil
+		}
+		if len(refs) < 2 {
+			return ModelCompletion{}, problem("GOAL_PROVIDER_FAILED")
+		}
+		analysis := GoalAnalysis{
+			SchemaID: "GoalAnalysis.v1", WorkspaceID: snapshot.WorkspaceID, RunID: snapshot.RunID,
+			Scope: snapshot.Scope, Round: snapshot.Round, EvidenceRefs: refs, Summary: "证据存在矛盾，需要核对",
+			Conflicts: []GoalEvidenceConflict{{EvidenceIDs: []string{refs[0].ID, refs[1].ID}, Summary: "两条消息对预算描述相反"}},
+		}
+		return ModelCompletion{Content: string(reasonerJSON(analysis))}, nil
+	}}
+	modelService := NewGoalServiceWithReasoner(g.store, g.registry, NewGoalReasoner(provider))
+	window := goalWindow("conflict", "预算：1000")
+	now := time.Now().UTC()
+	window.Messages = append(window.Messages, GoalMessage{ID: "conflict_msg_2", At: now.Add(-2 * time.Second), Text: "预算：不确定"})
+	if _, err := modelService.Inject(context.Background(), actor, run.ID, "conflict", window); err != nil {
+		t.Fatal(err)
+	}
+	goalDrain(t, modelService)
+	got, err := modelService.Get(context.Background(), actor, run.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.State != "WAITING_INPUT" || !strings.Contains(got.Reason, "证据矛盾需核对") {
+		t.Fatalf("conflict must require verification, got state=%s reason=%q", got.State, got.Reason)
+	}
+}
+
 func TestGoalReasonerMapsFakeHTTPFailuresWithoutRetrying(t *testing.T) {
 	for _, status := range []int{429, 500} {
 		t.Run(string(rune(status)), func(t *testing.T) {

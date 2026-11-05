@@ -990,7 +990,7 @@ func (g *GoalService) applyGoalDecision(ctx context.Context, tx pgx.Tx, ws, id s
 }
 
 func (g *GoalService) finishGoalAnalysis(ctx context.Context, tx pgx.Tx, ws string, r *GoalRun, j GoalJob, analysis GoalAnalysis) error {
-	out := goalOutput{SchemaID: "GoalAnalysis.v1", Role: "analyst", ConsumedEvidenceIDs: make([]string, 0, len(analysis.EvidenceRefs)), Summary: analysis.Summary, InformationGaps: append([]string(nil), analysis.InformationGaps...), SuggestedComplete: len(analysis.InformationGaps) == 0}
+	out := goalOutput{SchemaID: "GoalAnalysis.v1", Role: "analyst", ConsumedEvidenceIDs: make([]string, 0, len(analysis.EvidenceRefs)), Summary: analysis.Summary, InformationGaps: append([]string(nil), analysis.InformationGaps...), SuggestedComplete: len(analysis.InformationGaps) == 0 && len(analysis.Conflicts) == 0}
 	for _, ref := range analysis.EvidenceRefs {
 		out.ConsumedEvidenceIDs = append(out.ConsumedEvidenceIDs, ref.ID)
 	}
