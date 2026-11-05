@@ -10,18 +10,22 @@ fs.mkdirSync(out,{recursive:true});
  try{for(const width of [1440,768,375]){
   const p=active=await browser.newPage({viewport:{width,height:1000}}),errors=[],requests=[];p.on('pageerror',e=>errors.push(String(e)));
   // browser-local fixture state
-  let fault=false;
+  let fault=false,holdNextPage=false,releaseNextPage=()=>{};
   const convs=[
    {id:'conv-agent-1',kind:'agent',account_id:'fixture-account',conversation_kind:'agent',conversation_id:'fixture-agent-thread',version:1,created_at:'2026-10-31T00:00:00Z',last_event_at:'2026-10-31T00:00:00Z',unread_count:1},
    {id:'conv-qq-1',kind:'qq',account_id:'fixture-account',conversation_kind:'group',conversation_id:'fixture-group-1',version:1,created_at:'2026-10-31T00:00:00Z',last_event_at:'2026-10-31T00:00:00Z',unread_count:2},
-   {id:'conv-qq-2',kind:'qq',account_id:'fixture-account',conversation_kind:'private',conversation_id:'fixture-peer-1',version:1,created_at:'2026-10-31T00:00:00Z',last_event_at:'2026-10-31T00:00:00Z',unread_count:0}];
+   {id:'conv-qq-2',kind:'qq',account_id:'fixture-account',conversation_kind:'private',conversation_id:'fixture-peer-1',version:1,created_at:'2026-10-31T00:00:00Z',last_event_at:'2026-10-31T00:00:00Z',unread_count:0},
+   ...Array.from({length:48},(_,i)=>({id:'conv-agent-tail-'+(i+1),kind:'agent',account_id:'fixture-account',conversation_kind:'agent',conversation_id:i===47?'fixture-agent-tail-thread':'fixture-agent-extra-'+(i+1),version:1,created_at:'2026-10-30T00:00:00Z',last_event_at:'2026-10-30T00:00:00Z',unread_count:0}))];
   const msgs={'conv-agent-1':[{id:'msg-agent-1',source:'agent',direction:'inbound',delivery_state:'received',body:'来自 Agent 的入站消息',body_digest:'sha256:fixture-agent',seq:1,created_at:'2026-10-31T00:00:00Z'}],
    'conv-qq-1':[{id:'msg-qq-1',source:'qq',direction:'inbound',delivery_state:'received',body:'QQ 群入站消息',body_digest:'sha256:fixture-qq-in',seq:1,created_at:'2026-10-31T00:00:00Z'},
-    {id:'msg-qq-2',source:'qq',direction:'outbound_draft',delivery_state:'draft',body:'出站草稿：关键词 TEST_BLOCK 命中前版本',body_digest:'sha256:fixture-qq-draft',seq:2,created_at:'2026-10-31T00:01:00Z'}],
+    {id:'msg-qq-2',source:'qq',direction:'outbound_draft',delivery_state:'draft',body:'出站草稿：关键词 TEST_BLOCK 命中前版本',body_digest:'sha256:fixture-qq-draft',seq:2,created_at:'2026-10-31T00:01:00Z'},
+    ...Array.from({length:49},(_,i)=>({id:'msg-qq-page-'+(i+1),source:'qq',direction:'inbound',delivery_state:'received',body:i===48?'QQ 分页尾消息':'QQ 分页消息 '+(i+1),body_digest:'sha256:fixture-qq-page-'+(i+1),seq:i+3,created_at:'2026-10-30T00:00:00Z'}))],
    'conv-qq-2':[]};
   const drafts={};
   let notices=[{id:'notice-1',event_type:'qq.message',object_id:'msg-qq-1',account_id:'fixture-account',conversation_id:'fixture-group-1',summary:'QQ 群入站 · 摘要',evidence_ref:'',delivery_state:'local_only',read_at:null,version:1,created_at:'2026-10-31T00:02:00Z'},
-   {id:'notice-2',event_type:'agent.message',object_id:'msg-agent-1',account_id:'fixture-account',conversation_id:'fixture-agent-thread',summary:'Agent thread message',evidence_ref:'',delivery_state:'local_only',read_at:'2026-10-31T00:03:00Z',version:2,created_at:'2026-10-31T00:03:00Z'}];
+   {id:'notice-2',event_type:'agent.message',object_id:'msg-agent-1',account_id:'fixture-account',conversation_id:'fixture-agent-thread',summary:'Agent thread message',evidence_ref:'',delivery_state:'local_only',read_at:'2026-10-31T00:03:00Z',version:2,created_at:'2026-10-31T00:03:00Z'},
+   ...Array.from({length:49},(_,i)=>({id:'notice-page-'+(i+1),event_type:'agent.message',object_id:'msg-agent-1',account_id:'fixture-account',conversation_id:'fixture-agent-thread',summary:i===48?'通知分页尾消息':'通知分页消息 '+(i+1),evidence_ref:'',delivery_state:'local_only',read_at:'2026-10-30T00:00:00Z',version:1,created_at:'2026-10-30T00:00:00Z'}))];
+  const paginate=(items,url)=>{const cursor=url.searchParams.get('cursor');const start=cursor?Number(cursor):0;const page=items.slice(start,start+50);return {items:page,next_cursor:start+page.length<items.length?String(start+page.length):''}};
   await p.route('http://bba.fixture/**',async route=>{
    const req=route.request(),url=new URL(req.url());
    if(!url.pathname.startsWith('/v1/')){const file=url.pathname.endsWith('app.js')?'app.js':url.pathname.endsWith('app.css')?'app.css':'index.html';return route.fulfill({body:fs.readFileSync(path.join(asset,file)),contentType:file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':'text/html'})}
@@ -29,15 +33,16 @@ fs.mkdirSync(out,{recursive:true});
    requests.push({path:url.pathname,query:url.search,method,body,idempotency:req.headers()['idempotency-key']||null});
    const reply=(status,data)=>route.fulfill({status,json:status<400?{data}:{error:{code:data}}});
    if(fault)return reply(503,'FIXTURE_UNAVAILABLE');
-   if(url.pathname==='/v1/operator/conversations'&&method==='GET')return reply(200,{items:convs,next_cursor:''});
+   if(url.searchParams.get('cursor')==='50'&&holdNextPage){holdNextPage=false;await new Promise(resolve=>{releaseNextPage=resolve})}
+   if(url.pathname==='/v1/operator/conversations'&&method==='GET')return reply(200,paginate(convs,url));
    const mmsg=url.pathname.match(/^\/v1\/operator\/conversations\/([^/]+)\/messages$/);
-   if(mmsg&&method==='GET')return reply(200,{items:msgs[mmsg[1]]||[],next_cursor:''});
+   if(mmsg&&method==='GET')return reply(200,paginate(msgs[mmsg[1]]||[],url));
    if(mmsg&&method==='POST'){const mid='msg-'+(msgs[mmsg[1]].length+1);msgs[mmsg[1]].push({id:mid,source:'agent',direction:'inbound',delivery_state:'received',body:body.body,body_digest:'sha256:fixture-post',seq:msgs[mmsg[1]].length+1,created_at:new Date().toISOString()});return reply(201,{id:mid,conversation_id:mmsg[1],source:'agent',direction:'inbound',delivery_state:'received',body_digest:'sha256:fixture-post',send_permit:'absent'})}
    if(url.pathname==='/v1/operator/agent-threads/conv-agent-1/messages'&&method==='POST'){const mid='msg-agent-post';msgs['conv-agent-1'].push({id:mid,source:'agent',direction:'inbound',delivery_state:'received',body:body.body,body_digest:'sha256:fixture-agent-post',seq:2,created_at:new Date().toISOString()});return reply(201,{id:mid,conversation_id:'conv-agent-1',source:'agent',direction:'inbound',delivery_state:'received',body_digest:'sha256:fixture-agent-post',send_permit:'absent'})}
    if(url.pathname==='/v1/operator/qq-drafts'&&method==='POST'){const id='draft-fixture-1';drafts[id]={id,account_id:body.account_id,conversation_id:body.conversation_id,message_id:'msg-qq-3',payload_digest:'sha256:fixture-draft',rules_version:1,decision:String(body.body).includes('TEST_BLOCK')?'blocked':'drafted',evidence:[{rule_id:'fixture-rule',start:0,end:10}],send_permit:'absent',version:1};const shown=/blocked/.test(drafts[id].decision)?'blocked_by_rule':'draft';msgs['conv-qq-1'].push({id:'msg-qq-3',source:'qq',direction:'outbound_draft',delivery_state:shown,body:body.body,body_digest:'sha256:fixture-draft',seq:3,created_at:new Date().toISOString()});return reply(201,drafts[id])}
    const mdraft=url.pathname.match(/^\/v1\/operator\/qq-drafts\/([^/]+)$/);
    if(mdraft&&method==='GET')return reply(200,drafts[mdraft[1]]||{error:'UNEXPECTED_FIXTURE_PATH'});
-   if(url.pathname==='/v1/operator/notifications'&&method==='GET')return reply(200,{items:notices,next_cursor:''});
+   if(url.pathname==='/v1/operator/notifications'&&method==='GET')return reply(200,paginate(notices,url));
    const mnote=url.pathname.match(/^\/v1\/operator\/notifications\/([^/]+)$/);
    if(mnote&&method==='POST'){const n=notices.find(x=>x.id===mnote[1]);if(!n)return reply(404,'NOT_FOUND');if(!body||body.expected_version!==n.version)return reply(409,'VERSION_CONFLICT');n.version++;n.read_at=new Date().toISOString();return reply(200,{id:n.id,read:body.read,version:n.version,delivery_state:'local_only'})}
    return reply(404,'UNEXPECTED_FIXTURE_PATH');
@@ -51,6 +56,12 @@ fs.mkdirSync(out,{recursive:true});
    assert(await p.locator('#chat-tab-agent').isVisible());assert(await p.locator('#chat-tab-qq').isVisible());
    assert(requests.some(x=>x.path==='/v1/operator/conversations'&&x.method==='GET'));
    assert((await p.locator('#content').textContent()).includes('fixture-agent-thread'))});
+  await check('conversation pagination consumes next_cursor',async()=>{
+   const more=p.locator('[data-pagination="conversations"]');assert.equal(await more.count(),1);
+   await more.locator('button').click();await p.getByText('fixture-agent-tail-thread',{exact:true}).waitFor();
+   const pageRequests=requests.filter(x=>x.path==='/v1/operator/conversations'&&x.query.includes('cursor=50'));
+   assert.equal(pageRequests.length,1);assert.equal(await p.locator('[data-pagination="conversations"]').count(),0);
+  });
   await p.locator('[data-chat-conv="conv-agent-1"]').click();await p.waitForFunction(()=>document.querySelector('#content').textContent.includes('fixture-post')||document.querySelector('#content').textContent.includes('来自 Agent 的入站消息'));
   await check('agent thread lists real message and cannot reach QQ send',async()=>{
    assert(requests.some(x=>x.path==='/v1/operator/conversations/conv-agent-1/messages'));
@@ -74,6 +85,12 @@ fs.mkdirSync(out,{recursive:true});
    assert.match(await p.locator('#content').textContent(),/该会话暂无消息/);
    assert.match(await p.locator('#content').textContent(),/不展示演示数据/)});
   await p.locator('[data-chat-conv="conv-qq-1"]').click();await p.waitForFunction(()=>document.querySelector('#content').textContent.includes('出站草稿'));
+  await check('message pagination consumes next_cursor',async()=>{
+   const more=p.locator('[data-pagination="messages"]');assert.equal(await more.count(),1);
+   await more.locator('button').click();await p.getByText('QQ 分页尾消息',{exact:true}).waitFor();
+   const pageRequests=requests.filter(x=>x.path==='/v1/operator/conversations/conv-qq-1/messages'&&x.query.includes('cursor=50'));
+   assert.equal(pageRequests.length,1);assert.equal(await p.locator('[data-pagination="messages"]').count(),0);
+  });
   await check('draft state visible as draft, no fabricated send success',async()=>{
    assert.match(await p.locator('#content').textContent(),/草稿/);
    assert(!(await p.locator('#content').textContent()).includes('发送成功'))});
@@ -91,6 +108,21 @@ fs.mkdirSync(out,{recursive:true});
    assert(requests.some(x=>x.path==='/v1/operator/notifications'&&x.method==='GET'));
    assert.equal(await p.locator('[data-notice-read="notice-1"]').count(),1);
    assert((await p.locator('#content').textContent()).includes('已读'))});
+
+  await check('late notification pagination response cannot replace a newer route',async()=>{
+   holdNextPage=true;const more=p.locator('[data-pagination="notifications"]');assert.equal(await more.count(),1);
+   const heldRequest=p.waitForRequest(r=>new URL(r.url()).pathname==='/v1/operator/notifications'&&new URL(r.url()).searchParams.get('cursor')==='50');
+   await more.locator('button').click();await heldRequest;
+   await nav('chat');releaseNextPage();await p.waitForTimeout(100);
+   assert.equal(await p.getByText('通知分页尾消息',{exact:true}).count(),0);
+  });
+  await nav('notify');await p.getByText('通知分页消息 1',{exact:true}).waitFor();
+  await check('notification pagination consumes next_cursor',async()=>{
+   const more=p.locator('[data-pagination="notifications"]');assert.equal(await more.count(),1);
+   await more.locator('button').click();await p.getByText('通知分页尾消息',{exact:true}).waitFor();
+   const pageRequests=requests.filter(x=>x.path==='/v1/operator/notifications'&&x.query.includes('cursor=50'));
+   assert(pageRequests.length>=2);assert.equal(await p.locator('[data-pagination="notifications"]').count(),0);
+  });
 
   notices[0].version=99;
   await p.locator('[data-notice-read="notice-1"]').click();await p.waitForFunction(()=>!document.querySelector('#error[hidden]'));
