@@ -1,0 +1,40 @@
+{
+  "GoalRunListEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "$ref": "GoalRun.json#/GoalRun"
+        },
+        "maxItems": 50
+      },
+      "meta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fixture_enabled",
+          "implementation"
+        ],
+        "properties": {
+          "fixture_enabled": {
+            "type": "boolean"
+          },
+          "implementation": {
+            "type": "string",
+            "enum": [
+              "deterministic_fixture"
+            ]
+          }
+        },
+        "description": "fixture_enabled is true only after the complete local deployment/database identity gate; it grants no operation permission."
+      }
+    },
+    "description": "Up to 50 newest runs for the current workspace/principal. This bounded first-stage list has no pagination/cursor promise."
+  }
+}

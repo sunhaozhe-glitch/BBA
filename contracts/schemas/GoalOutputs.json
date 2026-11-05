@@ -1,0 +1,157 @@
+{
+  "GoalPlanOutput": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_id",
+      "role",
+      "consumed_evidence_ids",
+      "intent",
+      "change_reason",
+      "summary",
+      "information_gaps",
+      "suggested_complete",
+      "error_code"
+    ],
+    "properties": {
+      "schema_id": {
+        "type": "string",
+        "enum": [
+          "GoalPlan.v1"
+        ]
+      },
+      "role": {
+        "type": "string",
+        "enum": [
+          "planner"
+        ]
+      },
+      "consumed_evidence_ids": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "maxItems": 32
+      },
+      "intent": {
+        "type": "string",
+        "enum": [
+          "analyze_window"
+        ]
+      },
+      "change_reason": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "summary": {
+        "type": "string",
+        "enum": [
+          ""
+        ]
+      },
+      "information_gaps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "maxItems": 0
+      },
+      "suggested_complete": {
+        "type": "boolean",
+        "enum": [
+          false
+        ]
+      },
+      "error_code": {
+        "type": "string",
+        "enum": [
+          "",
+          "WINDOW_EXPIRED",
+          "ANALYSIS_FAILED"
+        ]
+      }
+    },
+    "description": "Restricted planning output. Analyze only the supplied window; no request_join, arbitrary tools, Task creation or execution grant. Consumed evidence ids must exactly match the immutable step input, checked by the service."
+  },
+  "GoalAnalysisOutput": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_id",
+      "role",
+      "consumed_evidence_ids",
+      "intent",
+      "change_reason",
+      "summary",
+      "information_gaps",
+      "suggested_complete",
+      "error_code"
+    ],
+    "properties": {
+      "schema_id": {
+        "type": "string",
+        "enum": [
+          "GoalAnalysis.v1"
+        ]
+      },
+      "role": {
+        "type": "string",
+        "enum": [
+          "analyst"
+        ]
+      },
+      "consumed_evidence_ids": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "maxItems": 32
+      },
+      "intent": {
+        "type": "string",
+        "enum": [
+          ""
+        ]
+      },
+      "change_reason": {
+        "type": "string",
+        "enum": [
+          ""
+        ]
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "information_gaps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "maxItems": 8
+      },
+      "suggested_complete": {
+        "type": "boolean"
+      },
+      "error_code": {
+        "type": "string",
+        "enum": [
+          "",
+          "WINDOW_EXPIRED",
+          "ANALYSIS_FAILED"
+        ]
+      }
+    },
+    "description": "Restricted analysis output; suggested_complete must equal whether information_gaps is empty (server semantic validation). It only suggests operator confirmation and never completes a run itself. Output byte cap is 16384; summary/change_reason/gap byte caps are checked by the service."
+  }
+}

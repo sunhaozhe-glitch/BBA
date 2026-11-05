@@ -1,0 +1,6391 @@
+[
+  {
+    "schema_ref": "GoalRun.json#/GoalAgentSnapshot",
+    "valid": true,
+    "value": {
+      "id": "agent_fixture",
+      "name": "Fixture role",
+      "description": "Synthetic role snapshot",
+      "enabled": true,
+      "version": 1,
+      "updated_by": "principal_fixture",
+      "updated_at": "2026-11-05T02:00:00Z",
+      "deleted": false,
+      "web_search": false,
+      "system_prompt": "Analyze synthetic evidence only.",
+      "model_id": "model_fixture",
+      "skills": [],
+      "tools": []
+    },
+    "description": "Synthetic offline goal fixture: valid GoalAgentSnapshot shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAgentSnapshot",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalAgentSnapshot fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAgentSnapshot",
+    "valid": false,
+    "value": {
+      "id": "agent_fixture",
+      "name": "Fixture role",
+      "description": "Synthetic role snapshot",
+      "enabled": true,
+      "version": 1,
+      "updated_by": "principal_fixture",
+      "updated_at": "2026-11-05T02:00:00Z",
+      "deleted": false,
+      "web_search": false,
+      "system_prompt": "Analyze synthetic evidence only.",
+      "model_id": "model_fixture",
+      "skills": [],
+      "tools": [],
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalAgentSnapshot field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalSkillSnapshot",
+    "valid": true,
+    "value": {
+      "id": "skill_fixture",
+      "name": "Fixture role",
+      "description": "Synthetic role snapshot",
+      "enabled": true,
+      "version": 1,
+      "updated_by": "principal_fixture",
+      "updated_at": "2026-11-05T02:00:00Z",
+      "deleted": false,
+      "goal": "Analyze bounded synthetic messages",
+      "inputs": [
+        "window"
+      ],
+      "steps": [
+        "analyze"
+      ],
+      "required_capabilities": [
+        "structured_output"
+      ],
+      "outputs": [
+        "structured_output"
+      ],
+      "stop_conditions": [
+        "insufficient input"
+      ],
+      "constraints": [
+        "no tools"
+      ],
+      "tools": [],
+      "published": true
+    },
+    "description": "Synthetic offline goal fixture: valid GoalSkillSnapshot shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalSkillSnapshot",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalSkillSnapshot fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalSkillSnapshot",
+    "valid": false,
+    "value": {
+      "id": "skill_fixture",
+      "name": "Fixture role",
+      "description": "Synthetic role snapshot",
+      "enabled": true,
+      "version": 1,
+      "updated_by": "principal_fixture",
+      "updated_at": "2026-11-05T02:00:00Z",
+      "deleted": false,
+      "goal": "Analyze bounded synthetic messages",
+      "inputs": [
+        "window"
+      ],
+      "steps": [
+        "analyze"
+      ],
+      "required_capabilities": [
+        "structured_output"
+      ],
+      "outputs": [
+        "structured_output"
+      ],
+      "stop_conditions": [
+        "insufficient input"
+      ],
+      "constraints": [
+        "no tools"
+      ],
+      "tools": [],
+      "published": true,
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalSkillSnapshot field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalModelSnapshot",
+    "valid": true,
+    "value": {
+      "id": "model_fixture",
+      "name": "Fixture model configuration",
+      "model": "synthetic-unused",
+      "base_url": "http://127.0.0.1:1/v1",
+      "enabled": true,
+      "is_default": false,
+      "timeout_seconds": 30,
+      "max_concurrent": 1,
+      "version": 1,
+      "has_secret": false
+    },
+    "description": "Synthetic offline goal fixture: valid GoalModelSnapshot shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalModelSnapshot",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalModelSnapshot fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalModelSnapshot",
+    "valid": false,
+    "value": {
+      "id": "model_fixture",
+      "name": "Fixture model configuration",
+      "model": "synthetic-unused",
+      "base_url": "http://127.0.0.1:1/v1",
+      "enabled": true,
+      "is_default": false,
+      "timeout_seconds": 30,
+      "max_concurrent": 1,
+      "version": 1,
+      "has_secret": false,
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalModelSnapshot field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRoleSnapshot",
+    "valid": true,
+    "value": {
+      "agent": {
+        "id": "agent_fixture",
+        "name": "Fixture role",
+        "description": "Synthetic role snapshot",
+        "enabled": true,
+        "version": 1,
+        "updated_by": "principal_fixture",
+        "updated_at": "2026-11-05T02:00:00Z",
+        "deleted": false,
+        "web_search": false,
+        "system_prompt": "Analyze synthetic evidence only.",
+        "model_id": "model_fixture",
+        "skills": [],
+        "tools": []
+      },
+      "skills": [],
+      "model": {
+        "id": "model_fixture",
+        "name": "Fixture model configuration",
+        "model": "synthetic-unused",
+        "base_url": "http://127.0.0.1:1/v1",
+        "enabled": true,
+        "is_default": false,
+        "timeout_seconds": 30,
+        "max_concurrent": 1,
+        "version": 1,
+        "has_secret": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: valid GoalRoleSnapshot shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRoleSnapshot",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalRoleSnapshot fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRoleSnapshot",
+    "valid": false,
+    "value": {
+      "agent": {
+        "id": "agent_fixture",
+        "name": "Fixture role",
+        "description": "Synthetic role snapshot",
+        "enabled": true,
+        "version": 1,
+        "updated_by": "principal_fixture",
+        "updated_at": "2026-11-05T02:00:00Z",
+        "deleted": false,
+        "web_search": false,
+        "system_prompt": "Analyze synthetic evidence only.",
+        "model_id": "model_fixture",
+        "skills": [],
+        "tools": []
+      },
+      "skills": [],
+      "model": {
+        "id": "model_fixture",
+        "name": "Fixture model configuration",
+        "model": "synthetic-unused",
+        "base_url": "http://127.0.0.1:1/v1",
+        "enabled": true,
+        "is_default": false,
+        "timeout_seconds": 30,
+        "max_concurrent": 1,
+        "version": 1,
+        "has_secret": false
+      },
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalRoleSnapshot field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalConfiguration",
+    "valid": true,
+    "value": {
+      "planner": {
+        "agent": {
+          "id": "agent_fixture",
+          "name": "Fixture role",
+          "description": "Synthetic role snapshot",
+          "enabled": true,
+          "version": 1,
+          "updated_by": "principal_fixture",
+          "updated_at": "2026-11-05T02:00:00Z",
+          "deleted": false,
+          "web_search": false,
+          "system_prompt": "Analyze synthetic evidence only.",
+          "model_id": "model_fixture",
+          "skills": [],
+          "tools": []
+        },
+        "skills": [],
+        "model": {
+          "id": "model_fixture",
+          "name": "Fixture model configuration",
+          "model": "synthetic-unused",
+          "base_url": "http://127.0.0.1:1/v1",
+          "enabled": true,
+          "is_default": false,
+          "timeout_seconds": 30,
+          "max_concurrent": 1,
+          "version": 1,
+          "has_secret": false
+        }
+      },
+      "analyst": {
+        "agent": {
+          "id": "agent_fixture",
+          "name": "Fixture role",
+          "description": "Synthetic role snapshot",
+          "enabled": true,
+          "version": 1,
+          "updated_by": "principal_fixture",
+          "updated_at": "2026-11-05T02:00:00Z",
+          "deleted": false,
+          "web_search": false,
+          "system_prompt": "Analyze synthetic evidence only.",
+          "model_id": "model_fixture",
+          "skills": [],
+          "tools": []
+        },
+        "skills": [],
+        "model": {
+          "id": "model_fixture",
+          "name": "Fixture model configuration",
+          "model": "synthetic-unused",
+          "base_url": "http://127.0.0.1:1/v1",
+          "enabled": true,
+          "is_default": false,
+          "timeout_seconds": 30,
+          "max_concurrent": 1,
+          "version": 1,
+          "has_secret": false
+        }
+      }
+    },
+    "description": "Synthetic offline goal fixture: valid GoalConfiguration shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalConfiguration",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalConfiguration fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalConfiguration",
+    "valid": false,
+    "value": {
+      "planner": {
+        "agent": {
+          "id": "agent_fixture",
+          "name": "Fixture role",
+          "description": "Synthetic role snapshot",
+          "enabled": true,
+          "version": 1,
+          "updated_by": "principal_fixture",
+          "updated_at": "2026-11-05T02:00:00Z",
+          "deleted": false,
+          "web_search": false,
+          "system_prompt": "Analyze synthetic evidence only.",
+          "model_id": "model_fixture",
+          "skills": [],
+          "tools": []
+        },
+        "skills": [],
+        "model": {
+          "id": "model_fixture",
+          "name": "Fixture model configuration",
+          "model": "synthetic-unused",
+          "base_url": "http://127.0.0.1:1/v1",
+          "enabled": true,
+          "is_default": false,
+          "timeout_seconds": 30,
+          "max_concurrent": 1,
+          "version": 1,
+          "has_secret": false
+        }
+      },
+      "analyst": {
+        "agent": {
+          "id": "agent_fixture",
+          "name": "Fixture role",
+          "description": "Synthetic role snapshot",
+          "enabled": true,
+          "version": 1,
+          "updated_by": "principal_fixture",
+          "updated_at": "2026-11-05T02:00:00Z",
+          "deleted": false,
+          "web_search": false,
+          "system_prompt": "Analyze synthetic evidence only.",
+          "model_id": "model_fixture",
+          "skills": [],
+          "tools": []
+        },
+        "skills": [],
+        "model": {
+          "id": "model_fixture",
+          "name": "Fixture model configuration",
+          "model": "synthetic-unused",
+          "base_url": "http://127.0.0.1:1/v1",
+          "enabled": true,
+          "is_default": false,
+          "timeout_seconds": 30,
+          "max_concurrent": 1,
+          "version": 1,
+          "has_secret": false
+        }
+      },
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalConfiguration field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalMemory",
+    "valid": true,
+    "value": {
+      "summary": "",
+      "information_gaps": null,
+      "consumed_evidence_ids": null,
+      "updated_round": 0
+    },
+    "description": "Synthetic offline goal fixture: valid GoalMemory shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalMemory",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalMemory fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalMemory",
+    "valid": false,
+    "value": {
+      "summary": "",
+      "information_gaps": null,
+      "consumed_evidence_ids": null,
+      "updated_round": 0,
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalMemory field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAsset",
+    "valid": true,
+    "value": {
+      "id": "asset_fixture",
+      "type": "qq_group",
+      "label": "20001"
+    },
+    "description": "Synthetic offline goal fixture: valid GoalAsset shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAsset",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalAsset fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAsset",
+    "valid": false,
+    "value": {
+      "id": "asset_fixture",
+      "type": "qq_group",
+      "label": "20001",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalAsset field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalNode",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "kind": "goal",
+      "label": "Synthetic goal",
+      "state": "open"
+    },
+    "description": "Synthetic offline goal fixture: valid GoalNode shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalNode",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalNode fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalNode",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "kind": "goal",
+      "label": "Synthetic goal",
+      "state": "open",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalNode field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEdge",
+    "valid": true,
+    "value": {
+      "to": "intent_fixture",
+      "kind": "spawns",
+      "from": "goal_fixture"
+    },
+    "description": "Synthetic offline goal fixture: valid GoalEdge shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEdge",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalEdge fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEdge",
+    "valid": false,
+    "value": {
+      "to": "intent_fixture",
+      "kind": "spawns",
+      "from": "goal_fixture",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalEdge field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAnchor",
+    "valid": true,
+    "value": {
+      "node_id": "goal_fixture",
+      "asset_id": "asset_fixture"
+    },
+    "description": "Synthetic offline goal fixture: valid GoalAnchor shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAnchor",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalAnchor fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAnchor",
+    "valid": false,
+    "value": {
+      "node_id": "goal_fixture",
+      "asset_id": "asset_fixture",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalAnchor field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalGraph",
+    "valid": true,
+    "value": {
+      "assets": [
+        {
+          "id": "asset_fixture",
+          "type": "qq_group",
+          "label": "20001"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "goal_fixture",
+          "kind": "goal",
+          "label": "Synthetic goal",
+          "state": "open"
+        }
+      ],
+      "edges": [],
+      "anchors": [
+        {
+          "node_id": "goal_fixture",
+          "asset_id": "asset_fixture"
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: valid GoalGraph shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalGraph",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalGraph fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalGraph",
+    "valid": false,
+    "value": {
+      "assets": [
+        {
+          "id": "asset_fixture",
+          "type": "qq_group",
+          "label": "20001"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "goal_fixture",
+          "kind": "goal",
+          "label": "Synthetic goal",
+          "state": "open"
+        }
+      ],
+      "edges": [],
+      "anchors": [
+        {
+          "node_id": "goal_fixture",
+          "asset_id": "asset_fixture"
+        }
+      ],
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalGraph field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEvidence",
+    "valid": true,
+    "value": {
+      "id": "synthetic:window_fixture_1:message_fixture_1",
+      "kind": "raw",
+      "text": "Synthetic need: course",
+      "refs": [],
+      "round": 1,
+      "expires_at": "2026-11-05T02:11:00Z"
+    },
+    "description": "Synthetic offline goal fixture: valid GoalEvidence shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEvidence",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalEvidence fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEvidence",
+    "valid": false,
+    "value": {
+      "id": "synthetic:window_fixture_1:message_fixture_1",
+      "kind": "raw",
+      "text": "Synthetic need: course",
+      "refs": [],
+      "round": 1,
+      "expires_at": "2026-11-05T02:11:00Z",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalEvidence field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": true,
+    "value": {
+      "id": "step_fixture",
+      "role": "planner",
+      "state": "READY",
+      "attempt": 0,
+      "output": {}
+    },
+    "description": "Synthetic offline goal fixture: valid GoalStep shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalStep fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": false,
+    "value": {
+      "id": "step_fixture",
+      "role": "planner",
+      "state": "READY",
+      "attempt": 0,
+      "output": {},
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalStep field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRound",
+    "valid": true,
+    "value": {
+      "number": 1,
+      "state": "RUNNING",
+      "change_reason": "",
+      "consumed_evidence_ids": [],
+      "steps": [
+        {
+          "id": "step_fixture",
+          "role": "planner",
+          "state": "READY",
+          "attempt": 0,
+          "output": {}
+        },
+        {
+          "id": "step_analyst_fixture",
+          "role": "analyst",
+          "state": "BLOCKED",
+          "attempt": 0,
+          "output": {}
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: valid GoalRound shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRound",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalRound fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRound",
+    "valid": false,
+    "value": {
+      "number": 1,
+      "state": "RUNNING",
+      "change_reason": "",
+      "consumed_evidence_ids": [],
+      "steps": [
+        {
+          "id": "step_fixture",
+          "role": "planner",
+          "state": "READY",
+          "attempt": 0,
+          "output": {}
+        },
+        {
+          "id": "step_analyst_fixture",
+          "role": "analyst",
+          "state": "BLOCKED",
+          "attempt": 0,
+          "output": {}
+        }
+      ],
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalRound field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: valid GoalRun shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalRun fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      },
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalRun field is rejected."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": true,
+    "value": {
+      "schema_id": "GoalPlan.v1",
+      "role": "planner",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "analyze_window",
+      "change_reason": "New synthetic evidence; analyze only this group.",
+      "summary": "",
+      "information_gaps": [],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: valid GoalPlanOutput shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalPlanOutput fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalPlan.v1",
+      "role": "planner",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "analyze_window",
+      "change_reason": "New synthetic evidence; analyze only this group.",
+      "summary": "",
+      "information_gaps": [],
+      "suggested_complete": false,
+      "error_code": "",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalPlanOutput field is rejected."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": true,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic evidence is insufficient.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: valid GoalAnalysisOutput shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalAnalysisOutput fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic evidence is insufficient.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": "",
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalAnalysisOutput field is rejected."
+  },
+  {
+    "schema_ref": "GoalRunEnvelope.json#/GoalRunEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "goal_fixture",
+        "thread_id": "thread_goal_fixture",
+        "group_id": "20001",
+        "goal": "Analyze synthetic demand.",
+        "state": "WAITING_INPUT",
+        "version": 1,
+        "round": 0,
+        "reason": "Waiting for a usable synthetic window.",
+        "implementation": "deterministic_fixture",
+        "max_rounds": 4,
+        "max_steps": 8,
+        "attempt_timeout_seconds": 30,
+        "created_at": "2026-11-05T02:00:00Z",
+        "deadline_at": "2026-11-05T02:30:00Z",
+        "configuration": {
+          "planner": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          },
+          "analyst": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          }
+        },
+        "memory": {
+          "summary": "",
+          "information_gaps": null,
+          "consumed_evidence_ids": null,
+          "updated_round": 0
+        },
+        "rounds": [],
+        "evidence": [],
+        "graph": {
+          "assets": [
+            {
+              "id": "asset_fixture",
+              "type": "qq_group",
+              "label": "20001"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "goal_fixture",
+              "kind": "goal",
+              "label": "Synthetic goal",
+              "state": "open"
+            }
+          ],
+          "edges": [],
+          "anchors": [
+            {
+              "node_id": "goal_fixture",
+              "asset_id": "asset_fixture"
+            }
+          ]
+        }
+      },
+      "meta": {
+        "fixture_enabled": true,
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: valid GoalRunEnvelope shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRunEnvelope.json#/GoalRunEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalRunEnvelope fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunEnvelope.json#/GoalRunEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "goal_fixture",
+        "thread_id": "thread_goal_fixture",
+        "group_id": "20001",
+        "goal": "Analyze synthetic demand.",
+        "state": "WAITING_INPUT",
+        "version": 1,
+        "round": 0,
+        "reason": "Waiting for a usable synthetic window.",
+        "implementation": "deterministic_fixture",
+        "max_rounds": 4,
+        "max_steps": 8,
+        "attempt_timeout_seconds": 30,
+        "created_at": "2026-11-05T02:00:00Z",
+        "deadline_at": "2026-11-05T02:30:00Z",
+        "configuration": {
+          "planner": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          },
+          "analyst": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          }
+        },
+        "memory": {
+          "summary": "",
+          "information_gaps": null,
+          "consumed_evidence_ids": null,
+          "updated_round": 0
+        },
+        "rounds": [],
+        "evidence": [],
+        "graph": {
+          "assets": [
+            {
+              "id": "asset_fixture",
+              "type": "qq_group",
+              "label": "20001"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "goal_fixture",
+              "kind": "goal",
+              "label": "Synthetic goal",
+              "state": "open"
+            }
+          ],
+          "edges": [],
+          "anchors": [
+            {
+              "node_id": "goal_fixture",
+              "asset_id": "asset_fixture"
+            }
+          ]
+        }
+      },
+      "meta": {
+        "fixture_enabled": true,
+        "implementation": "deterministic_fixture"
+      },
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalRunEnvelope field is rejected."
+  },
+  {
+    "schema_ref": "GoalRunListEnvelope.json#/GoalRunListEnvelope",
+    "valid": true,
+    "value": {
+      "data": [
+        {
+          "id": "goal_fixture",
+          "thread_id": "thread_goal_fixture",
+          "group_id": "20001",
+          "goal": "Analyze synthetic demand.",
+          "state": "WAITING_INPUT",
+          "version": 1,
+          "round": 0,
+          "reason": "Waiting for a usable synthetic window.",
+          "implementation": "deterministic_fixture",
+          "max_rounds": 4,
+          "max_steps": 8,
+          "attempt_timeout_seconds": 30,
+          "created_at": "2026-11-05T02:00:00Z",
+          "deadline_at": "2026-11-05T02:30:00Z",
+          "configuration": {
+            "planner": {
+              "agent": {
+                "id": "agent_fixture",
+                "name": "Fixture role",
+                "description": "Synthetic role snapshot",
+                "enabled": true,
+                "version": 1,
+                "updated_by": "principal_fixture",
+                "updated_at": "2026-11-05T02:00:00Z",
+                "deleted": false,
+                "web_search": false,
+                "system_prompt": "Analyze synthetic evidence only.",
+                "model_id": "model_fixture",
+                "skills": [],
+                "tools": []
+              },
+              "skills": [],
+              "model": {
+                "id": "model_fixture",
+                "name": "Fixture model configuration",
+                "model": "synthetic-unused",
+                "base_url": "http://127.0.0.1:1/v1",
+                "enabled": true,
+                "is_default": false,
+                "timeout_seconds": 30,
+                "max_concurrent": 1,
+                "version": 1,
+                "has_secret": false
+              }
+            },
+            "analyst": {
+              "agent": {
+                "id": "agent_fixture",
+                "name": "Fixture role",
+                "description": "Synthetic role snapshot",
+                "enabled": true,
+                "version": 1,
+                "updated_by": "principal_fixture",
+                "updated_at": "2026-11-05T02:00:00Z",
+                "deleted": false,
+                "web_search": false,
+                "system_prompt": "Analyze synthetic evidence only.",
+                "model_id": "model_fixture",
+                "skills": [],
+                "tools": []
+              },
+              "skills": [],
+              "model": {
+                "id": "model_fixture",
+                "name": "Fixture model configuration",
+                "model": "synthetic-unused",
+                "base_url": "http://127.0.0.1:1/v1",
+                "enabled": true,
+                "is_default": false,
+                "timeout_seconds": 30,
+                "max_concurrent": 1,
+                "version": 1,
+                "has_secret": false
+              }
+            }
+          },
+          "memory": {
+            "summary": "",
+            "information_gaps": null,
+            "consumed_evidence_ids": null,
+            "updated_round": 0
+          },
+          "rounds": [],
+          "evidence": [],
+          "graph": {
+            "assets": [
+              {
+                "id": "asset_fixture",
+                "type": "qq_group",
+                "label": "20001"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "goal_fixture",
+                "kind": "goal",
+                "label": "Synthetic goal",
+                "state": "open"
+              }
+            ],
+            "edges": [],
+            "anchors": [
+              {
+                "node_id": "goal_fixture",
+                "asset_id": "asset_fixture"
+              }
+            ]
+          }
+        }
+      ],
+      "meta": {
+        "fixture_enabled": true,
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: valid GoalRunListEnvelope shape; no live or model quality claim."
+  },
+  {
+    "schema_ref": "GoalRunListEnvelope.json#/GoalRunListEnvelope",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required GoalRunListEnvelope fields cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunListEnvelope.json#/GoalRunListEnvelope",
+    "valid": false,
+    "value": {
+      "data": [
+        {
+          "id": "goal_fixture",
+          "thread_id": "thread_goal_fixture",
+          "group_id": "20001",
+          "goal": "Analyze synthetic demand.",
+          "state": "WAITING_INPUT",
+          "version": 1,
+          "round": 0,
+          "reason": "Waiting for a usable synthetic window.",
+          "implementation": "deterministic_fixture",
+          "max_rounds": 4,
+          "max_steps": 8,
+          "attempt_timeout_seconds": 30,
+          "created_at": "2026-11-05T02:00:00Z",
+          "deadline_at": "2026-11-05T02:30:00Z",
+          "configuration": {
+            "planner": {
+              "agent": {
+                "id": "agent_fixture",
+                "name": "Fixture role",
+                "description": "Synthetic role snapshot",
+                "enabled": true,
+                "version": 1,
+                "updated_by": "principal_fixture",
+                "updated_at": "2026-11-05T02:00:00Z",
+                "deleted": false,
+                "web_search": false,
+                "system_prompt": "Analyze synthetic evidence only.",
+                "model_id": "model_fixture",
+                "skills": [],
+                "tools": []
+              },
+              "skills": [],
+              "model": {
+                "id": "model_fixture",
+                "name": "Fixture model configuration",
+                "model": "synthetic-unused",
+                "base_url": "http://127.0.0.1:1/v1",
+                "enabled": true,
+                "is_default": false,
+                "timeout_seconds": 30,
+                "max_concurrent": 1,
+                "version": 1,
+                "has_secret": false
+              }
+            },
+            "analyst": {
+              "agent": {
+                "id": "agent_fixture",
+                "name": "Fixture role",
+                "description": "Synthetic role snapshot",
+                "enabled": true,
+                "version": 1,
+                "updated_by": "principal_fixture",
+                "updated_at": "2026-11-05T02:00:00Z",
+                "deleted": false,
+                "web_search": false,
+                "system_prompt": "Analyze synthetic evidence only.",
+                "model_id": "model_fixture",
+                "skills": [],
+                "tools": []
+              },
+              "skills": [],
+              "model": {
+                "id": "model_fixture",
+                "name": "Fixture model configuration",
+                "model": "synthetic-unused",
+                "base_url": "http://127.0.0.1:1/v1",
+                "enabled": true,
+                "is_default": false,
+                "timeout_seconds": 30,
+                "max_concurrent": 1,
+                "version": 1,
+                "has_secret": false
+              }
+            }
+          },
+          "memory": {
+            "summary": "",
+            "information_gaps": null,
+            "consumed_evidence_ids": null,
+            "updated_round": 0
+          },
+          "rounds": [],
+          "evidence": [],
+          "graph": {
+            "assets": [
+              {
+                "id": "asset_fixture",
+                "type": "qq_group",
+                "label": "20001"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "goal_fixture",
+                "kind": "goal",
+                "label": "Synthetic goal",
+                "state": "open"
+              }
+            ],
+            "edges": [],
+            "anchors": [
+              {
+                "node_id": "goal_fixture",
+                "asset_id": "asset_fixture"
+              }
+            ]
+          }
+        }
+      ],
+      "meta": {
+        "fixture_enabled": true,
+        "implementation": "deterministic_fixture"
+      },
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown GoalRunListEnvelope field is rejected."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "RUNNING",
+      "version": 1,
+      "round": 0,
+      "reason": "Synthetic state projection only.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: supported state RUNNING; schema does not prove lifecycle transitions."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "AWAITING_CONFIRMATION",
+      "version": 1,
+      "round": 0,
+      "reason": "Synthetic state projection only.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: supported state AWAITING_CONFIRMATION; schema does not prove lifecycle transitions."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "CONFIRMED",
+      "version": 1,
+      "round": 0,
+      "reason": "Synthetic state projection only.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: supported state CONFIRMED; schema does not prove lifecycle transitions."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "STOPPED",
+      "version": 1,
+      "round": 0,
+      "reason": "Synthetic state projection only.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: supported state STOPPED; schema does not prove lifecycle transitions."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "TIMED_OUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Synthetic state projection only.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: supported state TIMED_OUT; schema does not prove lifecycle transitions."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": true,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "LIMIT_REACHED",
+      "version": 1,
+      "round": 0,
+      "reason": "Synthetic state projection only.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: supported state LIMIT_REACHED; schema does not prove lifecycle transitions."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "SUCCESS",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid state cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 5,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid round cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 0,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid version cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": 20001,
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid group_id cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "real_model",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid implementation cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 5,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid max_rounds cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 9,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid max_steps cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 31,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: invalid attempt_timeout_seconds cannot expand scope or fixed limits."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field id must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field thread_id must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field group_id must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field goal must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field state must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field version must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field round must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field reason must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field implementation must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field max_rounds must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field max_steps must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field attempt_timeout_seconds must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field created_at must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field deadline_at must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field configuration must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "rounds": [],
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field memory must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "evidence": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field rounds must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "graph": {
+        "assets": [
+          {
+            "id": "asset_fixture",
+            "type": "qq_group",
+            "label": "20001"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "goal_fixture",
+            "kind": "goal",
+            "label": "Synthetic goal",
+            "state": "open"
+          }
+        ],
+        "edges": [],
+        "anchors": [
+          {
+            "node_id": "goal_fixture",
+            "asset_id": "asset_fixture"
+          }
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: run field evidence must be present."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRun",
+    "valid": false,
+    "value": {
+      "id": "goal_fixture",
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand.",
+      "state": "WAITING_INPUT",
+      "version": 1,
+      "round": 0,
+      "reason": "Waiting for a usable synthetic window.",
+      "implementation": "deterministic_fixture",
+      "max_rounds": 4,
+      "max_steps": 8,
+      "attempt_timeout_seconds": 30,
+      "created_at": "2026-11-05T02:00:00Z",
+      "deadline_at": "2026-11-05T02:30:00Z",
+      "configuration": {
+        "planner": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        },
+        "analyst": {
+          "agent": {
+            "id": "agent_fixture",
+            "name": "Fixture role",
+            "description": "Synthetic role snapshot",
+            "enabled": true,
+            "version": 1,
+            "updated_by": "principal_fixture",
+            "updated_at": "2026-11-05T02:00:00Z",
+            "deleted": false,
+            "web_search": false,
+            "system_prompt": "Analyze synthetic evidence only.",
+            "model_id": "model_fixture",
+            "skills": [],
+            "tools": []
+          },
+          "skills": [],
+          "model": {
+            "id": "model_fixture",
+            "name": "Fixture model configuration",
+            "model": "synthetic-unused",
+            "base_url": "http://127.0.0.1:1/v1",
+            "enabled": true,
+            "is_default": false,
+            "timeout_seconds": 30,
+            "max_concurrent": 1,
+            "version": 1,
+            "has_secret": false
+          }
+        }
+      },
+      "memory": {
+        "summary": "",
+        "information_gaps": null,
+        "consumed_evidence_ids": null,
+        "updated_round": 0
+      },
+      "rounds": [],
+      "evidence": []
+    },
+    "description": "Synthetic offline goal fixture: run field graph must be present."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalPlan.v1",
+      "role": "shell",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "analyze_window",
+      "change_reason": "New synthetic evidence; analyze only this group.",
+      "summary": "",
+      "information_gaps": [],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express role=shell."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "PlanProposal.v1",
+      "role": "planner",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "analyze_window",
+      "change_reason": "New synthetic evidence; analyze only this group.",
+      "summary": "",
+      "information_gaps": [],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express schema_id=PlanProposal.v1."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalPlan.v1",
+      "role": "planner",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "request_join",
+      "change_reason": "New synthetic evidence; analyze only this group.",
+      "summary": "",
+      "information_gaps": [],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express intent=request_join."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalPlanOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalPlan.v1",
+      "role": "planner",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "analyze_window",
+      "change_reason": "New synthetic evidence; analyze only this group.",
+      "summary": "",
+      "information_gaps": [],
+      "suggested_complete": false,
+      "error_code": "",
+      "tools": [
+        "mcp.call"
+      ]
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express tools=['mcp.call']."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "shell",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic evidence is insufficient.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express role=shell."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "PlanProposal.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic evidence is insufficient.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express schema_id=PlanProposal.v1."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "request_join",
+      "change_reason": "",
+      "summary": "Synthetic evidence is insufficient.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express intent=request_join."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": false,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic evidence is insufficient.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": "",
+      "tools": [
+        "mcp.call"
+      ]
+    },
+    "description": "Synthetic offline goal fixture: restricted output cannot express tools=['mcp.call']."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": false,
+    "value": {
+      "id": "step_fixture",
+      "role": "planner",
+      "state": "READY",
+      "attempt": 3,
+      "output": {}
+    },
+    "description": "Synthetic offline goal fixture: step state, role, output and attempt budget are bounded."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": false,
+    "value": {
+      "id": "step_fixture",
+      "role": "planner",
+      "state": "READY",
+      "attempt": 0,
+      "output": null
+    },
+    "description": "Synthetic offline goal fixture: step state, role, output and attempt budget are bounded."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": false,
+    "value": {
+      "id": "step_fixture",
+      "role": "planner",
+      "state": "SENT",
+      "attempt": 0,
+      "output": {}
+    },
+    "description": "Synthetic offline goal fixture: step state, role, output and attempt budget are bounded."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": false,
+    "value": {
+      "id": "step_fixture",
+      "role": "shell",
+      "state": "READY",
+      "attempt": 0,
+      "output": {}
+    },
+    "description": "Synthetic offline goal fixture: step state, role, output and attempt budget are bounded."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": true,
+    "value": {
+      "id": "step_fixture",
+      "role": "planner",
+      "state": "COMPLETED",
+      "attempt": 1,
+      "output": {
+        "schema_id": "GoalPlan.v1",
+        "role": "planner",
+        "consumed_evidence_ids": [
+          "synthetic:window_fixture_1:message_fixture_1"
+        ],
+        "intent": "analyze_window",
+        "change_reason": "New synthetic evidence; analyze only this group.",
+        "summary": "",
+        "information_gaps": [],
+        "suggested_complete": false,
+        "error_code": ""
+      }
+    },
+    "description": "Synthetic offline goal fixture: completed role has a strict structured output."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalStep",
+    "valid": true,
+    "value": {
+      "id": "step_fixture",
+      "role": "analyst",
+      "state": "COMPLETED",
+      "attempt": 1,
+      "output": {
+        "schema_id": "GoalAnalysis.v1",
+        "role": "analyst",
+        "consumed_evidence_ids": [
+          "synthetic:window_fixture_1:message_fixture_1"
+        ],
+        "intent": "",
+        "change_reason": "",
+        "summary": "Synthetic evidence is insufficient.",
+        "information_gaps": [
+          "budget",
+          "time"
+        ],
+        "suggested_complete": false,
+        "error_code": ""
+      }
+    },
+    "description": "Synthetic offline goal fixture: completed role has a strict structured output."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalMemory",
+    "valid": true,
+    "value": {
+      "summary": "Synthetic summary",
+      "information_gaps": [
+        "budget"
+      ],
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "updated_round": 1
+    },
+    "description": "Synthetic offline goal fixture: memory after first round, including evidence references."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRound",
+    "valid": false,
+    "value": {
+      "number": 1,
+      "state": "RUNNING",
+      "change_reason": "",
+      "consumed_evidence_ids": [],
+      "steps": [
+        {
+          "id": "step_fixture",
+          "role": "planner",
+          "state": "READY",
+          "attempt": 0,
+          "output": {}
+        },
+        {
+          "id": "step_fixture",
+          "role": "planner",
+          "state": "READY",
+          "attempt": 0,
+          "output": {}
+        },
+        {
+          "id": "step_fixture",
+          "role": "planner",
+          "state": "READY",
+          "attempt": 0,
+          "output": {}
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: only two logical steps per round."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalGraph",
+    "valid": false,
+    "value": {
+      "assets": [
+        {
+          "id": "asset_fixture",
+          "type": "qq_group",
+          "label": "20001"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "goal_fixture",
+          "kind": "goal",
+          "label": "Synthetic goal",
+          "state": "open"
+        }
+      ],
+      "edges": [],
+      "anchors": [
+        {
+          "node_id": "goal_fixture",
+          "asset_id": "asset_fixture"
+        }
+      ],
+      "execution_authorized": true
+    },
+    "description": "Synthetic offline goal fixture: graph projections never grant execution permission."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalRoleSnapshot",
+    "valid": false,
+    "value": {
+      "agent": {
+        "id": "agent_fixture",
+        "name": "Fixture role",
+        "description": "Synthetic role snapshot",
+        "enabled": true,
+        "version": 1,
+        "updated_by": "principal_fixture",
+        "updated_at": "2026-11-05T02:00:00Z",
+        "deleted": false,
+        "web_search": false,
+        "system_prompt": "Analyze synthetic evidence only.",
+        "model_id": "model_fixture",
+        "skills": [],
+        "tools": []
+      },
+      "skills": [],
+      "model": {
+        "id": "model_fixture",
+        "name": "Fixture model configuration",
+        "model": "synthetic-unused",
+        "base_url": "http://127.0.0.1:1/v1",
+        "enabled": true,
+        "is_default": false,
+        "timeout_seconds": 30,
+        "max_concurrent": 1,
+        "version": 1,
+        "has_secret": false
+      },
+      "api_key": "not-a-real-key"
+    },
+    "description": "Synthetic offline goal fixture: protected registry secret fields are forbidden."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalModelSnapshot",
+    "valid": false,
+    "value": {
+      "id": "model_fixture",
+      "name": "Fixture model configuration",
+      "model": "synthetic-unused",
+      "base_url": "http://127.0.0.1:1/v1",
+      "enabled": true,
+      "is_default": false,
+      "timeout_seconds": 30,
+      "max_concurrent": 1,
+      "version": 1,
+      "has_secret": false,
+      "api_key": "not-a-real-key"
+    },
+    "description": "Synthetic offline goal fixture: secret cannot appear in model configuration projection."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalAgentSnapshot",
+    "valid": false,
+    "value": {
+      "id": "agent_fixture",
+      "name": "Fixture role",
+      "description": "Synthetic role snapshot",
+      "enabled": true,
+      "version": 1,
+      "updated_by": "principal_fixture",
+      "updated_at": "2026-11-05T02:00:00Z",
+      "deleted": false,
+      "web_search": false,
+      "system_prompt": "Analyze synthetic evidence only.",
+      "model_id": "model_fixture",
+      "skills": [],
+      "tools": [
+        "shell"
+      ]
+    },
+    "description": "Synthetic offline goal fixture: role snapshots cannot acquire arbitrary callable tools."
+  },
+  {
+    "schema_ref": "GoalRun.json#/GoalEvidence",
+    "valid": false,
+    "value": {
+      "id": "synthetic:window_fixture_1:message_fixture_1",
+      "kind": "verified_qq_success",
+      "text": "Synthetic need: course",
+      "refs": [],
+      "round": 1,
+      "expires_at": "2026-11-05T02:11:00Z"
+    },
+    "description": "Synthetic offline goal fixture: fixture evidence is not a verified QQ outcome."
+  },
+  {
+    "schema_ref": "GoalRunListEnvelope.json#/GoalRunListEnvelope",
+    "valid": true,
+    "value": {
+      "data": [],
+      "meta": {
+        "fixture_enabled": false,
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: empty list with disabled verified fixture gate."
+  },
+  {
+    "schema_ref": "GoalRunListEnvelope.json#/GoalRunListEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "items": []
+      },
+      "meta": {
+        "fixture_enabled": true,
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: list data is an array, not a B7 messages page."
+  },
+  {
+    "schema_ref": "GoalRunListEnvelope.json#/GoalRunListEnvelope",
+    "valid": false,
+    "value": {
+      "data": [],
+      "meta": {
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: fixture_enabled is required."
+  },
+  {
+    "schema_ref": "GoalRunEnvelope.json#/GoalRunEnvelope",
+    "valid": false,
+    "value": {
+      "data": {
+        "id": "goal_fixture",
+        "thread_id": "thread_goal_fixture",
+        "group_id": "20001",
+        "goal": "Analyze synthetic demand.",
+        "state": "WAITING_INPUT",
+        "version": 1,
+        "round": 0,
+        "reason": "Waiting for a usable synthetic window.",
+        "implementation": "deterministic_fixture",
+        "max_rounds": 4,
+        "max_steps": 8,
+        "attempt_timeout_seconds": 30,
+        "created_at": "2026-11-05T02:00:00Z",
+        "deadline_at": "2026-11-05T02:30:00Z",
+        "configuration": {
+          "planner": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          },
+          "analyst": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          }
+        },
+        "memory": {
+          "summary": "",
+          "information_gaps": null,
+          "consumed_evidence_ids": null,
+          "updated_round": 0
+        },
+        "rounds": [],
+        "evidence": [],
+        "graph": {
+          "assets": [
+            {
+              "id": "asset_fixture",
+              "type": "qq_group",
+              "label": "20001"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "goal_fixture",
+              "kind": "goal",
+              "label": "Synthetic goal",
+              "state": "open"
+            }
+          ],
+          "edges": [],
+          "anchors": [
+            {
+              "node_id": "goal_fixture",
+              "asset_id": "asset_fixture"
+            }
+          ]
+        }
+      },
+      "meta": {
+        "fixture_enabled": "true",
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: fixture enabled is a boolean, never inferred from a string."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": true,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic required fields are present; await operator confirmation.",
+      "information_gaps": [],
+      "suggested_complete": true,
+      "error_code": ""
+    },
+    "description": "Synthetic offline goal fixture: sufficient fixture evidence suggests completion; only the operator confirms."
+  },
+  {
+    "schema_ref": "GoalOutputs.json#/GoalAnalysisOutput",
+    "valid": true,
+    "value": {
+      "schema_id": "GoalAnalysis.v1",
+      "role": "analyst",
+      "consumed_evidence_ids": [
+        "synthetic:window_fixture_1:message_fixture_1"
+      ],
+      "intent": "",
+      "change_reason": "",
+      "summary": "Synthetic analysis failure.",
+      "information_gaps": [
+        "budget",
+        "time"
+      ],
+      "suggested_complete": false,
+      "error_code": "ANALYSIS_FAILED"
+    },
+    "description": "Synthetic offline goal fixture: tool/analysis failure shape for future adapter validation; no tool is called by this fixture."
+  },
+  {
+    "schema_ref": "GoalRunEnvelope.json#/GoalRunEnvelope",
+    "valid": true,
+    "value": {
+      "data": {
+        "id": "goal_fixture",
+        "thread_id": "thread_goal_fixture",
+        "group_id": "20001",
+        "goal": "Analyze synthetic demand.",
+        "state": "AWAITING_CONFIRMATION",
+        "version": 4,
+        "round": 1,
+        "reason": "Sufficient synthetic input; waiting for operator confirmation.",
+        "implementation": "deterministic_fixture",
+        "max_rounds": 4,
+        "max_steps": 8,
+        "attempt_timeout_seconds": 30,
+        "created_at": "2026-11-05T02:00:00Z",
+        "deadline_at": "2026-11-05T02:30:00Z",
+        "configuration": {
+          "planner": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          },
+          "analyst": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          }
+        },
+        "memory": {
+          "summary": "Synthetic required fields are present; await operator confirmation.",
+          "information_gaps": [],
+          "consumed_evidence_ids": [
+            "synthetic:window_fixture_1:message_fixture_1"
+          ],
+          "updated_round": 1
+        },
+        "rounds": [
+          {
+            "number": 1,
+            "state": "COMPLETED",
+            "change_reason": "New synthetic evidence; analyze only this group.",
+            "consumed_evidence_ids": [
+              "synthetic:window_fixture_1:message_fixture_1"
+            ],
+            "steps": [
+              {
+                "id": "planner_step_fixture",
+                "role": "planner",
+                "state": "COMPLETED",
+                "attempt": 1,
+                "output": {
+                  "schema_id": "GoalPlan.v1",
+                  "role": "planner",
+                  "consumed_evidence_ids": [
+                    "synthetic:window_fixture_1:message_fixture_1"
+                  ],
+                  "intent": "analyze_window",
+                  "change_reason": "New synthetic evidence; analyze only this group.",
+                  "summary": "",
+                  "information_gaps": [],
+                  "suggested_complete": false,
+                  "error_code": ""
+                }
+              },
+              {
+                "id": "analyst_step_fixture",
+                "role": "analyst",
+                "state": "COMPLETED",
+                "attempt": 1,
+                "output": {
+                  "schema_id": "GoalAnalysis.v1",
+                  "role": "analyst",
+                  "consumed_evidence_ids": [
+                    "synthetic:window_fixture_1:message_fixture_1"
+                  ],
+                  "intent": "",
+                  "change_reason": "",
+                  "summary": "Synthetic required fields are present; await operator confirmation.",
+                  "information_gaps": [],
+                  "suggested_complete": true,
+                  "error_code": ""
+                }
+              }
+            ]
+          }
+        ],
+        "evidence": [
+          {
+            "id": "synthetic:window_fixture_1:message_fixture_1",
+            "kind": "raw",
+            "text": "Synthetic need: course",
+            "refs": [],
+            "round": 1,
+            "expires_at": "2026-11-05T02:11:00Z"
+          }
+        ],
+        "graph": {
+          "assets": [
+            {
+              "id": "asset_fixture",
+              "type": "qq_group",
+              "label": "20001"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "goal_fixture",
+              "kind": "goal",
+              "label": "Synthetic goal",
+              "state": "open"
+            },
+            {
+              "id": "synthetic:window_fixture_1:message_fixture_1",
+              "kind": "fact",
+              "label": "Synthetic need: course",
+              "state": "raw"
+            }
+          ],
+          "edges": [],
+          "anchors": [
+            {
+              "node_id": "goal_fixture",
+              "asset_id": "asset_fixture"
+            },
+            {
+              "node_id": "synthetic:window_fixture_1:message_fixture_1",
+              "asset_id": "asset_fixture"
+            }
+          ]
+        }
+      },
+      "meta": {
+        "fixture_enabled": true,
+        "implementation": "deterministic_fixture"
+      }
+    },
+    "description": "Synthetic offline goal fixture: complete nested readback after one bounded round; still requires operator confirmation."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "WINDOW_EXPIRED",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: WINDOW_EXPIRED reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "GOAL_FIXTURE_DISABLED",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: GOAL_FIXTURE_DISABLED reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "GOAL_STATE_CONFLICT",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: GOAL_STATE_CONFLICT reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "GOAL_LIMIT_REACHED",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: GOAL_LIMIT_REACHED reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "GOAL_RESULT_STALE",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: GOAL_RESULT_STALE reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "VALIDATION_FAILED",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: VALIDATION_FAILED reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "ACTION_FORBIDDEN",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: ACTION_FORBIDDEN reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": true,
+    "value": {
+      "error": {
+        "code": "GOAL_SCOPE_MISMATCH",
+        "message": "Synthetic goal refusal.",
+        "retryable": false,
+        "retry_after_ms": null,
+        "details": {}
+      },
+      "meta": {
+        "request_id": "req_goal_fixture",
+        "next_cursor": null,
+        "has_more": false
+      }
+    },
+    "description": "Synthetic offline goal fixture: GOAL_SCOPE_MISMATCH reuses the existing error envelope; refusal is not an external outcome."
+  },
+  {
+    "schema_ref": "common.json#/ErrorEnvelope",
+    "valid": false,
+    "value": {
+      "error": {
+        "code": "GOAL_STATE_CONFLICT"
+      },
+      "data": {
+        "id": "goal_fixture",
+        "thread_id": "thread_goal_fixture",
+        "group_id": "20001",
+        "goal": "Analyze synthetic demand.",
+        "state": "AWAITING_CONFIRMATION",
+        "version": 4,
+        "round": 1,
+        "reason": "Sufficient synthetic input; waiting for operator confirmation.",
+        "implementation": "deterministic_fixture",
+        "max_rounds": 4,
+        "max_steps": 8,
+        "attempt_timeout_seconds": 30,
+        "created_at": "2026-11-05T02:00:00Z",
+        "deadline_at": "2026-11-05T02:30:00Z",
+        "configuration": {
+          "planner": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          },
+          "analyst": {
+            "agent": {
+              "id": "agent_fixture",
+              "name": "Fixture role",
+              "description": "Synthetic role snapshot",
+              "enabled": true,
+              "version": 1,
+              "updated_by": "principal_fixture",
+              "updated_at": "2026-11-05T02:00:00Z",
+              "deleted": false,
+              "web_search": false,
+              "system_prompt": "Analyze synthetic evidence only.",
+              "model_id": "model_fixture",
+              "skills": [],
+              "tools": []
+            },
+            "skills": [],
+            "model": {
+              "id": "model_fixture",
+              "name": "Fixture model configuration",
+              "model": "synthetic-unused",
+              "base_url": "http://127.0.0.1:1/v1",
+              "enabled": true,
+              "is_default": false,
+              "timeout_seconds": 30,
+              "max_concurrent": 1,
+              "version": 1,
+              "has_secret": false
+            }
+          }
+        },
+        "memory": {
+          "summary": "Synthetic required fields are present; await operator confirmation.",
+          "information_gaps": [],
+          "consumed_evidence_ids": [
+            "synthetic:window_fixture_1:message_fixture_1"
+          ],
+          "updated_round": 1
+        },
+        "rounds": [
+          {
+            "number": 1,
+            "state": "COMPLETED",
+            "change_reason": "New synthetic evidence; analyze only this group.",
+            "consumed_evidence_ids": [
+              "synthetic:window_fixture_1:message_fixture_1"
+            ],
+            "steps": [
+              {
+                "id": "planner_step_fixture",
+                "role": "planner",
+                "state": "COMPLETED",
+                "attempt": 1,
+                "output": {
+                  "schema_id": "GoalPlan.v1",
+                  "role": "planner",
+                  "consumed_evidence_ids": [
+                    "synthetic:window_fixture_1:message_fixture_1"
+                  ],
+                  "intent": "analyze_window",
+                  "change_reason": "New synthetic evidence; analyze only this group.",
+                  "summary": "",
+                  "information_gaps": [],
+                  "suggested_complete": false,
+                  "error_code": ""
+                }
+              },
+              {
+                "id": "analyst_step_fixture",
+                "role": "analyst",
+                "state": "COMPLETED",
+                "attempt": 1,
+                "output": {
+                  "schema_id": "GoalAnalysis.v1",
+                  "role": "analyst",
+                  "consumed_evidence_ids": [
+                    "synthetic:window_fixture_1:message_fixture_1"
+                  ],
+                  "intent": "",
+                  "change_reason": "",
+                  "summary": "Synthetic required fields are present; await operator confirmation.",
+                  "information_gaps": [],
+                  "suggested_complete": true,
+                  "error_code": ""
+                }
+              }
+            ]
+          }
+        ],
+        "evidence": [
+          {
+            "id": "synthetic:window_fixture_1:message_fixture_1",
+            "kind": "raw",
+            "text": "Synthetic need: course",
+            "refs": [],
+            "round": 1,
+            "expires_at": "2026-11-05T02:11:00Z"
+          }
+        ],
+        "graph": {
+          "assets": [
+            {
+              "id": "asset_fixture",
+              "type": "qq_group",
+              "label": "20001"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "goal_fixture",
+              "kind": "goal",
+              "label": "Synthetic goal",
+              "state": "open"
+            },
+            {
+              "id": "synthetic:window_fixture_1:message_fixture_1",
+              "kind": "fact",
+              "label": "Synthetic need: course",
+              "state": "raw"
+            }
+          ],
+          "edges": [],
+          "anchors": [
+            {
+              "node_id": "goal_fixture",
+              "asset_id": "asset_fixture"
+            },
+            {
+              "node_id": "synthetic:window_fixture_1:message_fixture_1",
+              "asset_id": "asset_fixture"
+            }
+          ]
+        }
+      }
+    },
+    "description": "Synthetic offline goal fixture: error is not a success envelope and must retain the existing full error shape."
+  }
+]

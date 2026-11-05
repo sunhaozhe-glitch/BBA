@@ -1,0 +1,662 @@
+[
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": true,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: valid request; timestamps describe shape, not current freshness."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: required thread_id cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: required group_id cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: required goal cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: required planner_ref cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: required analyst_ref cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown request fields are rejected."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": true,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: valid request; timestamps describe shape, not current freshness."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: required event_id cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: required group_id cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: required window_start cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: required window_end cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: required expires_at cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z"
+    },
+    "description": "Synthetic offline goal fixture: required messages cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ],
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown request fields are rejected."
+  },
+  {
+    "schema_ref": "GoalRunControlRequest.json#/GoalRunControlRequest",
+    "valid": true,
+    "value": {
+      "expected_version": 1
+    },
+    "description": "Synthetic offline goal fixture: valid request; timestamps describe shape, not current freshness."
+  },
+  {
+    "schema_ref": "GoalRunControlRequest.json#/GoalRunControlRequest",
+    "valid": false,
+    "value": {},
+    "description": "Synthetic offline goal fixture: required expected_version cannot be omitted."
+  },
+  {
+    "schema_ref": "GoalRunControlRequest.json#/GoalRunControlRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 1,
+      "unexpected": true
+    },
+    "description": "Synthetic offline goal fixture: unknown request fields are rejected."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 0
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: Agent reference requires a positive numeric registry version."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": "1"
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: Agent reference requires a positive numeric registry version."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": null
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: Agent reference requires a positive numeric registry version."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1,
+        "tools": [
+          "shell"
+        ]
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: role reference cannot introduce callable tools."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 0
+      }
+    },
+    "description": "Synthetic offline goal fixture: Agent reference requires a positive numeric registry version."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": "1"
+      }
+    },
+    "description": "Synthetic offline goal fixture: Agent reference requires a positive numeric registry version."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": null
+      }
+    },
+    "description": "Synthetic offline goal fixture: Agent reference requires a positive numeric registry version."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1,
+        "tools": [
+          "shell"
+        ]
+      }
+    },
+    "description": "Synthetic offline goal fixture: role reference cannot introduce callable tools."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: nonempty thread_id required."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: nonempty group_id required."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: nonempty goal required."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": 20001,
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      }
+    },
+    "description": "Synthetic offline goal fixture: QQ group identity must remain a decimal string."
+  },
+  {
+    "schema_ref": "GoalRunStartRequest.json#/GoalRunStartRequest",
+    "valid": false,
+    "value": {
+      "thread_id": "thread_goal_fixture",
+      "group_id": "20001",
+      "goal": "Analyze synthetic demand; wait for missing evidence.",
+      "planner_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "analyst_ref": {
+        "id": "agent_fixture",
+        "version": 1
+      },
+      "implementation": "real_model"
+    },
+    "description": "Synthetic offline goal fixture: caller cannot select a real provider."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: RFC3339 UTC timestamp required."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: RFC3339 UTC timestamp required."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: RFC3339 UTC timestamp required."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": null,
+          "text": "Synthetic need: course; budget: 1000; time: this week."
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: message time cannot be null."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": "Synthetic need: course; budget: 1000; time: this week.",
+          "account_id": "real-account"
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: synthetic message cannot claim a runtime/account identity."
+  },
+  {
+    "schema_ref": "GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest",
+    "valid": false,
+    "value": {
+      "event_id": "window_fixture_1",
+      "group_id": "20001",
+      "window_start": "2026-11-05T02:00:00Z",
+      "window_end": "2026-11-05T02:01:00Z",
+      "expires_at": "2026-11-05T02:11:00Z",
+      "messages": [
+        {
+          "id": "message_fixture_1",
+          "at": "2026-11-05T02:00:30Z",
+          "text": ""
+        }
+      ]
+    },
+    "description": "Synthetic offline goal fixture: message text cannot be empty."
+  },
+  {
+    "schema_ref": "GoalRunControlRequest.json#/GoalRunControlRequest",
+    "valid": false,
+    "value": {
+      "expected_version": 0
+    },
+    "description": "Synthetic offline goal fixture: CAS requires a positive numeric expected_version."
+  },
+  {
+    "schema_ref": "GoalRunControlRequest.json#/GoalRunControlRequest",
+    "valid": false,
+    "value": {
+      "expected_version": "1"
+    },
+    "description": "Synthetic offline goal fixture: CAS requires a positive numeric expected_version."
+  },
+  {
+    "schema_ref": "GoalRunControlRequest.json#/GoalRunControlRequest",
+    "valid": false,
+    "value": {
+      "expected_version": null
+    },
+    "description": "Synthetic offline goal fixture: CAS requires a positive numeric expected_version."
+  }
+]

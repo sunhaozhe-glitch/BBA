@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -69,6 +70,19 @@ func (s *Store) workSlotsDefault() (int, error) {
 }
 
 func Open(ctx context.Context, dsn string) (*Store, error) {
+	return openStore(ctx, dsn, false)
+}
+
+// OpenGoalFixture validates all endpoints before connecting, and validates every
+// new connection before admitting it to the pool. It never changes normal Open.
+func OpenGoalFixture(ctx context.Context, dsn string) (*Store, error) {
+	if os.Getenv("BBA_FIXTURE_ONLY") != "1" {
+		return nil, errors.New("offline-goal-fixture requires explicit isolated development fixture")
+	}
+	return openStore(ctx, dsn, true)
+}
+
+func openStore(ctx context.Context, dsn string, fixture bool) (*Store, error) {
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, err
@@ -83,6 +97,11 @@ func Open(ctx context.Context, dsn string) (*Store, error) {
 	config.ConnConfig.RuntimeParams["timezone"] = "UTC"
 	config.ConnConfig.RuntimeParams["statement_timeout"] = "15000"
 	config.ConnConfig.RuntimeParams["lock_timeout"] = "5000"
+	if fixture {
+		if err := configureGoalFixturePool(config); err != nil {
+			return nil, err
+		}
+	}
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return nil, err

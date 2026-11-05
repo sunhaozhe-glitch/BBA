@@ -271,7 +271,7 @@ func b7OldSchemaStore(t *testing.T) *Store {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { s.Close() })
-	old := append([]string{"0001_core.sql"}, migrationTail[:len(migrationTail)-1]...)
+	old := append([]string{"0001_core.sql"}, migrationTail[:15]...)
 	for _, file := range old {
 		sql, err := migrationFiles.ReadFile("migrations/" + file)
 		if err != nil {
@@ -281,8 +281,8 @@ func b7OldSchemaStore(t *testing.T) *Store {
 			t.Fatal(file, err)
 		}
 	}
-	if n := scalarInt(t, s, `SELECT max(version) FROM core.schema_version`); n != migrationHead-1 {
-		t.Fatalf("built old head %d, want %d", n, migrationHead-1)
+	if n := scalarInt(t, s, `SELECT max(version) FROM core.schema_version`); n != 25 {
+		t.Fatalf("built historical head %d, want 25", n)
 	}
 	return s
 }
@@ -397,5 +397,5 @@ func TestB7NotificationOldSchemaNeedsMigrationFirst(t *testing.T) {
 	if n := scalarInt(t, s, `SELECT count(*) FROM core.operator_notification WHERE workspace_id='ws_fixture' AND event_key='inbox:evt_old'`); n != 1 {
 		t.Fatalf("the rejected insert must write nothing, got %d rows", n)
 	}
-	t.Logf("previous head %d: old binary path works, this build scoped target fails 42P10 -- migrate before deploying", migrationHead-1)
+	t.Log("historical head 25: old binary path works, scoped target fails 42P10 -- migrate before deploying")
 }

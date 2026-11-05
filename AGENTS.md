@@ -107,12 +107,13 @@ Collector 采集 → 持久窗口 → Summary producer/publisher
 
 ### 3.3 运营 Agent、模型与配置
 
-- `model_http.go` 持久化模型请求、校验输出并沿既有 Proposal 通路处理；`model_provider.go` 是有界的兼容 chat-completions provider。不得复制第二条模型执行链。
+- `model_http.go` 持久化模型请求、校验输出并沿既有 Proposal 通路处理；`model_provider.go` 是有界的兼容 chat-completions provider。不得复制第二条模型执行链：复用既有配置、registry 版本快照和 provider 基础设施；允许进程内受限规划模块使用独立的结构化规划输出契约，原 clarification-only 模型路由及 `request_join` Proposal 契约保持不变。
 - `model_registry.go`、`model_registry_lock.go` 是 opt-in 文件 registry；`agent_config*.go` 管 Agent/Skill 版本和绑定，`agent_model_http.go` 固定配置快照并生成回执；`web_search*.go`、`global_proxy*.go` 共用 registry 的 workspace 配置。
 - registry 使用受保护 JSON、进程生命周期 flock 和持久化协议；含密钥，不能提交或直接暴露给浏览器。它不是 PostgreSQL Task 状态、CRM 或通用 Agent run 数据库。数据库先登记模型请求，bound provider 再保存文件回执，两者不是跨存储原子事务；崩溃后不能假定自动恢复完成。
 - 当前 Agent/Skill 的 `tools` 只能为空，Skill 能力只接受 `structured_output`；模型上下文明确没有 callable tools。配置字段存在不代表能注册任意工具；相关校验见 `agent_config.go` 和 `agent_model_http.go`。
 - Agent/Skill/Model CRUD、模型请求、搜索上下文已有实现；**尚不能据此认定 thread→持久多步 run/step→工具授权→停止/恢复的完整运营 Agent 已交付**。QQ 入站和操作员 Agent 消息属于不同信任域。
 - 完整 MCP 平台不是生成 Proposal 的前置条件；真正执行某个动作前，该动作的最小 adapter、能力、授权和结果证据必须就绪。
+- 离线目标循环的当前边界见 `docs/adr/2026-11-05-offline-goal-loop.md`：允许新增受限 BBA Go 进程内编排域，PostgreSQL 独占 run/round/step/attempt/event/evidence/memory/stop 事实；本阶段仅 `deterministic_fixture`，不调用模型或 QQ、不复制或链接上游 Go。本地域图不由外部 `graph_sync` adapter 写入，图投影不授予执行权限。该 ADR 仅替代有效 2026-10-31 final-closeout 的永久外部图范围限制及 S2 对本模块的旧 no-runtime 限制；Phase A 单一前端和历史阶段结论不变。
 
 ### 3.4 HTTP 入口与接线条件
 
