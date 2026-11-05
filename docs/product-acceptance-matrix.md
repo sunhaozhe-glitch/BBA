@@ -236,3 +236,13 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 ### 当前结论与后续
 
 本轮通知迟到缺陷在上述范围为 `IMPLEMENTED / WIRED_TO_CONSUMER / ISOLATED_FIXTURE / PASS`；**M1仍为PARTIAL，发布为NOT_RELEASED**。11项包含剩余缺口调查，exit0不代表完整产品通过。51条消息/通知的尾页API可读但UI仍不消费cursor（P2），已认证header仍显示“尚未连接”（P3）；会话51+分页、完整并发/持久恢复、外部推送及M5 run仍未验收。后续单独实现会话/消息/通知分页，再处理header状态；修改调查脚本时逐项把已修缺口转换成正向回归。
+
+## 资产意向统计口径说明修复（2026-11-05）
+
+本切片从已核对的 `origin/main=18dc42fc103da04b57137220e2e6e5608f28e3bb` 新建独立分支 `codex/asset-intent-copy`；不依赖或修改 OPEN 的 PR #21、#22，不合并任何 PR。本节只修正产品资产入口的说明文字，不把待接入页面写成 CRM 能力已交付。
+
+- 实现/接线：`IMPLEMENTED / WIRED_TO_CONSUMER`，范围为 `/product/assets` 的待接入说明。页面现在明确“明确意向可计入引流成功；好友关系单独记录”，同时保留“待接入、不计为已完成”和“当前无认可规则，未启用”；没有客户数据、客户表、去重计算或好友动作接线。
+- 验证身份/环境/结论：`AUTHOR_SELF_TEST / ISOLATED_FIXTURE / PASS`，独立审查 `NOT_REVIEWED`，发布 `NOT_RELEASED`。没有真实客户数据、真实模型、QQ 或生产库调用。
+- 旧版 RED：`node --test tests/product/assets-intent-copy.test.cjs` 退出 1，浏览器实际显示旧文案“意向 + 至少一个运营 QQ 好友关系才算引流成功”。修复后同一命令 1/1、退出 0；断言同时检查新口径、好友关系独立记录、待接入状态和旧文案不再出现。
+- 回归：`node tools/b7-chat-notify-browser.cjs build/asset-intent-copy-b7 frontend` 为 39/39，覆盖 1440/768/375；`python3 -m unittest tests.product.test_b7_manual_fixture_launcher -q` 为 10/10；`python3 tools/build-product.py`、`node --check frontend/app.js`、前端/Go embed 字节一致和 `git diff --check` 均通过。
+- 未验证范围：全仓 Go race、完整合同检查、完整真实服务验收、CRM 持久化/去重/证据链、真实 QQ、真实/付费模型、MCP、ARTEX、生产库、部署和发布均为 `NOT_RUN`。本切片没有 API、migration、权限、鉴权或服务装配变化。
