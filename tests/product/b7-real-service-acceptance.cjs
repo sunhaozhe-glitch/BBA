@@ -1,6 +1,6 @@
 /* Real-service notification navigation regression + remaining known-gap evidence.
  * Exit 0 requires the positive navigation regression and all evidence checks to pass.
- * Pagination/header gaps still keep overall M1 PARTIAL; they are separate work.
+ * The pagination gap on main still keeps overall M1 PARTIAL; the console header is a positive assertion.
  * Exit nonzero on any check/setup/transport error; never treat collection as PASS.
  * Real Go + caller-owned manual fixture only. Usage:
  * <node> tests/product/b7-real-service-acceptance.cjs <fixture-config.json> <new-outdir>
@@ -348,9 +348,11 @@ COMMIT;`);
       assert.equal(await page.getByRole('button',{name:/加载更多|下一页/}).count(),0);assert(!network.slice(start).some(r=>r.channel==='browser'&&r.path.startsWith('/v1/operator/notifications?')&&r.path.includes('cursor=')));await shot('pagination-notifications-tail-missing');
       findings.push({id:'notification-pagination',kind:'gap',priority:'P2',status:'CONFIRMED',acceptance:'PARTIAL',detail:'51 same-type synthetic notifications persisted, API tail contains oldest synthetic item; UI stops at first 50 and consumes no next_cursor.'});
     });
-    await check('authenticated chat header connection text observation',async()=>{
+    await check('authenticated chat header shows console connection',async()=>{
       await login();const text=await page.locator('#connection').textContent();save('connection-label.json',{auth_hidden:await page.locator('#auth').isHidden(),text});await shot('authenticated-header');
-      if(text==='尚未连接')findings.push({id:'authenticated-header-label',kind:'gap',priority:'P3',status:'CONFIRMED',acceptance:'PARTIAL',detail:'Chat authenticated and real API loaded, header still says 尚未连接.'});
+      assert.equal(await page.locator('#auth').isHidden(),true);
+      assert.equal(text,'控制台已连接');
+      assert.match(await page.locator('#connection').getAttribute('title'),/不代表 QQ 在线/);
     });
   } catch(e) {checks.push({name:'acceptance setup/flow',status:'FAIL',error:e.message});console.error(e.stack);}
   finally {

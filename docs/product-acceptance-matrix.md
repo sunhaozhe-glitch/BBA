@@ -236,3 +236,14 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 ### 当前结论与后续
 
 本轮通知迟到缺陷在上述范围为 `IMPLEMENTED / WIRED_TO_CONSUMER / ISOLATED_FIXTURE / PASS`；**M1仍为PARTIAL，发布为NOT_RELEASED**。11项包含剩余缺口调查，exit0不代表完整产品通过。51条消息/通知的尾页API可读但UI仍不消费cursor（P2），已认证header仍显示“尚未连接”（P3）；会话51+分页、完整并发/持久恢复、外部推送及M5 run仍未验收。后续单独实现会话/消息/通知分页，再处理header状态；修改调查脚本时逐项把已修缺口转换成正向回归。
+
+## 控制台连接状态修复再验收（2026-11-05）
+
+本切片从最新已核对 `origin/main=18dc42fc103da04b57137220e2e6e5608f28e3bb` 新建独立分支 `codex/product-connection-state`；不依赖仍 OPEN 的分页 PR #21，不合并任何 PR。本节仅补充并取代 2026-11-04 浏览器增量记录中的 P3 `authenticated-header-label` 当前结论，不修改历史原始证据。
+
+- 实现/接线：`IMPLEMENTED / WIRED_TO_CONSUMER`。共用 `api()` 按当前 session、route generation、token 和调用者视图有效性更新页头。无凭据为“尚未连接”，提交凭据但尚无有效成功请求为“凭据待验证”，有效请求成功为“控制台已连接”，有效请求失败为“控制台请求失败”；当前 401 重置认证。状态仅说明控制台 API 请求结果，不代表 QQ 在线、写入权限或真实动作能力。未发 API 请求的占位页面不会单凭输入凭据确认连接。各页面的配置权限仍由其现有按钮和正文表达，移除重复页头赋值。
+- 验证身份/环境/结论：`AUTHOR_SELF_TEST / ISOLATED_FIXTURE / PASS`，独立审查为 `NOT_REVIEWED`，发布为 `NOT_RELEASED`。本轮浏览器使用 Node `v24.22.1`、Playwright 与 Chromium 1208；没有真实 provider 或 QQ 调用。
+- 先在旧版运行连接状态正向断言和占位页断言，两项均因预期页头未出现而失败（exit 1）；修复后 `node --test tests/product/connection-status.test.cjs` 为 26/26（在最终三文件命令中通过），覆盖 9 个已接线页面、空白凭据、凭据待验证、403/500/断连/畸形 JSON、401、退出、跨页面/同页刷新迟到回执。fixture 仅发 GET。`node --test tests/product/connection-status.test.cjs tests/product/chat-request-scope.test.cjs tests/product/notification-request-scope.test.cjs` 最终为 129/129（连接状态 26 + 对话/通知作用域 103，exit 0）；`node tools/b7-chat-notify-browser.cjs build/connection-state/b7 frontend` 为 39/39、1440/768/375 三种宽度（exit 0）；`python3 -m unittest tests.product.test_b7_manual_fixture_launcher -q` 为 10/10（exit 0）。浏览器命令显式设置 `NODE_PATH` 与 `BBA_TEST_CHROME`，不要求全局安装依赖。
+- 真实服务验证：独立启动全新 PostgreSQL 16 fixture、本次源码构建的 Go binary 和同源浏览器，`tests/product/b7-real-service-acceptance.cjs` 11/11（exit 0），其中页头原调查项改为正向断言并通过。schema 实读 26；Task、Chat Permit、dispatch permit、model request 均为 0。结果仍是 `M1=PARTIAL / pagination=PARTIAL / notification_navigation=PASS / real_runtime_ingress=PASS`；main 的分页缺口仍存在，由 PR #21 另行交付，不能将本次 11 个检查全部通过写成完整 M1 通过。
+- 输入身份：`frontend/app.js` SHA256 `24d896ac04402c7524a8d38d509b92ae4b4e4da4383a72bdc4d896c5195e36f2`，`frontend/index.html` SHA256 `9bb325c54920c6e073e19cd768945426d4a81fbd183cb121e62fb7f26dc92a1f`；真实服务 binary SHA256 `0f7404c80cdf76a3db5fbf5c96749498df8c14c66e276aa4f8c7103c257cc193`。源码/测试命令与原始记录在本机忽略目录 `build/connection-state/`，真实服务脱敏结果在 `evals/results/connection-header-20261105-runtime-verified/`。首次启动方式误把驻留 launcher 当作会退出的命令，终止并完成其专属资源清理后，以新实例重新验收；该轮不计产品通过。最终 launcher 与 stop 均 exit 0，独立读回本轮容器已消失、HTTP/DB 端口关闭，本轮合成 token 和 DSN 文件已移除。
+- 生成/接口边界：`python3 tools/build-product.py`、`node --check frontend/app.js`、源/embed 三个文件字节一致和 `git diff --check` 通过；既有 `tools/phase-a-browser.cjs` 同步新页头断言。本次没有 API、migration、鉴权、权限或服务装配变更；本地全仓 Go race、合同全套与旧 phase-a 全路由脚本为 `NOT_RUN`（范围是页头 UI；保留专项、作用域、B7 和真实 Go 服务验证，远端 CI 按最新 PR head 另核对）。真实 QQ、付费/真实模型、MCP、ARTEX、生产库、现存服务重启及部署均为 `NOT_RUN`。
