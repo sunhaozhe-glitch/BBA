@@ -1,0 +1,63 @@
+{
+  "GoalRunStartRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "thread_id",
+      "group_id",
+      "goal",
+      "planner_ref",
+      "analyst_ref"
+    ],
+    "properties": {
+      "thread_id": {
+        "$ref": "common.json#/Id"
+      },
+      "group_id": {
+        "$ref": "common.json#/QQId"
+      },
+      "goal": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000,
+        "pattern": "\\S",
+        "x-max-utf8-bytes": 1000
+      },
+      "planner_ref": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.json#/Id"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "analyst_ref": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.json#/Id"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "description": "Start a synthetic offline run with fixed Agent registry versions, scoped to the current workspace/principal and Agent thread. An absent thread may be created as Agent; an existing non-Agent thread is rejected. Caller cannot select a provider, tool, or execution permission."
+  }
+}

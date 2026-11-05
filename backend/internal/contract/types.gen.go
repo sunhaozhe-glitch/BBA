@@ -771,6 +771,483 @@ func (e GoalStrictTargetCap) Valid() bool {
 	}
 }
 
+// Defines values for GoalAnalysisOutputChangeReason.
+const (
+	GoalAnalysisOutputChangeReasonEmpty GoalAnalysisOutputChangeReason = ""
+)
+
+// Valid indicates whether the value is a known member of the GoalAnalysisOutputChangeReason enum.
+func (e GoalAnalysisOutputChangeReason) Valid() bool {
+	switch e {
+	case GoalAnalysisOutputChangeReasonEmpty:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalAnalysisOutputErrorCode.
+const (
+	GoalAnalysisOutputErrorCodeANALYSISFAILED GoalAnalysisOutputErrorCode = "ANALYSIS_FAILED"
+	GoalAnalysisOutputErrorCodeEmpty          GoalAnalysisOutputErrorCode = ""
+	GoalAnalysisOutputErrorCodeWINDOWEXPIRED  GoalAnalysisOutputErrorCode = "WINDOW_EXPIRED"
+)
+
+// Valid indicates whether the value is a known member of the GoalAnalysisOutputErrorCode enum.
+func (e GoalAnalysisOutputErrorCode) Valid() bool {
+	switch e {
+	case GoalAnalysisOutputErrorCodeANALYSISFAILED:
+		return true
+	case GoalAnalysisOutputErrorCodeEmpty:
+		return true
+	case GoalAnalysisOutputErrorCodeWINDOWEXPIRED:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalAnalysisOutputIntent.
+const (
+	GoalAnalysisOutputIntentEmpty GoalAnalysisOutputIntent = ""
+)
+
+// Valid indicates whether the value is a known member of the GoalAnalysisOutputIntent enum.
+func (e GoalAnalysisOutputIntent) Valid() bool {
+	switch e {
+	case GoalAnalysisOutputIntentEmpty:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalAnalysisOutputRole.
+const (
+	GoalAnalysisOutputRoleAnalyst GoalAnalysisOutputRole = "analyst"
+)
+
+// Valid indicates whether the value is a known member of the GoalAnalysisOutputRole enum.
+func (e GoalAnalysisOutputRole) Valid() bool {
+	switch e {
+	case GoalAnalysisOutputRoleAnalyst:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalAnalysisOutputSchemaId.
+const (
+	GoalAnalysisV1 GoalAnalysisOutputSchemaId = "GoalAnalysis.v1"
+)
+
+// Valid indicates whether the value is a known member of the GoalAnalysisOutputSchemaId enum.
+func (e GoalAnalysisOutputSchemaId) Valid() bool {
+	switch e {
+	case GoalAnalysisV1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalAssetType.
+const (
+	QqGroup GoalAssetType = "qq_group"
+)
+
+// Valid indicates whether the value is a known member of the GoalAssetType enum.
+func (e GoalAssetType) Valid() bool {
+	switch e {
+	case QqGroup:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalEdgeKind.
+const (
+	DerivedFrom GoalEdgeKind = "derived_from"
+	Spawns      GoalEdgeKind = "spawns"
+	Yields      GoalEdgeKind = "yields"
+)
+
+// Valid indicates whether the value is a known member of the GoalEdgeKind enum.
+func (e GoalEdgeKind) Valid() bool {
+	switch e {
+	case DerivedFrom:
+		return true
+	case Spawns:
+		return true
+	case Yields:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalEvidenceKind.
+const (
+	GoalEvidenceKindHint          GoalEvidenceKind = "hint"
+	GoalEvidenceKindModelJudgment GoalEvidenceKind = "model_judgment"
+	GoalEvidenceKindRaw           GoalEvidenceKind = "raw"
+	GoalEvidenceKindSummary       GoalEvidenceKind = "summary"
+)
+
+// Valid indicates whether the value is a known member of the GoalEvidenceKind enum.
+func (e GoalEvidenceKind) Valid() bool {
+	switch e {
+	case GoalEvidenceKindHint:
+		return true
+	case GoalEvidenceKindModelJudgment:
+		return true
+	case GoalEvidenceKindRaw:
+		return true
+	case GoalEvidenceKindSummary:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalNodeKind.
+const (
+	GoalNodeKindDigest  GoalNodeKind = "digest"
+	GoalNodeKindFact    GoalNodeKind = "fact"
+	GoalNodeKindFinding GoalNodeKind = "finding"
+	GoalNodeKindGoal    GoalNodeKind = "goal"
+	GoalNodeKindHint    GoalNodeKind = "hint"
+	GoalNodeKindIntent  GoalNodeKind = "intent"
+)
+
+// Valid indicates whether the value is a known member of the GoalNodeKind enum.
+func (e GoalNodeKind) Valid() bool {
+	switch e {
+	case GoalNodeKindDigest:
+		return true
+	case GoalNodeKindFact:
+		return true
+	case GoalNodeKindFinding:
+		return true
+	case GoalNodeKindGoal:
+		return true
+	case GoalNodeKindHint:
+		return true
+	case GoalNodeKindIntent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalPlanOutputErrorCode.
+const (
+	GoalPlanOutputErrorCodeANALYSISFAILED GoalPlanOutputErrorCode = "ANALYSIS_FAILED"
+	GoalPlanOutputErrorCodeEmpty          GoalPlanOutputErrorCode = ""
+	GoalPlanOutputErrorCodeWINDOWEXPIRED  GoalPlanOutputErrorCode = "WINDOW_EXPIRED"
+)
+
+// Valid indicates whether the value is a known member of the GoalPlanOutputErrorCode enum.
+func (e GoalPlanOutputErrorCode) Valid() bool {
+	switch e {
+	case GoalPlanOutputErrorCodeANALYSISFAILED:
+		return true
+	case GoalPlanOutputErrorCodeEmpty:
+		return true
+	case GoalPlanOutputErrorCodeWINDOWEXPIRED:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalPlanOutputIntent.
+const (
+	AnalyzeWindow GoalPlanOutputIntent = "analyze_window"
+)
+
+// Valid indicates whether the value is a known member of the GoalPlanOutputIntent enum.
+func (e GoalPlanOutputIntent) Valid() bool {
+	switch e {
+	case AnalyzeWindow:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalPlanOutputRole.
+const (
+	GoalPlanOutputRolePlanner GoalPlanOutputRole = "planner"
+)
+
+// Valid indicates whether the value is a known member of the GoalPlanOutputRole enum.
+func (e GoalPlanOutputRole) Valid() bool {
+	switch e {
+	case GoalPlanOutputRolePlanner:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalPlanOutputSchemaId.
+const (
+	GoalPlanV1 GoalPlanOutputSchemaId = "GoalPlan.v1"
+)
+
+// Valid indicates whether the value is a known member of the GoalPlanOutputSchemaId enum.
+func (e GoalPlanOutputSchemaId) Valid() bool {
+	switch e {
+	case GoalPlanV1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalPlanOutputSuggestedComplete.
+const (
+	GoalPlanOutputSuggestedCompleteFalse GoalPlanOutputSuggestedComplete = false
+)
+
+// Valid indicates whether the value is a known member of the GoalPlanOutputSuggestedComplete enum.
+func (e GoalPlanOutputSuggestedComplete) Valid() bool {
+	switch e {
+	case GoalPlanOutputSuggestedCompleteFalse:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalPlanOutputSummary.
+const (
+	GoalPlanOutputSummaryEmpty GoalPlanOutputSummary = ""
+)
+
+// Valid indicates whether the value is a known member of the GoalPlanOutputSummary enum.
+func (e GoalPlanOutputSummary) Valid() bool {
+	switch e {
+	case GoalPlanOutputSummaryEmpty:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRoundState.
+const (
+	GoalRoundStateCOMPLETED GoalRoundState = "COMPLETED"
+	GoalRoundStateFAILED    GoalRoundState = "FAILED"
+	GoalRoundStateRUNNING   GoalRoundState = "RUNNING"
+	GoalRoundStateSTOPPED   GoalRoundState = "STOPPED"
+)
+
+// Valid indicates whether the value is a known member of the GoalRoundState enum.
+func (e GoalRoundState) Valid() bool {
+	switch e {
+	case GoalRoundStateCOMPLETED:
+		return true
+	case GoalRoundStateFAILED:
+		return true
+	case GoalRoundStateRUNNING:
+		return true
+	case GoalRoundStateSTOPPED:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunAttemptTimeoutSeconds.
+const (
+	N30 GoalRunAttemptTimeoutSeconds = 30
+)
+
+// Valid indicates whether the value is a known member of the GoalRunAttemptTimeoutSeconds enum.
+func (e GoalRunAttemptTimeoutSeconds) Valid() bool {
+	switch e {
+	case N30:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunImplementation.
+const (
+	GoalRunImplementationDeterministicFixture GoalRunImplementation = "deterministic_fixture"
+)
+
+// Valid indicates whether the value is a known member of the GoalRunImplementation enum.
+func (e GoalRunImplementation) Valid() bool {
+	switch e {
+	case GoalRunImplementationDeterministicFixture:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunMaxRounds.
+const (
+	N4 GoalRunMaxRounds = 4
+)
+
+// Valid indicates whether the value is a known member of the GoalRunMaxRounds enum.
+func (e GoalRunMaxRounds) Valid() bool {
+	switch e {
+	case N4:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunMaxSteps.
+const (
+	N8 GoalRunMaxSteps = 8
+)
+
+// Valid indicates whether the value is a known member of the GoalRunMaxSteps enum.
+func (e GoalRunMaxSteps) Valid() bool {
+	switch e {
+	case N8:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunState.
+const (
+	GoalRunStateAWAITINGCONFIRMATION GoalRunState = "AWAITING_CONFIRMATION"
+	GoalRunStateCONFIRMED            GoalRunState = "CONFIRMED"
+	GoalRunStateLIMITREACHED         GoalRunState = "LIMIT_REACHED"
+	GoalRunStateRUNNING              GoalRunState = "RUNNING"
+	GoalRunStateSTOPPED              GoalRunState = "STOPPED"
+	GoalRunStateTIMEDOUT             GoalRunState = "TIMED_OUT"
+	GoalRunStateWAITINGINPUT         GoalRunState = "WAITING_INPUT"
+)
+
+// Valid indicates whether the value is a known member of the GoalRunState enum.
+func (e GoalRunState) Valid() bool {
+	switch e {
+	case GoalRunStateAWAITINGCONFIRMATION:
+		return true
+	case GoalRunStateCONFIRMED:
+		return true
+	case GoalRunStateLIMITREACHED:
+		return true
+	case GoalRunStateRUNNING:
+		return true
+	case GoalRunStateSTOPPED:
+		return true
+	case GoalRunStateTIMEDOUT:
+		return true
+	case GoalRunStateWAITINGINPUT:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunEnvelopeMetaImplementation.
+const (
+	GoalRunEnvelopeMetaImplementationDeterministicFixture GoalRunEnvelopeMetaImplementation = "deterministic_fixture"
+)
+
+// Valid indicates whether the value is a known member of the GoalRunEnvelopeMetaImplementation enum.
+func (e GoalRunEnvelopeMetaImplementation) Valid() bool {
+	switch e {
+	case GoalRunEnvelopeMetaImplementationDeterministicFixture:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalRunListEnvelopeMetaImplementation.
+const (
+	GoalRunListEnvelopeMetaImplementationDeterministicFixture GoalRunListEnvelopeMetaImplementation = "deterministic_fixture"
+)
+
+// Valid indicates whether the value is a known member of the GoalRunListEnvelopeMetaImplementation enum.
+func (e GoalRunListEnvelopeMetaImplementation) Valid() bool {
+	switch e {
+	case GoalRunListEnvelopeMetaImplementationDeterministicFixture:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalSkillSnapshotRequiredCapabilities.
+const (
+	GoalFixtureStructuredOutput GoalSkillSnapshotRequiredCapabilities = "structured_output"
+)
+
+// Valid indicates whether the value is a known member of the GoalSkillSnapshotRequiredCapabilities enum.
+func (e GoalSkillSnapshotRequiredCapabilities) Valid() bool {
+	switch e {
+	case GoalFixtureStructuredOutput:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalStepRole.
+const (
+	GoalStepRoleAnalyst GoalStepRole = "analyst"
+	GoalStepRolePlanner GoalStepRole = "planner"
+)
+
+// Valid indicates whether the value is a known member of the GoalStepRole enum.
+func (e GoalStepRole) Valid() bool {
+	switch e {
+	case GoalStepRoleAnalyst:
+		return true
+	case GoalStepRolePlanner:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GoalStepState.
+const (
+	GoalStepStateBLOCKED   GoalStepState = "BLOCKED"
+	GoalStepStateCOMPLETED GoalStepState = "COMPLETED"
+	GoalStepStateFAILED    GoalStepState = "FAILED"
+	GoalStepStateREADY     GoalStepState = "READY"
+	GoalStepStateRUNNING   GoalStepState = "RUNNING"
+	GoalStepStateSTOPPED   GoalStepState = "STOPPED"
+)
+
+// Valid indicates whether the value is a known member of the GoalStepState enum.
+func (e GoalStepState) Valid() bool {
+	switch e {
+	case GoalStepStateBLOCKED:
+		return true
+	case GoalStepStateCOMPLETED:
+		return true
+	case GoalStepStateFAILED:
+		return true
+	case GoalStepStateREADY:
+		return true
+	case GoalStepStateRUNNING:
+		return true
+	case GoalStepStateSTOPPED:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GraphPlanCandidateProvenance.
 const (
 	Inference GraphPlanCandidateProvenance = "inference"
@@ -4731,6 +5208,390 @@ type GoalRequireFinalMembershipCheck bool
 // GoalStrictTargetCap Strict acquisition always keeps confirmed plus still-possible targets inside the goal cap.
 type GoalStrictTargetCap bool
 
+// GoalAgentSnapshot Existing versioned registry Agent snapshot. tools is empty; web_search configuration is not executed by deterministic_fixture.
+type GoalAgentSnapshot struct {
+	// Deleted Existing registry omits false (omitempty); present true represents a deleted snapshot.
+	Deleted     *bool  `json:"deleted,omitempty"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+
+	// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	Id Id `json:"id"`
+
+	// ModelId Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	ModelId Id     `json:"model_id"`
+	Name    string `json:"name"`
+	Skills  []struct {
+		// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+		Id      Id  `json:"id"`
+		Version int `json:"version"`
+	} `json:"skills"`
+	SystemPrompt string   `json:"system_prompt"`
+	Tools        []string `json:"tools"`
+	UpdatedAt    string   `json:"updated_at"`
+	UpdatedBy    string   `json:"updated_by"`
+	Version      int      `json:"version"`
+	WebSearch    bool     `json:"web_search"`
+}
+
+// GoalAnalysisOutput Restricted analysis output; suggested_complete must equal whether information_gaps is empty (server semantic validation). It only suggests operator confirmation and never completes a run itself. Output byte cap is 16384; summary/change_reason/gap byte caps are checked by the service.
+type GoalAnalysisOutput struct {
+	ChangeReason        GoalAnalysisOutputChangeReason `json:"change_reason"`
+	ConsumedEvidenceIds []string                       `json:"consumed_evidence_ids"`
+	ErrorCode           GoalAnalysisOutputErrorCode    `json:"error_code"`
+	InformationGaps     []string                       `json:"information_gaps"`
+	Intent              GoalAnalysisOutputIntent       `json:"intent"`
+	Role                GoalAnalysisOutputRole         `json:"role"`
+	SchemaId            GoalAnalysisOutputSchemaId     `json:"schema_id"`
+	SuggestedComplete   bool                           `json:"suggested_complete"`
+	Summary             string                         `json:"summary"`
+}
+
+// GoalAnalysisOutputChangeReason defines model for GoalAnalysisOutput.ChangeReason.
+type GoalAnalysisOutputChangeReason string
+
+// GoalAnalysisOutputErrorCode defines model for GoalAnalysisOutput.ErrorCode.
+type GoalAnalysisOutputErrorCode string
+
+// GoalAnalysisOutputIntent defines model for GoalAnalysisOutput.Intent.
+type GoalAnalysisOutputIntent string
+
+// GoalAnalysisOutputRole defines model for GoalAnalysisOutput.Role.
+type GoalAnalysisOutputRole string
+
+// GoalAnalysisOutputSchemaId defines model for GoalAnalysisOutput.SchemaId.
+type GoalAnalysisOutputSchemaId string
+
+// GoalAnchor defines model for GoalAnchor.
+type GoalAnchor struct {
+	AssetId string `json:"asset_id"`
+	NodeId  string `json:"node_id"`
+}
+
+// GoalAsset defines model for GoalAsset.
+type GoalAsset struct {
+	Id    string        `json:"id"`
+	Label string        `json:"label"`
+	Type  GoalAssetType `json:"type"`
+}
+
+// GoalAssetType defines model for GoalAsset.Type.
+type GoalAssetType string
+
+// GoalConfiguration Immutable start-time registry snapshots; they do not authorize tools or external effects.
+type GoalConfiguration struct {
+	Analyst GoalRoleSnapshot `json:"analyst"`
+	Planner GoalRoleSnapshot `json:"planner"`
+}
+
+// GoalEdge defines model for GoalEdge.
+type GoalEdge struct {
+	From string       `json:"from"`
+	Kind GoalEdgeKind `json:"kind"`
+	To   string       `json:"to"`
+}
+
+// GoalEdgeKind defines model for GoalEdge.Kind.
+type GoalEdgeKind string
+
+// GoalEvidence Synthetic evidence and derived analysis with provenance. model_judgment is a fixture judgment, never a verified customer statement or QQ outcome.
+type GoalEvidence struct {
+	// ExpiresAt RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+	ExpiresAt UTCDateTime      `json:"expires_at"`
+	Id        string           `json:"id"`
+	Kind      GoalEvidenceKind `json:"kind"`
+	Refs      []string         `json:"refs"`
+	Round     int              `json:"round"`
+	Text      string           `json:"text"`
+}
+
+// GoalEvidenceKind defines model for GoalEvidence.Kind.
+type GoalEvidenceKind string
+
+// GoalFixtureWindowRequest Synthetic input only behind the verified deployment fixture gate. The service checks window_start < window_end, window_end no more than 5 seconds in the future, window duration at most 24 hours, window_end < expires_at <= window_end + 1 hour, current freshness, exact group scope, unique message ids and each message at within the window. Invalid/expired windows cannot advance the run; waiting reason is durable. Schema checks shape and character bounds; the service checks byte limits and temporal relationships.
+type GoalFixtureWindowRequest struct {
+	// EventId Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	EventId Id `json:"event_id"`
+
+	// ExpiresAt RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+	ExpiresAt UTCDateTime `json:"expires_at"`
+
+	// GroupId QQ account or group identifier encoded as an unsigned decimal string. Never coerce to a JavaScript number.
+	GroupId  QQId `json:"group_id"`
+	Messages []struct {
+		// At RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+		At UTCDateTime `json:"at"`
+
+		// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+		Id   Id     `json:"id"`
+		Text string `json:"text"`
+	} `json:"messages"`
+
+	// WindowEnd RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+	WindowEnd UTCDateTime `json:"window_end"`
+
+	// WindowStart RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+	WindowStart UTCDateTime `json:"window_start"`
+}
+
+// GoalGraph BBA-local dual-graph projection: goal/intent nodes express reasoning goals; fact/digest/finding/hint nodes link evidence. Asset anchors bind the configured group. External graph_sync cannot write these graphs; no execution authority is encoded here.
+type GoalGraph struct {
+	Anchors []GoalAnchor `json:"anchors"`
+	Assets  []GoalAsset  `json:"assets"`
+	Edges   []GoalEdge   `json:"edges"`
+	Nodes   []GoalNode   `json:"nodes"`
+}
+
+// GoalMemory PostgreSQL memory projection. Initial unpopulated arrays are null; after analysis they are arrays. Summary and judgments are derived untrusted observations.
+type GoalMemory struct {
+	ConsumedEvidenceIds nullable.Nullable[[]string] `json:"consumed_evidence_ids"`
+	InformationGaps     nullable.Nullable[[]string] `json:"information_gaps"`
+	Summary             string                      `json:"summary"`
+	UpdatedRound        int                         `json:"updated_round"`
+}
+
+// GoalModelSnapshot Existing ModelProfile projection, not modelStoredProfile. No API key or authorization headers; a configured endpoint does not imply a provider call or permission.
+type GoalModelSnapshot struct {
+	BaseUrl   string `json:"base_url"`
+	Enabled   bool   `json:"enabled"`
+	HasSecret bool   `json:"has_secret"`
+
+	// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	Id             Id     `json:"id"`
+	IsDefault      bool   `json:"is_default"`
+	MaxConcurrent  int    `json:"max_concurrent"`
+	Model          string `json:"model"`
+	Name           string `json:"name"`
+	TimeoutSeconds int    `json:"timeout_seconds"`
+	Version        int    `json:"version"`
+}
+
+// GoalNode defines model for GoalNode.
+type GoalNode struct {
+	Id    string       `json:"id"`
+	Kind  GoalNodeKind `json:"kind"`
+	Label string       `json:"label"`
+	State string       `json:"state"`
+}
+
+// GoalNodeKind defines model for GoalNode.Kind.
+type GoalNodeKind string
+
+// GoalPlanOutput Restricted planning output. Analyze only the supplied window; no request_join, arbitrary tools, Task creation or execution grant. Consumed evidence ids must exactly match the immutable step input, checked by the service.
+type GoalPlanOutput struct {
+	ChangeReason        string                          `json:"change_reason"`
+	ConsumedEvidenceIds []string                        `json:"consumed_evidence_ids"`
+	ErrorCode           GoalPlanOutputErrorCode         `json:"error_code"`
+	InformationGaps     []string                        `json:"information_gaps"`
+	Intent              GoalPlanOutputIntent            `json:"intent"`
+	Role                GoalPlanOutputRole              `json:"role"`
+	SchemaId            GoalPlanOutputSchemaId          `json:"schema_id"`
+	SuggestedComplete   GoalPlanOutputSuggestedComplete `json:"suggested_complete"`
+	Summary             GoalPlanOutputSummary           `json:"summary"`
+}
+
+// GoalPlanOutputErrorCode defines model for GoalPlanOutput.ErrorCode.
+type GoalPlanOutputErrorCode string
+
+// GoalPlanOutputIntent defines model for GoalPlanOutput.Intent.
+type GoalPlanOutputIntent string
+
+// GoalPlanOutputRole defines model for GoalPlanOutput.Role.
+type GoalPlanOutputRole string
+
+// GoalPlanOutputSchemaId defines model for GoalPlanOutput.SchemaId.
+type GoalPlanOutputSchemaId string
+
+// GoalPlanOutputSuggestedComplete defines model for GoalPlanOutput.SuggestedComplete.
+type GoalPlanOutputSuggestedComplete bool
+
+// GoalPlanOutputSummary defines model for GoalPlanOutput.Summary.
+type GoalPlanOutputSummary string
+
+// GoalRoleSnapshot defines model for GoalRoleSnapshot.
+type GoalRoleSnapshot struct {
+	// Agent Existing versioned registry Agent snapshot. tools is empty; web_search configuration is not executed by deterministic_fixture.
+	Agent GoalAgentSnapshot `json:"agent"`
+
+	// Model Existing ModelProfile projection, not modelStoredProfile. No API key or authorization headers; a configured endpoint does not imply a provider call or permission.
+	Model  GoalModelSnapshot   `json:"model"`
+	Skills []GoalSkillSnapshot `json:"skills"`
+}
+
+// GoalRound At most one planner and one analyst logical step. The service enforces role uniqueness and causal evidence consumption.
+type GoalRound struct {
+	ChangeReason        string         `json:"change_reason"`
+	ConsumedEvidenceIds []string       `json:"consumed_evidence_ids"`
+	Number              int            `json:"number"`
+	State               GoalRoundState `json:"state"`
+	Steps               []GoalStep     `json:"steps"`
+}
+
+// GoalRoundState defines model for GoalRound.State.
+type GoalRoundState string
+
+// GoalRun Offline reasoning run only. max_steps is the run-wide total (4 rounds x 2 steps); at most 2 attempts per step, 30 seconds per attempt, 30 minutes per run. Only an operator can transition AWAITING_CONFIRMATION to CONFIRMED, after current-version/freshness checks. The service enforces lifecycle and temporal relationships; shape alone does not prove these checks or any external effect.
+type GoalRun struct {
+	AttemptTimeoutSeconds GoalRunAttemptTimeoutSeconds `json:"attempt_timeout_seconds"`
+
+	// Configuration Immutable start-time registry snapshots; they do not authorize tools or external effects.
+	Configuration GoalConfiguration `json:"configuration"`
+
+	// CreatedAt RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+	CreatedAt UTCDateTime `json:"created_at"`
+
+	// DeadlineAt RFC3339 UTC timestamp. The trailing Z is mandatory; local offsets are rejected by the wire contract.
+	DeadlineAt UTCDateTime    `json:"deadline_at"`
+	Evidence   []GoalEvidence `json:"evidence"`
+	Goal       string         `json:"goal"`
+
+	// Graph BBA-local dual-graph projection: goal/intent nodes express reasoning goals; fact/digest/finding/hint nodes link evidence. Asset anchors bind the configured group. External graph_sync cannot write these graphs; no execution authority is encoded here.
+	Graph GoalGraph `json:"graph"`
+
+	// GroupId QQ account or group identifier encoded as an unsigned decimal string. Never coerce to a JavaScript number.
+	GroupId QQId `json:"group_id"`
+
+	// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	Id             Id                    `json:"id"`
+	Implementation GoalRunImplementation `json:"implementation"`
+	MaxRounds      GoalRunMaxRounds      `json:"max_rounds"`
+	MaxSteps       GoalRunMaxSteps       `json:"max_steps"`
+
+	// Memory PostgreSQL memory projection. Initial unpopulated arrays are null; after analysis they are arrays. Summary and judgments are derived untrusted observations.
+	Memory GoalMemory   `json:"memory"`
+	Reason string       `json:"reason"`
+	Round  int          `json:"round"`
+	Rounds []GoalRound  `json:"rounds"`
+	State  GoalRunState `json:"state"`
+
+	// ThreadId Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	ThreadId Id  `json:"thread_id"`
+	Version  int `json:"version"`
+}
+
+// GoalRunAttemptTimeoutSeconds defines model for GoalRun.AttemptTimeoutSeconds.
+type GoalRunAttemptTimeoutSeconds int
+
+// GoalRunImplementation defines model for GoalRun.Implementation.
+type GoalRunImplementation string
+
+// GoalRunMaxRounds defines model for GoalRun.MaxRounds.
+type GoalRunMaxRounds int
+
+// GoalRunMaxSteps defines model for GoalRun.MaxSteps.
+type GoalRunMaxSteps int
+
+// GoalRunState defines model for GoalRun.State.
+type GoalRunState string
+
+// GoalRunControlRequest Compare-and-set against the current run version. Stop is durable; confirm requires AWAITING_CONFIRMATION with still-valid evidence and operator authorization, and grants no QQ action.
+type GoalRunControlRequest struct {
+	ExpectedVersion int `json:"expected_version"`
+}
+
+// GoalRunEnvelope defines model for GoalRunEnvelope.
+type GoalRunEnvelope struct {
+	// Data Offline reasoning run only. max_steps is the run-wide total (4 rounds x 2 steps); at most 2 attempts per step, 30 seconds per attempt, 30 minutes per run. Only an operator can transition AWAITING_CONFIRMATION to CONFIRMED, after current-version/freshness checks. The service enforces lifecycle and temporal relationships; shape alone does not prove these checks or any external effect.
+	Data GoalRun `json:"data"`
+
+	// Meta fixture_enabled is true only after the complete local deployment/database identity gate; it grants no operation permission.
+	Meta struct {
+		FixtureEnabled bool                              `json:"fixture_enabled"`
+		Implementation GoalRunEnvelopeMetaImplementation `json:"implementation"`
+	} `json:"meta"`
+}
+
+// GoalRunEnvelopeMetaImplementation defines model for GoalRunEnvelope.Meta.Implementation.
+type GoalRunEnvelopeMetaImplementation string
+
+// GoalRunListEnvelope Up to 50 newest runs for the current workspace/principal. This bounded first-stage list has no pagination/cursor promise.
+type GoalRunListEnvelope struct {
+	Data []GoalRun `json:"data"`
+
+	// Meta fixture_enabled is true only after the complete local deployment/database identity gate; it grants no operation permission.
+	Meta struct {
+		FixtureEnabled bool                                  `json:"fixture_enabled"`
+		Implementation GoalRunListEnvelopeMetaImplementation `json:"implementation"`
+	} `json:"meta"`
+}
+
+// GoalRunListEnvelopeMetaImplementation defines model for GoalRunListEnvelope.Meta.Implementation.
+type GoalRunListEnvelopeMetaImplementation string
+
+// GoalRunStartRequest Start a synthetic offline run with fixed Agent registry versions, scoped to the current workspace/principal and Agent thread. An absent thread may be created as Agent; an existing non-Agent thread is rejected. Caller cannot select a provider, tool, or execution permission.
+type GoalRunStartRequest struct {
+	AnalystRef struct {
+		// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+		Id      Id  `json:"id"`
+		Version int `json:"version"`
+	} `json:"analyst_ref"`
+	Goal string `json:"goal"`
+
+	// GroupId QQ account or group identifier encoded as an unsigned decimal string. Never coerce to a JavaScript number.
+	GroupId    QQId `json:"group_id"`
+	PlannerRef struct {
+		// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+		Id      Id  `json:"id"`
+		Version int `json:"version"`
+	} `json:"planner_ref"`
+
+	// ThreadId Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	ThreadId Id `json:"thread_id"`
+}
+
+// GoalSkillSnapshot defines model for GoalSkillSnapshot.
+type GoalSkillSnapshot struct {
+	Constraints []string `json:"constraints"`
+
+	// Deleted Existing registry omits false (omitempty); present true represents a deleted snapshot.
+	Deleted     *bool  `json:"deleted,omitempty"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+	Goal        string `json:"goal"`
+
+	// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	Id                   Id                                      `json:"id"`
+	Inputs               []string                                `json:"inputs"`
+	Name                 string                                  `json:"name"`
+	Outputs              []string                                `json:"outputs"`
+	Published            bool                                    `json:"published"`
+	RequiredCapabilities []GoalSkillSnapshotRequiredCapabilities `json:"required_capabilities"`
+	Steps                []string                                `json:"steps"`
+	StopConditions       []string                                `json:"stop_conditions"`
+	Tools                []string                                `json:"tools"`
+	UpdatedAt            string                                  `json:"updated_at"`
+	UpdatedBy            string                                  `json:"updated_by"`
+	Version              int                                     `json:"version"`
+}
+
+// GoalSkillSnapshotRequiredCapabilities defines model for GoalSkillSnapshot.RequiredCapabilities.
+type GoalSkillSnapshotRequiredCapabilities string
+
+// GoalStep One durable logical role step. attempt is 0 before claim and at most 2; retries retain the same step id. Empty output means no accepted result. Server checks output role against step role and fences late attempts.
+type GoalStep struct {
+	Attempt int `json:"attempt"`
+
+	// Id Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
+	Id     Id              `json:"id"`
+	Output GoalStep_Output `json:"output"`
+	Role   GoalStepRole    `json:"role"`
+	State  GoalStepState   `json:"state"`
+}
+
+// GoalStepOutput0 defines model for GoalStep.Output.0.
+type GoalStepOutput0 = map[string]interface{}
+
+// GoalStep_Output defines model for GoalStep.Output.
+type GoalStep_Output struct {
+	union json.RawMessage
+}
+
+// GoalStepRole defines model for GoalStep.Role.
+type GoalStepRole string
+
+// GoalStepState defines model for GoalStep.State.
+type GoalStepState string
+
 // GraphPlanCandidate defines model for GraphPlanCandidate.
 type GraphPlanCandidate struct {
 	// CandidateId Opaque server-issued resource identifier, 1..128 characters. Clients must not parse it; examples such as acc_qq1 are illustrative placeholders.
@@ -7627,6 +8488,26 @@ type ListOperatorConversationMessagesParams struct {
 	Cursor *int `form:"cursor,omitempty" json:"cursor,omitempty"`
 }
 
+// StartGoalRunParams defines parameters for StartGoalRun.
+type StartGoalRunParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// ConfirmGoalRunParams defines parameters for ConfirmGoalRun.
+type ConfirmGoalRunParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// InjectGoalFixtureWindowParams defines parameters for InjectGoalFixtureWindow.
+type InjectGoalFixtureWindowParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// StopGoalRunParams defines parameters for StopGoalRun.
+type StopGoalRunParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // ListOperatorNotificationsParams defines parameters for ListOperatorNotifications.
 type ListOperatorNotificationsParams struct {
 	// Limit Default 50 when omitted/empty; strconv.Atoi decimal parsing. Invalid/out-of-range is 400 VALIDATION_FAILED.
@@ -7848,6 +8729,18 @@ type PutObservationJSONRequestBody = Observation
 
 // AppendOperatorAgentMessageJSONRequestBody defines body for AppendOperatorAgentMessage for application/json ContentType.
 type AppendOperatorAgentMessageJSONRequestBody = OperatorAgentMessageRequest
+
+// StartGoalRunJSONRequestBody defines body for StartGoalRun for application/json ContentType.
+type StartGoalRunJSONRequestBody = GoalRunStartRequest
+
+// ConfirmGoalRunJSONRequestBody defines body for ConfirmGoalRun for application/json ContentType.
+type ConfirmGoalRunJSONRequestBody = GoalRunControlRequest
+
+// InjectGoalFixtureWindowJSONRequestBody defines body for InjectGoalFixtureWindow for application/json ContentType.
+type InjectGoalFixtureWindowJSONRequestBody = GoalFixtureWindowRequest
+
+// StopGoalRunJSONRequestBody defines body for StopGoalRun for application/json ContentType.
+type StopGoalRunJSONRequestBody = GoalRunControlRequest
 
 // SetOperatorNotificationReadJSONRequestBody defines body for SetOperatorNotificationRead for application/json ContentType.
 type SetOperatorNotificationReadJSONRequestBody = OperatorNotificationReadRequest
@@ -8508,6 +9401,94 @@ func (t ExecutionRequest_Params) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ExecutionRequest_Params) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsGoalStepOutput0 returns the union data inside the GoalStep_Output as a GoalStepOutput0
+func (t GoalStep_Output) AsGoalStepOutput0() (GoalStepOutput0, error) {
+	var body GoalStepOutput0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGoalStepOutput0 overwrites any union data inside the GoalStep_Output as the provided GoalStepOutput0
+func (t *GoalStep_Output) FromGoalStepOutput0(v GoalStepOutput0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGoalStepOutput0 performs a merge with any union data inside the GoalStep_Output, using the provided GoalStepOutput0
+func (t *GoalStep_Output) MergeGoalStepOutput0(v GoalStepOutput0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsGoalPlanOutput returns the union data inside the GoalStep_Output as a GoalPlanOutput
+func (t GoalStep_Output) AsGoalPlanOutput() (GoalPlanOutput, error) {
+	var body GoalPlanOutput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGoalPlanOutput overwrites any union data inside the GoalStep_Output as the provided GoalPlanOutput
+func (t *GoalStep_Output) FromGoalPlanOutput(v GoalPlanOutput) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGoalPlanOutput performs a merge with any union data inside the GoalStep_Output, using the provided GoalPlanOutput
+func (t *GoalStep_Output) MergeGoalPlanOutput(v GoalPlanOutput) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsGoalAnalysisOutput returns the union data inside the GoalStep_Output as a GoalAnalysisOutput
+func (t GoalStep_Output) AsGoalAnalysisOutput() (GoalAnalysisOutput, error) {
+	var body GoalAnalysisOutput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGoalAnalysisOutput overwrites any union data inside the GoalStep_Output as the provided GoalAnalysisOutput
+func (t *GoalStep_Output) FromGoalAnalysisOutput(v GoalAnalysisOutput) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGoalAnalysisOutput performs a merge with any union data inside the GoalStep_Output, using the provided GoalAnalysisOutput
+func (t *GoalStep_Output) MergeGoalAnalysisOutput(v GoalAnalysisOutput) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t GoalStep_Output) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *GoalStep_Output) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

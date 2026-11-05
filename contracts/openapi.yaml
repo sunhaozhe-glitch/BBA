@@ -18,6 +18,7 @@
   },
   "x-ref-policy": "All schema refs are local files under contracts/schemas. Remote, absolute, parent-traversing and symlink-escaping refs are forbidden.",
   "tags": [
+    {"name": "Goal Runs", "description": "Restricted BBA-local offline reasoning, synthetic fixture windows and operator confirmation. No model or QQ calls in deterministic_fixture."},
     {"name": "Operator Conversations", "description": "Existing B7 durable messages, review-only drafts, runtime inbox and local notifications; Bearer authentication only on these operations."},
     { "name": "Accounts", "description": "Accounts and account-control projections." },
     { "name": "Tasks", "description": "Task creation, status, event, and control operations." },
@@ -32,6 +33,394 @@
     { "name": "NapCat Plugin", "description": "Actual local plugin registration ID. Server-side adapter only. Live use requires the separate P0-12/P0-13 approval gates." }
   ],
   "paths": {
+    "/v1/operator/goal-runs": {
+      "get": {
+        "operationId": "listGoalRuns",
+        "summary": "List offline goal runs",
+        "tags": [
+          "Goal Runs"
+        ],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permission: conversation.read. Up to 50 newest runs for the current principal; no pagination contract in this stage. data is an array; meta.fixture_enabled reports the complete verified fixture gate, not authorization. Reading authorized existing records does not require the fixture gate to be enabled.",
+        "responses": {
+          "200": {
+            "description": "Bounded scoped list; empty data array is valid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/GoalRunListEnvelope.json#/GoalRunListEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ContractError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "startGoalRun",
+        "summary": "Start a bounded offline goal run",
+        "tags": [
+          "Goal Runs"
+        ],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Snapshot the existing planner and analyst Agent/Model/Skill registry configurations. Create or bind an Agent thread in this scope; reject a QQ thread as GOAL_SCOPE_MISMATCH. Starts WAITING_INPUT at round 0. implementation is deterministic_fixture and never calls a model or QQ. Fixed maximums: 4 rounds, 2 logical role steps per round, 2 attempts per step, 30 seconds per attempt and 30 minutes per run. No Task, Proposal, Reserve or Chat Permit is created; legacy clarification-only routes and request_join Proposal remain unchanged.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/GoalRunStartRequest.json#/GoalRunStartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable scoped run projection. A successful write does not assert model quality or any QQ effect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/GoalRunEnvelope.json#/GoalRunEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ContractError"
+          }
+        }
+      }
+    },
+    "/v1/operator/goal-runs/{run_id}": {
+      "get": {
+        "operationId": "getGoalRun",
+        "summary": "Read an offline goal run",
+        "tags": [
+          "Goal Runs"
+        ],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permission: conversation.read. Return the run, immutable configuration snapshots, memory, rounds, logical steps, bounded attempt counter, evidence and BBA-local dual-graph projection. Unusable or missing windows remain WAITING_INPUT with an explicit reason. Model judgments and summaries remain untrusted derived evidence.",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "description": "Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND.",
+            "schema": {
+              "$ref": "./schemas/common.json#/Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Durable scoped run projection. A successful write does not assert model quality or any QQ effect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/GoalRunEnvelope.json#/GoalRunEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ContractError"
+          }
+        }
+      }
+    },
+    "/v1/operator/goal-runs/{run_id}/fixture-windows": {
+      "post": {
+        "operationId": "injectGoalFixtureWindow",
+        "summary": "Inject one synthetic evidence window",
+        "tags": [
+          "Goal Runs"
+        ],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Only synthetic messages; event_id plus payload digest is replay-safe within the run. Duplicate delivery cannot start a second round. Check exact group and valid/fresh temporal bounds; expired windows are 409 WINDOW_EXPIRED, bad shape/time bounds are 400 VALIDATION_FAILED, group mismatch is 409 GOAL_SCOPE_MISMATCH. Invalid windows cannot count as usable input; waiting state has an explicit durable reason. Terminal or incompatible state is GOAL_STATE_CONFLICT; exhausted budgets may use GOAL_LIMIT_REACHED. New evidence triggers bounded planning and analysis, never QQ output.",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "description": "Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND.",
+            "schema": {
+              "$ref": "./schemas/common.json#/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/GoalFixtureWindowRequest.json#/GoalFixtureWindowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable scoped run projection. A successful write does not assert model quality or any QQ effect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/GoalRunEnvelope.json#/GoalRunEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ContractError"
+          }
+        }
+      }
+    },
+    "/v1/operator/goal-runs/{run_id}/stop": {
+      "post": {
+        "operationId": "stopGoalRun",
+        "summary": "Stop an offline goal run",
+        "tags": [
+          "Goal Runs"
+        ],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Compare expected_version, persist STOPPED and block subsequent claims and late-result progression. Stale version or incompatible state is 409 GOAL_STATE_CONFLICT. Accepted late attempt results may be archived but cannot restart the run. No external effect is represented as cancelled.",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "description": "Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND.",
+            "schema": {
+              "$ref": "./schemas/common.json#/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/GoalRunControlRequest.json#/GoalRunControlRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable scoped run projection. A successful write does not assert model quality or any QQ effect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/GoalRunEnvelope.json#/GoalRunEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ContractError"
+          }
+        }
+      }
+    },
+    "/v1/operator/goal-runs/{run_id}/confirm": {
+      "post": {
+        "operationId": "confirmGoalRun",
+        "summary": "Confirm a current offline analysis result",
+        "tags": [
+          "Goal Runs"
+        ],
+        "security": [
+          {
+            "OperatorBearer": []
+          }
+        ],
+        "description": "Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Only an authorized operator can confirm current AWAITING_CONFIRMATION with matching expected_version and still-valid evidence. Stale or incompatible state is 409 GOAL_STATE_CONFLICT; expired result evidence is 409 WINDOW_EXPIRED. CONFIRMED confirms this analysis only; it never grants a Task/Proposal/QQ permission or triggers an external action.",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "description": "Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND.",
+            "schema": {
+              "$ref": "./schemas/common.json#/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/GoalRunControlRequest.json#/GoalRunControlRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable scoped run projection. A successful write does not assert model quality or any QQ effect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/GoalRunEnvelope.json#/GoalRunEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ContractError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ContractError"
+          }
+        }
+      }
+    },
     "/v1/operator/conversations": {
       "get": {
         "operationId": "listOperatorConversations",

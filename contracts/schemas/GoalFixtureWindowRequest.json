@@ -1,0 +1,61 @@
+{
+  "GoalFixtureWindowRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "event_id",
+      "group_id",
+      "window_start",
+      "window_end",
+      "expires_at",
+      "messages"
+    ],
+    "properties": {
+      "event_id": {
+        "$ref": "common.json#/Id"
+      },
+      "group_id": {
+        "$ref": "common.json#/QQId"
+      },
+      "window_start": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "window_end": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "expires_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "messages": {
+        "type": "array",
+        "maxItems": 32,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "at",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "common.json#/Id"
+            },
+            "at": {
+              "$ref": "common.json#/UTCDateTime"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "pattern": "\\S",
+              "x-max-utf8-bytes": 2000
+            }
+          }
+        },
+        "minItems": 1
+      }
+    },
+    "description": "Synthetic input only behind the verified deployment fixture gate. The service checks window_start < window_end, window_end no more than 5 seconds in the future, window duration at most 24 hours, window_end < expires_at <= window_end + 1 hour, current freshness, exact group scope, unique message ids and each message at within the window. Invalid/expired windows cannot advance the run; waiting reason is durable. Schema checks shape and character bounds; the service checks byte limits and temporal relationships."
+  }
+}

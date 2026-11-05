@@ -28,6 +28,7 @@ func main() {
 	workerBatch := flag.Int("worker-batch", 20, "bounded tasks per worker step (1..100)")
 	workerRecover := flag.Bool("worker-recover", false, "run the one-shot crash recovery pass on the first worker tick")
 	workerID := flag.String("worker-id", "", "stable worker id (default worker-<pid>)")
+	goalFixture := flag.Bool("offline-goal-fixture", false, "isolated deterministic goal-loop fixture; never calls QQ or a real model")
 	proposalExecution := flag.Bool("proposal-execution", false, "enable explicit proposal-mode materialization and worker consumption")
 	loginProviderFile := flag.String("login-provider-file", "", "protected NapCat login provider configuration")
 	loginFixture := flag.Bool("login-fixture", false, "use the explicit isolated login boundary fixture")
@@ -87,6 +88,10 @@ func main() {
 		defer registry.Close()
 		model.Provider = registry
 	}
+	if err := taskengine.ValidateGoalFixtureDeployment(ctx, store, *goalFixture, *developmentOperations); err != nil {
+		log.Fatal(err)
+	}
+	goals := taskengine.NewGoalService(store, registry, *goalFixture)
 	var graphProvider taskengine.GraphSyncProvider
 	var graphWorker *taskengine.GraphSyncWorker
 	if *artexFile != "" {
@@ -189,6 +194,22 @@ func main() {
 			}
 			api.ServeHTTP(w, r)
 		})
+	}
+	goalAPI := goals.Handler(auth)
+	baseProductAPI := productAPI
+	productAPI = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1/operator/goal-runs" || strings.HasPrefix(r.URL.Path, "/v1/operator/goal-runs/") {
+			goalAPI.ServeHTTP(w, r)
+			return
+		}
+		baseProductAPI.ServeHTTP(w, r)
+	})
+	if *goalFixture {
+		go func() {
+			if err := goals.Run(ctx); err != nil {
+				log.Printf("offline goal loop stopped: %s", taskengine.Code(err))
+			}
+		}()
 	}
 	contentAPI := store.ContentHandler(auth)
 	productAPI = systemSettingsSurface(productAPI, registry, auth, store)

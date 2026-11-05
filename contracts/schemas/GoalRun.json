@@ -1,0 +1,764 @@
+{
+  "GoalAgentSnapshot": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "description",
+      "enabled",
+      "version",
+      "updated_by",
+      "updated_at",
+      "web_search",
+      "system_prompt",
+      "model_id",
+      "skills",
+      "tools"
+    ],
+    "properties": {
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 0
+      },
+      "description": {
+        "type": "string",
+        "minLength": 0
+      },
+      "enabled": {
+        "type": "boolean"
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "updated_by": {
+        "type": "string",
+        "minLength": 0
+      },
+      "updated_at": {
+        "type": "string",
+        "minLength": 0
+      },
+      "deleted": {
+        "type": "boolean",
+        "description": "Existing registry omits false (omitempty); present true represents a deleted snapshot."
+      },
+      "web_search": {
+        "type": "boolean"
+      },
+      "system_prompt": {
+        "type": "string",
+        "minLength": 0
+      },
+      "model_id": {
+        "$ref": "common.json#/Id"
+      },
+      "skills": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "common.json#/Id"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "tools": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        },
+        "maxItems": 0
+      }
+    },
+    "description": "Existing versioned registry Agent snapshot. tools is empty; web_search configuration is not executed by deterministic_fixture."
+  },
+  "GoalSkillSnapshot": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "description",
+      "enabled",
+      "version",
+      "updated_by",
+      "updated_at",
+      "goal",
+      "inputs",
+      "steps",
+      "required_capabilities",
+      "outputs",
+      "stop_conditions",
+      "constraints",
+      "tools",
+      "published"
+    ],
+    "properties": {
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 0
+      },
+      "description": {
+        "type": "string",
+        "minLength": 0
+      },
+      "enabled": {
+        "type": "boolean"
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "updated_by": {
+        "type": "string",
+        "minLength": 0
+      },
+      "updated_at": {
+        "type": "string",
+        "minLength": 0
+      },
+      "deleted": {
+        "type": "boolean",
+        "description": "Existing registry omits false (omitempty); present true represents a deleted snapshot."
+      },
+      "goal": {
+        "type": "string",
+        "minLength": 0
+      },
+      "inputs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "steps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "required_capabilities": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "structured_output"
+          ],
+          "x-enum-varnames": [
+            "GoalFixtureStructuredOutput"
+          ]
+        }
+      },
+      "outputs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "stop_conditions": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "constraints": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        }
+      },
+      "tools": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 0
+        },
+        "maxItems": 0
+      },
+      "published": {
+        "type": "boolean"
+      }
+    }
+  },
+  "GoalModelSnapshot": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "model",
+      "base_url",
+      "enabled",
+      "is_default",
+      "timeout_seconds",
+      "max_concurrent",
+      "version",
+      "has_secret"
+    ],
+    "properties": {
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 0
+      },
+      "model": {
+        "type": "string",
+        "minLength": 0
+      },
+      "base_url": {
+        "type": "string",
+        "minLength": 0
+      },
+      "enabled": {
+        "type": "boolean"
+      },
+      "is_default": {
+        "type": "boolean"
+      },
+      "timeout_seconds": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "max_concurrent": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "has_secret": {
+        "type": "boolean"
+      }
+    },
+    "description": "Existing ModelProfile projection, not modelStoredProfile. No API key or authorization headers; a configured endpoint does not imply a provider call or permission."
+  },
+  "GoalRoleSnapshot": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "agent",
+      "skills",
+      "model"
+    ],
+    "properties": {
+      "agent": {
+        "$ref": "#/GoalAgentSnapshot"
+      },
+      "skills": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalSkillSnapshot"
+        }
+      },
+      "model": {
+        "$ref": "#/GoalModelSnapshot"
+      }
+    }
+  },
+  "GoalConfiguration": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "planner",
+      "analyst"
+    ],
+    "properties": {
+      "planner": {
+        "$ref": "#/GoalRoleSnapshot"
+      },
+      "analyst": {
+        "$ref": "#/GoalRoleSnapshot"
+      }
+    },
+    "description": "Immutable start-time registry snapshots; they do not authorize tools or external effects."
+  },
+  "GoalMemory": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "summary",
+      "information_gaps",
+      "consumed_evidence_ids",
+      "updated_round"
+    ],
+    "properties": {
+      "summary": {
+        "type": "string",
+        "minLength": 0
+      },
+      "information_gaps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "nullable": true,
+        "maxItems": 8
+      },
+      "consumed_evidence_ids": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "nullable": true,
+        "maxItems": 32
+      },
+      "updated_round": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4
+      }
+    },
+    "description": "PostgreSQL memory projection. Initial unpopulated arrays are null; after analysis they are arrays. Summary and judgments are derived untrusted observations."
+  },
+  "GoalAsset": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "type",
+      "label"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "qq_group"
+        ]
+      },
+      "label": {
+        "type": "string",
+        "minLength": 0
+      }
+    }
+  },
+  "GoalNode": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "kind",
+      "label",
+      "state"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "goal",
+          "intent",
+          "fact",
+          "digest",
+          "finding",
+          "hint"
+        ]
+      },
+      "label": {
+        "type": "string",
+        "minLength": 0
+      },
+      "state": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "GoalEdge": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "from",
+      "to",
+      "kind"
+    ],
+    "properties": {
+      "from": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "to": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "spawns",
+          "yields",
+          "derived_from"
+        ]
+      }
+    }
+  },
+  "GoalAnchor": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "node_id",
+      "asset_id"
+    ],
+    "properties": {
+      "node_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "asset_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      }
+    }
+  },
+  "GoalGraph": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "assets",
+      "nodes",
+      "edges",
+      "anchors"
+    ],
+    "properties": {
+      "assets": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalAsset"
+        }
+      },
+      "nodes": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalNode"
+        }
+      },
+      "edges": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalEdge"
+        }
+      },
+      "anchors": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalAnchor"
+        }
+      }
+    },
+    "description": "BBA-local dual-graph projection: goal/intent nodes express reasoning goals; fact/digest/finding/hint nodes link evidence. Asset anchors bind the configured group. External graph_sync cannot write these graphs; no execution authority is encoded here."
+  },
+  "GoalEvidence": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "kind",
+      "text",
+      "refs",
+      "round",
+      "expires_at"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "raw",
+          "summary",
+          "model_judgment",
+          "hint"
+        ]
+      },
+      "text": {
+        "type": "string",
+        "minLength": 0
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "maxItems": 32
+      },
+      "round": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4
+      },
+      "expires_at": {
+        "$ref": "common.json#/UTCDateTime"
+      }
+    },
+    "description": "Synthetic evidence and derived analysis with provenance. model_judgment is a fixture judgment, never a verified customer statement or QQ outcome."
+  },
+  "GoalStep": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "role",
+      "state",
+      "attempt",
+      "output"
+    ],
+    "properties": {
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "role": {
+        "type": "string",
+        "enum": [
+          "planner",
+          "analyst"
+        ]
+      },
+      "state": {
+        "type": "string",
+        "enum": [
+          "READY",
+          "BLOCKED",
+          "RUNNING",
+          "COMPLETED",
+          "FAILED",
+          "STOPPED"
+        ]
+      },
+      "attempt": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2
+      },
+      "output": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {}
+          },
+          {
+            "$ref": "GoalOutputs.json#/GoalPlanOutput"
+          },
+          {
+            "$ref": "GoalOutputs.json#/GoalAnalysisOutput"
+          }
+        ]
+      }
+    },
+    "description": "One durable logical role step. attempt is 0 before claim and at most 2; retries retain the same step id. Empty output means no accepted result. Server checks output role against step role and fences late attempts."
+  },
+  "GoalRound": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "number",
+      "state",
+      "change_reason",
+      "consumed_evidence_ids",
+      "steps"
+    ],
+    "properties": {
+      "number": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4
+      },
+      "state": {
+        "type": "string",
+        "enum": [
+          "RUNNING",
+          "COMPLETED",
+          "FAILED",
+          "STOPPED"
+        ]
+      },
+      "change_reason": {
+        "type": "string",
+        "minLength": 0
+      },
+      "consumed_evidence_ids": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "maxItems": 32
+      },
+      "steps": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalStep"
+        },
+        "maxItems": 2
+      }
+    },
+    "description": "At most one planner and one analyst logical step. The service enforces role uniqueness and causal evidence consumption."
+  },
+  "GoalRun": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "thread_id",
+      "group_id",
+      "goal",
+      "state",
+      "version",
+      "round",
+      "reason",
+      "implementation",
+      "max_rounds",
+      "max_steps",
+      "attempt_timeout_seconds",
+      "created_at",
+      "deadline_at",
+      "configuration",
+      "memory",
+      "rounds",
+      "evidence",
+      "graph"
+    ],
+    "properties": {
+      "id": {
+        "$ref": "common.json#/Id"
+      },
+      "thread_id": {
+        "$ref": "common.json#/Id"
+      },
+      "group_id": {
+        "$ref": "common.json#/QQId"
+      },
+      "goal": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "state": {
+        "type": "string",
+        "enum": [
+          "WAITING_INPUT",
+          "RUNNING",
+          "AWAITING_CONFIRMATION",
+          "CONFIRMED",
+          "STOPPED",
+          "TIMED_OUT",
+          "LIMIT_REACHED"
+        ]
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "round": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4
+      },
+      "reason": {
+        "type": "string",
+        "minLength": 1
+      },
+      "implementation": {
+        "type": "string",
+        "enum": [
+          "deterministic_fixture"
+        ]
+      },
+      "max_rounds": {
+        "type": "integer",
+        "enum": [
+          4
+        ]
+      },
+      "max_steps": {
+        "type": "integer",
+        "enum": [
+          8
+        ]
+      },
+      "attempt_timeout_seconds": {
+        "type": "integer",
+        "enum": [
+          30
+        ]
+      },
+      "created_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "deadline_at": {
+        "$ref": "common.json#/UTCDateTime"
+      },
+      "configuration": {
+        "$ref": "#/GoalConfiguration"
+      },
+      "memory": {
+        "$ref": "#/GoalMemory"
+      },
+      "rounds": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalRound"
+        },
+        "maxItems": 4
+      },
+      "evidence": {
+        "type": "array",
+        "items": {
+          "$ref": "#/GoalEvidence"
+        }
+      },
+      "graph": {
+        "$ref": "#/GoalGraph"
+      }
+    },
+    "description": "Offline reasoning run only. max_steps is the run-wide total (4 rounds x 2 steps); at most 2 attempts per step, 30 seconds per attempt, 30 minutes per run. Only an operator can transition AWAITING_CONFIRMATION to CONFIRMED, after current-version/freshness checks. The service enforces lifecycle and temporal relationships; shape alone does not prove these checks or any external effect."
+  }
+}

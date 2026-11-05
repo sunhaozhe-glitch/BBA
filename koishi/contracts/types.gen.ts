@@ -4,6 +4,110 @@
  */
 
 export interface paths {
+    "/v1/operator/goal-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List offline goal runs
+         * @description Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permission: conversation.read. Up to 50 newest runs for the current principal; no pagination contract in this stage. data is an array; meta.fixture_enabled reports the complete verified fixture gate, not authorization. Reading authorized existing records does not require the fixture gate to be enabled.
+         */
+        get: operations["listGoalRuns"];
+        put?: never;
+        /**
+         * Start a bounded offline goal run
+         * @description Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Snapshot the existing planner and analyst Agent/Model/Skill registry configurations. Create or bind an Agent thread in this scope; reject a QQ thread as GOAL_SCOPE_MISMATCH. Starts WAITING_INPUT at round 0. implementation is deterministic_fixture and never calls a model or QQ. Fixed maximums: 4 rounds, 2 logical role steps per round, 2 attempts per step, 30 seconds per attempt and 30 minutes per run. No Task, Proposal, Reserve or Chat Permit is created; legacy clarification-only routes and request_join Proposal remain unchanged.
+         */
+        post: operations["startGoalRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/goal-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an offline goal run
+         * @description Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permission: conversation.read. Return the run, immutable configuration snapshots, memory, rounds, logical steps, bounded attempt counter, evidence and BBA-local dual-graph projection. Unusable or missing windows remain WAITING_INPUT with an explicit reason. Model judgments and summaries remain untrusted derived evidence.
+         */
+        get: operations["getGoalRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/goal-runs/{run_id}/fixture-windows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Inject one synthetic evidence window
+         * @description Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Only synthetic messages; event_id plus payload digest is replay-safe within the run. Duplicate delivery cannot start a second round. Check exact group and valid/fresh temporal bounds; expired windows are 409 WINDOW_EXPIRED, bad shape/time bounds are 400 VALIDATION_FAILED, group mismatch is 409 GOAL_SCOPE_MISMATCH. Invalid windows cannot count as usable input; waiting state has an explicit durable reason. Terminal or incompatible state is GOAL_STATE_CONFLICT; exhausted budgets may use GOAL_LIMIT_REACHED. New evidence triggers bounded planning and analysis, never QQ output.
+         */
+        post: operations["injectGoalFixtureWindow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/goal-runs/{run_id}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stop an offline goal run
+         * @description Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Compare expected_version, persist STOPPED and block subsequent claims and late-result progression. Stale version or incompatible state is 409 GOAL_STATE_CONFLICT. Accepted late attempt results may be archived but cannot restart the run. No external effect is represented as cancelled.
+         */
+        post: operations["stopGoalRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operator/goal-runs/{run_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a current offline analysis result
+         * @description Operator Bearer authentication only; runtime credentials are forbidden. Recheck current workspace/principal existence and conversation permission before reading or replaying. Responses use Cache-Control: no-store. PostgreSQL is the sole run/round/step/attempt/event/evidence/memory/stop authority; graph and model output grant no execution permission. Required permissions: conversation.read and conversation.write. Idempotency-Key is required for every mutation; bind the command identity to the current workspace/principal and the effective request, reject conflicting reuse with 409 IDEMPOTENCY_CONFLICT. Exact command replay must not create another run, consume another window, advance another round or repeat a control transition. Fixture mutations require all of -offline-goal-fixture, -development-operations, BBA_FIXTURE_ONLY=1 and a verified local PostgreSQL connection (loopback or /fixture Unix socket) with current_user=bba_fixture, or with current_database=bba_dev and current_user=bba_dev. Flags alone never establish fixture isolation. Missing gate is 403 GOAL_FIXTURE_DISABLED. Only an authorized operator can confirm current AWAITING_CONFIRMATION with matching expected_version and still-valid evidence. Stale or incompatible state is 409 GOAL_STATE_CONFLICT; expired result evidence is 409 WINDOW_EXPIRED. CONFIRMED confirms this analysis only; it never grants a Task/Proposal/QQ permission or triggers an external action.
+         */
+        post: operations["confirmGoalRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/operator/conversations": {
         parameters: {
             query?: never;
@@ -3010,6 +3114,247 @@ export interface components {
             /** @description Optional native request reference extracted for correlation; it is not membership confirmation. */
             request_ref?: string;
         };
+        /** @description Existing versioned registry Agent snapshot. tools is empty; web_search configuration is not executed by deterministic_fixture. */
+        GoalAgentSnapshot: {
+            id: components["schemas"]["Id"];
+            name: string;
+            description: string;
+            enabled: boolean;
+            version: number;
+            updated_by: string;
+            updated_at: string;
+            /** @description Existing registry omits false (omitempty); present true represents a deleted snapshot. */
+            deleted?: boolean;
+            web_search: boolean;
+            system_prompt: string;
+            model_id: components["schemas"]["Id"];
+            skills: {
+                id: components["schemas"]["Id"];
+                version: number;
+            }[];
+            tools: string[];
+        };
+        GoalSkillSnapshot: {
+            id: components["schemas"]["Id"];
+            name: string;
+            description: string;
+            enabled: boolean;
+            version: number;
+            updated_by: string;
+            updated_at: string;
+            /** @description Existing registry omits false (omitempty); present true represents a deleted snapshot. */
+            deleted?: boolean;
+            goal: string;
+            inputs: string[];
+            steps: string[];
+            required_capabilities: "structured_output"[];
+            outputs: string[];
+            stop_conditions: string[];
+            constraints: string[];
+            tools: string[];
+            published: boolean;
+        };
+        /** @description Existing ModelProfile projection, not modelStoredProfile. No API key or authorization headers; a configured endpoint does not imply a provider call or permission. */
+        GoalModelSnapshot: {
+            id: components["schemas"]["Id"];
+            name: string;
+            model: string;
+            base_url: string;
+            enabled: boolean;
+            is_default: boolean;
+            timeout_seconds: number;
+            max_concurrent: number;
+            version: number;
+            has_secret: boolean;
+        };
+        GoalRoleSnapshot: {
+            agent: components["schemas"]["GoalAgentSnapshot"];
+            skills: components["schemas"]["GoalSkillSnapshot"][];
+            model: components["schemas"]["GoalModelSnapshot"];
+        };
+        /** @description Immutable start-time registry snapshots; they do not authorize tools or external effects. */
+        GoalConfiguration: {
+            planner: components["schemas"]["GoalRoleSnapshot"];
+            analyst: components["schemas"]["GoalRoleSnapshot"];
+        };
+        /** @description PostgreSQL memory projection. Initial unpopulated arrays are null; after analysis they are arrays. Summary and judgments are derived untrusted observations. */
+        GoalMemory: {
+            summary: string;
+            information_gaps: string[] | null;
+            consumed_evidence_ids: string[] | null;
+            updated_round: number;
+        };
+        /** @description Restricted planning output. Analyze only the supplied window; no request_join, arbitrary tools, Task creation or execution grant. Consumed evidence ids must exactly match the immutable step input, checked by the service. */
+        GoalPlanOutput: {
+            /** @enum {string} */
+            schema_id: "GoalPlan.v1";
+            /** @enum {string} */
+            role: "planner";
+            consumed_evidence_ids: string[];
+            /** @enum {string} */
+            intent: "analyze_window";
+            change_reason: string;
+            /** @enum {string} */
+            summary: "";
+            information_gaps: string[];
+            /** @enum {boolean} */
+            suggested_complete: false;
+            /** @enum {string} */
+            error_code: "" | "WINDOW_EXPIRED" | "ANALYSIS_FAILED";
+        };
+        /** @description Restricted analysis output; suggested_complete must equal whether information_gaps is empty (server semantic validation). It only suggests operator confirmation and never completes a run itself. Output byte cap is 16384; summary/change_reason/gap byte caps are checked by the service. */
+        GoalAnalysisOutput: {
+            /** @enum {string} */
+            schema_id: "GoalAnalysis.v1";
+            /** @enum {string} */
+            role: "analyst";
+            consumed_evidence_ids: string[];
+            /** @enum {string} */
+            intent: "";
+            /** @enum {string} */
+            change_reason: "";
+            summary: string;
+            information_gaps: string[];
+            suggested_complete: boolean;
+            /** @enum {string} */
+            error_code: "" | "WINDOW_EXPIRED" | "ANALYSIS_FAILED";
+        };
+        /** @description One durable logical role step. attempt is 0 before claim and at most 2; retries retain the same step id. Empty output means no accepted result. Server checks output role against step role and fences late attempts. */
+        GoalStep: {
+            id: components["schemas"]["Id"];
+            /** @enum {string} */
+            role: "planner" | "analyst";
+            /** @enum {string} */
+            state: "READY" | "BLOCKED" | "RUNNING" | "COMPLETED" | "FAILED" | "STOPPED";
+            attempt: number;
+            output: Record<string, never> | components["schemas"]["GoalPlanOutput"] | components["schemas"]["GoalAnalysisOutput"];
+        };
+        /** @description At most one planner and one analyst logical step. The service enforces role uniqueness and causal evidence consumption. */
+        GoalRound: {
+            number: number;
+            /** @enum {string} */
+            state: "RUNNING" | "COMPLETED" | "FAILED" | "STOPPED";
+            change_reason: string;
+            consumed_evidence_ids: string[];
+            steps: components["schemas"]["GoalStep"][];
+        };
+        /** @description Synthetic evidence and derived analysis with provenance. model_judgment is a fixture judgment, never a verified customer statement or QQ outcome. */
+        GoalEvidence: {
+            id: string;
+            /** @enum {string} */
+            kind: "raw" | "summary" | "model_judgment" | "hint";
+            text: string;
+            refs: string[];
+            round: number;
+            expires_at: components["schemas"]["UTCDateTime"];
+        };
+        GoalAsset: {
+            id: string;
+            /** @enum {string} */
+            type: "qq_group";
+            label: string;
+        };
+        GoalNode: {
+            id: string;
+            /** @enum {string} */
+            kind: "goal" | "intent" | "fact" | "digest" | "finding" | "hint";
+            label: string;
+            state: string;
+        };
+        GoalEdge: {
+            from: string;
+            to: string;
+            /** @enum {string} */
+            kind: "spawns" | "yields" | "derived_from";
+        };
+        GoalAnchor: {
+            node_id: string;
+            asset_id: string;
+        };
+        /** @description BBA-local dual-graph projection: goal/intent nodes express reasoning goals; fact/digest/finding/hint nodes link evidence. Asset anchors bind the configured group. External graph_sync cannot write these graphs; no execution authority is encoded here. */
+        GoalGraph: {
+            assets: components["schemas"]["GoalAsset"][];
+            nodes: components["schemas"]["GoalNode"][];
+            edges: components["schemas"]["GoalEdge"][];
+            anchors: components["schemas"]["GoalAnchor"][];
+        };
+        /** @description Offline reasoning run only. max_steps is the run-wide total (4 rounds x 2 steps); at most 2 attempts per step, 30 seconds per attempt, 30 minutes per run. Only an operator can transition AWAITING_CONFIRMATION to CONFIRMED, after current-version/freshness checks. The service enforces lifecycle and temporal relationships; shape alone does not prove these checks or any external effect. */
+        GoalRun: {
+            id: components["schemas"]["Id"];
+            thread_id: components["schemas"]["Id"];
+            group_id: components["schemas"]["QQId"];
+            goal: string;
+            /** @enum {string} */
+            state: "WAITING_INPUT" | "RUNNING" | "AWAITING_CONFIRMATION" | "CONFIRMED" | "STOPPED" | "TIMED_OUT" | "LIMIT_REACHED";
+            version: number;
+            round: number;
+            reason: string;
+            /** @enum {string} */
+            implementation: "deterministic_fixture";
+            /** @enum {integer} */
+            max_rounds: 4;
+            /** @enum {integer} */
+            max_steps: 8;
+            /** @enum {integer} */
+            attempt_timeout_seconds: 30;
+            created_at: components["schemas"]["UTCDateTime"];
+            deadline_at: components["schemas"]["UTCDateTime"];
+            configuration: components["schemas"]["GoalConfiguration"];
+            memory: components["schemas"]["GoalMemory"];
+            rounds: components["schemas"]["GoalRound"][];
+            evidence: components["schemas"]["GoalEvidence"][];
+            graph: components["schemas"]["GoalGraph"];
+        };
+        /** @description Up to 50 newest runs for the current workspace/principal. This bounded first-stage list has no pagination/cursor promise. */
+        GoalRunListEnvelope: {
+            data: components["schemas"]["GoalRun"][];
+            /** @description fixture_enabled is true only after the complete local deployment/database identity gate; it grants no operation permission. */
+            meta: {
+                fixture_enabled: boolean;
+                /** @enum {string} */
+                implementation: "deterministic_fixture";
+            };
+        };
+        /** @description Start a synthetic offline run with fixed Agent registry versions, scoped to the current workspace/principal and Agent thread. An absent thread may be created as Agent; an existing non-Agent thread is rejected. Caller cannot select a provider, tool, or execution permission. */
+        GoalRunStartRequest: {
+            thread_id: components["schemas"]["Id"];
+            group_id: components["schemas"]["QQId"];
+            goal: string;
+            planner_ref: {
+                id: components["schemas"]["Id"];
+                version: number;
+            };
+            analyst_ref: {
+                id: components["schemas"]["Id"];
+                version: number;
+            };
+        };
+        GoalRunEnvelope: {
+            data: components["schemas"]["GoalRun"];
+            /** @description fixture_enabled is true only after the complete local deployment/database identity gate; it grants no operation permission. */
+            meta: {
+                fixture_enabled: boolean;
+                /** @enum {string} */
+                implementation: "deterministic_fixture";
+            };
+        };
+        /** @description Synthetic input only behind the verified deployment fixture gate. The service checks window_start < window_end, window_end no more than 5 seconds in the future, window duration at most 24 hours, window_end < expires_at <= window_end + 1 hour, current freshness, exact group scope, unique message ids and each message at within the window. Invalid/expired windows cannot advance the run; waiting reason is durable. Schema checks shape and character bounds; the service checks byte limits and temporal relationships. */
+        GoalFixtureWindowRequest: {
+            event_id: components["schemas"]["Id"];
+            group_id: components["schemas"]["QQId"];
+            window_start: components["schemas"]["UTCDateTime"];
+            window_end: components["schemas"]["UTCDateTime"];
+            expires_at: components["schemas"]["UTCDateTime"];
+            messages: {
+                id: components["schemas"]["Id"];
+                at: components["schemas"]["UTCDateTime"];
+                text: string;
+            }[];
+        };
+        /** @description Compare-and-set against the current run version. Stop is durable; confirm requires AWAITING_CONFIRMATION with still-valid evidence and operator authorization, and grants no QQ action. */
+        GoalRunControlRequest: {
+            expected_version: number;
+        };
         /** @description Account list payload. The cursor lives in envelope meta, not here. */
         AccountPage: {
             items: components["schemas"]["Account"][];
@@ -3152,6 +3497,208 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listGoalRuns: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bounded scoped list; empty data array is valid. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalRunListEnvelope"];
+                };
+            };
+            400: components["responses"]["ContractError"];
+            401: components["responses"]["ContractError"];
+            403: components["responses"]["ContractError"];
+            404: components["responses"]["ContractError"];
+            405: components["responses"]["ContractError"];
+            409: components["responses"]["ContractError"];
+            503: components["responses"]["ContractError"];
+        };
+    };
+    startGoalRun: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalRunStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Durable scoped run projection. A successful write does not assert model quality or any QQ effect. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalRunEnvelope"];
+                };
+            };
+            400: components["responses"]["ContractError"];
+            401: components["responses"]["ContractError"];
+            403: components["responses"]["ContractError"];
+            404: components["responses"]["ContractError"];
+            405: components["responses"]["ContractError"];
+            409: components["responses"]["ContractError"];
+            503: components["responses"]["ContractError"];
+        };
+    };
+    getGoalRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND. */
+                run_id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Durable scoped run projection. A successful write does not assert model quality or any QQ effect. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalRunEnvelope"];
+                };
+            };
+            400: components["responses"]["ContractError"];
+            401: components["responses"]["ContractError"];
+            403: components["responses"]["ContractError"];
+            404: components["responses"]["ContractError"];
+            405: components["responses"]["ContractError"];
+            409: components["responses"]["ContractError"];
+            503: components["responses"]["ContractError"];
+        };
+    };
+    injectGoalFixtureWindow: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                /** @description Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND. */
+                run_id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        /** @description A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalFixtureWindowRequest"];
+            };
+        };
+        responses: {
+            /** @description Durable scoped run projection. A successful write does not assert model quality or any QQ effect. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalRunEnvelope"];
+                };
+            };
+            400: components["responses"]["ContractError"];
+            401: components["responses"]["ContractError"];
+            403: components["responses"]["ContractError"];
+            404: components["responses"]["ContractError"];
+            405: components["responses"]["ContractError"];
+            409: components["responses"]["ContractError"];
+            503: components["responses"]["ContractError"];
+        };
+    };
+    stopGoalRun: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                /** @description Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND. */
+                run_id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        /** @description A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalRunControlRequest"];
+            };
+        };
+        responses: {
+            /** @description Durable scoped run projection. A successful write does not assert model quality or any QQ effect. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalRunEnvelope"];
+                };
+            };
+            400: components["responses"]["ContractError"];
+            401: components["responses"]["ContractError"];
+            403: components["responses"]["ContractError"];
+            404: components["responses"]["ContractError"];
+            405: components["responses"]["ContractError"];
+            409: components["responses"]["ContractError"];
+            503: components["responses"]["ContractError"];
+        };
+    };
+    confirmGoalRun: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                /** @description Run id in the current workspace/principal scope. Cross-scope and missing runs return RESOURCE_NOT_FOUND. */
+                run_id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        /** @description A single strict JSON object; unknown fields and null required fields are rejected. Character limits do not replace service UTF-8 byte checks. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalRunControlRequest"];
+            };
+        };
+        responses: {
+            /** @description Durable scoped run projection. A successful write does not assert model quality or any QQ effect. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalRunEnvelope"];
+                };
+            };
+            400: components["responses"]["ContractError"];
+            401: components["responses"]["ContractError"];
+            403: components["responses"]["ContractError"];
+            404: components["responses"]["ContractError"];
+            405: components["responses"]["ContractError"];
+            409: components["responses"]["ContractError"];
+            503: components["responses"]["ContractError"];
+        };
+    };
     listOperatorConversations: {
         parameters: {
             query?: {

@@ -1,0 +1,16 @@
+{
+  "GoalRunControlRequest": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "expected_version"
+    ],
+    "properties": {
+      "expected_version": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "description": "Compare-and-set against the current run version. Stop is durable; confirm requires AWAITING_CONFIRMATION with still-valid evidence and operator authorization, and grants no QQ action."
+  }
+}

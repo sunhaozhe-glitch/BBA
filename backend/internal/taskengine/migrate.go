@@ -32,12 +32,13 @@ var migrationTail = []string{
 	"0015_work_settings.sql",
 	"0016_qq_conversations.sql",
 	"0017_operator_notification_scope.sql",
+	"0018_goal_runs.sql",
 }
 
 // migrationHead is the schema version this build migrates to: the version the
 // last migrationTail entry records. Product migrations add proposal work,
 // ARTEX sync and scoped login sessions without changing legacy task mode.
-const migrationHead = 26
+const migrationHead = 27
 
 // Migrate explicitly initializes or upgrades a Task Engine fixture/database.
 // Open never migrates; existing schemas advance additively to migrationHead.

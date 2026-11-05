@@ -1,0 +1,35 @@
+{
+  "GoalRunEnvelope": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "GoalRun.json#/GoalRun"
+      },
+      "meta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fixture_enabled",
+          "implementation"
+        ],
+        "properties": {
+          "fixture_enabled": {
+            "type": "boolean"
+          },
+          "implementation": {
+            "type": "string",
+            "enum": [
+              "deterministic_fixture"
+            ]
+          }
+        },
+        "description": "fixture_enabled is true only after the complete local deployment/database identity gate; it grants no operation permission."
+      }
+    }
+  }
+}
