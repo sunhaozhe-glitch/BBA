@@ -312,10 +312,12 @@ COMMIT;`);
     // Recover the test session after a failed navigation regression so other
     // permissions, pagination, header and execution-fact evidence still runs.
     await login();
-    // 51 same-type messages and notifications: known UI pagination gap, not M1 PASS.
+    // 51-row synthetic pages exercise the existing cursor contract without external writes.
     sql(`BEGIN;
 INSERT INTO core.operator_message(workspace_id,id,conversation_id,source,direction,delivery_state,body,body_digest,event_id,seq)
 SELECT 'b7fix-ws','${prefix}-m-'||g,'${msgId}','agent','inbound','received','${prefix} message '||g,repeat('a',64),'${prefix}-evt-'||g,g FROM generate_series(1,51) g;
+INSERT INTO core.operator_conversation(workspace_id,id,kind,conversation_kind,conversation_id,created_at)
+SELECT 'b7fix-ws','${prefix}-c-'||g,'agent','agent','${prefix}-c-'||g,timestamp '2020-01-01 00:00:00+00' + (g * interval '1 second') FROM generate_series(1,51) g;
 INSERT INTO core.operator_notification(workspace_id,id,event_key,event_type,object_id,summary,created_at)
 SELECT 'b7fix-ws','${prefix}-n-'||g,'${prefix}-n-'||g,'fixture.pagination','${prefix}-n-'||g,'${prefix} notice '||g,clock_timestamp()-((52-g)*interval '1 second') FROM generate_series(1,51) g;
 COMMIT;`);
@@ -325,28 +327,38 @@ COMMIT;`);
         const b=await api('GET',endpoint+'?limit=1&cursor='+encodeURIComponent(a.json.data.next_cursor));assert.equal(b.status,200);assert.equal(b.json.data.items.length,1);assert.notEqual(b.json.data.items[0].id,a.json.data.items[0].id);
       }
     });
-    await check('browser 51 messages: next_cursor present but tail invisible and unconsumed',async()=>{
+    await check('browser 51 conversations consumes next_cursor and shows tail',async()=>{
+      await nav('chat');const start=network.length;const hidden=prefix+'-c-51';
+      assert.equal(await page.getByRole('cell',{name:hidden,exact:true}).count(),0);
+      assert.equal(await page.getByRole('cell',{name:prefix+'-c-1',exact:true}).count(),1);
+      const more=page.locator('[data-pagination="conversations"] button');await more.waitFor();await more.click();
+      await page.getByRole('cell',{name:hidden,exact:true}).waitFor();
+      assert(network.slice(start).some(r=>r.channel==='browser'&&r.path==='/v1/operator/conversations?limit=50&cursor=50'));
+      assert.equal(await page.locator('[data-pagination="conversations"] button').count(),0);await shot('pagination-conversations-tail-visible');
+    });
+    await check('browser 51 messages consumes next_cursor and shows tail',async()=>{
       await nav('chat');const start=network.length;await page.locator(`[data-chat-conv="${msgId}"]`).click();await page.locator('#chat-form').waitFor();
       const endpoint='/v1/operator/conversations/'+msgId+'/messages';
       const first=await api('GET',endpoint+'?limit=50');assert.equal(first.json.data.items.length,50);assert.equal(first.json.data.next_cursor,'50');
       const last=await api('GET',endpoint+'?limit=50&cursor=50');assert.equal(last.json.data.items.length,1);assert.equal(last.json.data.items[0].seq,1);
       assert.equal(Number(sql(`SELECT count(*) FROM core.operator_message WHERE conversation_id='${msgId}';`)),51);
-      const text=await page.locator('#content').textContent();assert(text.includes(prefix+' message 51'));// Exact cell matching distinguishes message 1 from message 10..19.
+      const text=await page.locator('#content').textContent();assert(text.includes(prefix+' message 51'));
       assert.equal(await page.getByRole('cell',{name:prefix+' message 1',exact:true}).count(),0);
-      await page.locator('#content').evaluate(el=>el.scrollTo(0,el.scrollHeight));await sleep(200);
-      assert.equal(await page.getByRole('button',{name:/加载更多|下一页/}).count(),0);
-      assert(!network.slice(start).some(r=>r.channel==='browser'&&r.path.startsWith(endpoint)&&r.path.includes('cursor=')));await shot('pagination-messages-tail-missing');
-      findings.push({id:'message-pagination',kind:'gap',priority:'P2',status:'CONFIRMED',acceptance:'PARTIAL',detail:'51 Agent messages persisted; API returns 50 + next_cursor=50, second API page contains seq=1; browser renders 50 and does not consume cursor, oldest message unavailable.'});
+      const more=page.locator('[data-pagination="messages"] button');await more.waitFor();await more.click();
+      await page.getByRole('cell',{name:prefix+' message 1',exact:true}).waitFor();
+      assert(network.slice(start).some(r=>r.channel==='browser'&&r.path.startsWith(endpoint+'?limit=50&cursor=50')));
+      assert.equal(await page.locator('[data-pagination="messages"] button').count(),0);await shot('pagination-messages-tail-visible');
     });
-    await check('browser 51 notifications: next_cursor present but tail invisible and unconsumed',async()=>{
+    await check('browser 51 notifications consumes next_cursor and shows tail',async()=>{
       const start=network.length;await nav('notify');const first=await api('GET','/v1/operator/notifications?limit=50');assert.equal(first.json.data.items.length,50);assert(first.json.data.next_cursor);
       const hidden=prefix+'-n-1';assert(!first.json.data.items.some(x=>x.id===hidden));
       const second=await api('GET','/v1/operator/notifications?limit=100&cursor='+first.json.data.next_cursor);assert(second.json.data.items.some(x=>x.id===hidden));
       assert.equal(Number(sql(`SELECT count(*) FROM core.operator_notification WHERE id LIKE '${prefix}-n-%';`)),51);
       assert.equal(await page.getByRole('cell',{name:prefix+' notice 1',exact:true}).count(),0);
-      await page.locator('#content').evaluate(el=>el.scrollTo(0,el.scrollHeight));await sleep(200);
-      assert.equal(await page.getByRole('button',{name:/加载更多|下一页/}).count(),0);assert(!network.slice(start).some(r=>r.channel==='browser'&&r.path.startsWith('/v1/operator/notifications?')&&r.path.includes('cursor=')));await shot('pagination-notifications-tail-missing');
-      findings.push({id:'notification-pagination',kind:'gap',priority:'P2',status:'CONFIRMED',acceptance:'PARTIAL',detail:'51 same-type synthetic notifications persisted, API tail contains oldest synthetic item; UI stops at first 50 and consumes no next_cursor.'});
+      const more=page.locator('[data-pagination="notifications"] button');await more.waitFor();await more.click();
+      await page.getByRole('cell',{name:prefix+' notice 1',exact:true}).waitFor();
+      assert(network.slice(start).some(r=>r.channel==='browser'&&r.path==='/v1/operator/notifications?limit=50&cursor=50'));
+      assert.equal(await page.locator('[data-pagination="notifications"] button').count(),0);await shot('pagination-notifications-tail-visible');
     });
     await check('authenticated chat header connection text observation',async()=>{
       await login();const text=await page.locator('#connection').textContent();save('connection-label.json',{auth_hidden:await page.locator('#auth').isHidden(),text});await shot('authenticated-header');
@@ -361,7 +373,10 @@ COMMIT;`);
     try{save('network.jsonl',network.map(r=>JSON.stringify(r)).join('\n')+'\n')}catch(e){checks.push({name:'network evidence save',status:'FAIL',error:e.message});}
     const notificationCheck=checks.find(c=>c.name===notificationCheckName);
     const notificationNavigation=notificationCheck?.status==='PASS'?'PASS':notificationCheck?.verification==='NOT_VERIFIED'?'NOT_VERIFIED':notificationCheck?.status||'NOT_VERIFIED';
-    const result={prefix,scope:'ISOLATED_FIXTURE',validation_checks:checks,product_findings:findings,acceptance:{M1:'PARTIAL',real_runtime_ingress:checks[0]?.status||'NOT_RUN',pagination:'PARTIAL',notification_navigation:notificationNavigation},credential_restoration_pending:restoredActive,synthetic_rows:'Retained in temporary DB; no append-only message deletion; caller must finally stop launcher.',at:new Date().toISOString()};
+    const paginationNames=['browser 51 conversations consumes next_cursor and shows tail','browser 51 messages consumes next_cursor and shows tail','browser 51 notifications consumes next_cursor and shows tail'];
+    const paginationChecks=checks.filter(c=>paginationNames.includes(c.name));
+    const pagination=paginationChecks.length===paginationNames.length&&paginationChecks.every(c=>c.status==='PASS')?'PASS':'PARTIAL';
+    const result={prefix,scope:'ISOLATED_FIXTURE',validation_checks:checks,product_findings:findings,acceptance:{M1:pagination==='PASS'&&notificationNavigation==='PASS'?'PASS':'PARTIAL',real_runtime_ingress:checks[0]?.status||'NOT_RUN',pagination,notification_navigation:notificationNavigation},credential_restoration_pending:restoredActive,synthetic_rows:'Retained in temporary DB; no append-only message deletion; caller must finally stop launcher.',at:new Date().toISOString()};
     save('result.json',result);
     console.log(JSON.stringify({validation_checks:checks.length,failed:checks.filter(c=>c.status==='FAIL').map(c=>c.name),product_findings:findings.length,acceptance:result.acceptance,out}));
     process.exitCode=checks.some(c=>c.status==='FAIL')?1:0;

@@ -236,3 +236,13 @@ B5 仍仅模型出口代理核心限定通过，以 Astra b5 closeout 为准；�
 ### 当前结论与后续
 
 本轮通知迟到缺陷在上述范围为 `IMPLEMENTED / WIRED_TO_CONSUMER / ISOLATED_FIXTURE / PASS`；**M1仍为PARTIAL，发布为NOT_RELEASED**。11项包含剩余缺口调查，exit0不代表完整产品通过。51条消息/通知的尾页API可读但UI仍不消费cursor（P2），已认证header仍显示“尚未连接”（P3）；会话51+分页、完整并发/持久恢复、外部推送及M5 run仍未验收。后续单独实现会话/消息/通知分页，再处理header状态；修改调查脚本时逐项把已修缺口转换成正向回归。
+
+## M1 B7 分页与迟到响应再验收（2026-11-05）
+
+本节补充并限定当前实现提交 `4231bab` 的独立验证范围。它只 supersede 2026-11-04 浏览器增量记录中关于 conversations/messages/notifications 固定读取首页的分页缺口，不改写历史原始证据，也不扩大为完整 Agent run 或真实 QQ 验收。
+
+- `frontend/app.js` 现在消费三个列表的 `next_cursor`，使用服务端返回的 `cursor` 请求后续页；会话、消息和通知分别保留当前列表、加载状态、错误状态和 cursor。当前 route、session、tab、conversation、list generation 失效时，迟到的后续页不会覆盖新视图。
+- 本地浏览器 API fixture：`node tools/b7-chat-notify-browser.cjs` 使用 51 条会话、消息和通知数据，在 1440、768、375 三种宽度下共 51 项检查通过；覆盖首屏、cursor=50、尾项显示、按钮消失、通知分页迟到响应，以及已有草稿/CAS/未授权发送回归。
+- 真实服务隔离验收：`tests/product/b7-real-service-acceptance.cjs` 使用全新 PostgreSQL fixture、当前 Go binary 和同源浏览器执行 12 项检查，全部通过；结果为 `M1=PASS`、`pagination=PASS`、`notification_navigation=PASS`、`real_runtime_ingress=PASS`。数据库读回仍为零 Task、Chat Permit、dispatch permit 和 model request，fixture 容器、端口和凭据清理通过。
+- 其他守护检查：`tests.product.test_b7_manual_fixture_launcher` 10/10 通过；`TMPDIR=<user-writable> bash tools/kernel.sh test-all` 退出 0，`internal/taskengine` race suite 通过；`bash tools/contract.sh check` 退出 0，83 个合同测试通过；frontend/embed 字节一致且 Node 语法检查通过。
+- 当前剩余边界：真实服务探针仍记录 P3 `authenticated-header-label`（认证后页头仍显示“尚未连接”），这属于状态文案问题；真实 QQ、真实模型、MCP、ARTEX live endpoint、生产数据库、部署和发布仍为 `NOT_RUN` / `NOT_RELEASED`。B7-07 的 thread→run→model/tool 完整运行仍未接线。
