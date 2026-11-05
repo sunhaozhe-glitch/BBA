@@ -405,6 +405,65 @@ func (r *ModelRegistry) invoke(ctx context.Context, workspace, id string, call M
 func (r *ModelRegistry) Complete(ctx context.Context, call ModelCall) (ModelCompletion, error) {
 	return r.invoke(ctx, call.WorkspaceID, "", call, false)
 }
+func (r *ModelRegistry) CompleteStructured(ctx context.Context, call StructuredModelCall) (ModelCompletion, error) {
+	r.mu.Lock()
+	items := r.data.Workspaces[call.WorkspaceID]
+	var profile modelStoredProfile
+	found := false
+	for _, item := range items {
+		if item.IsDefault {
+			profile = item
+			found = true
+			break
+		}
+	}
+	if !found && len(items) == 1 {
+		profile = items[0]
+		found = true
+	}
+	if !found && r.fallback != nil {
+		fallback := r.fallback
+		snap, snapshotErr := r.proxySnapshotLocked(call.WorkspaceID)
+		r.mu.Unlock()
+		if snapshotErr != nil {
+			return ModelCompletion{}, snapshotErr
+		}
+		provider, err := r.proxyProvider(fallback, snap)
+		if err != nil {
+			return ModelCompletion{}, problem(modelCodeProviderUnavailable)
+		}
+		structured, ok := provider.(StructuredModelProvider)
+		if !ok {
+			return ModelCompletion{}, problem(modelCodeProviderUnavailable)
+		}
+		return structured.CompleteStructured(ctx, call)
+	}
+	if !found || !profile.Enabled || profile.APIKey == "" || r.active[call.WorkspaceID] >= profile.MaxConcurrent {
+		r.mu.Unlock()
+		return ModelCompletion{}, problem(modelCodeProviderUnavailable)
+	}
+	r.active[call.WorkspaceID]++
+	snap, snapshotErr := r.proxySnapshotLocked(call.WorkspaceID)
+	r.mu.Unlock()
+	defer func() { r.mu.Lock(); r.active[call.WorkspaceID]--; r.mu.Unlock() }()
+	if snapshotErr != nil {
+		return ModelCompletion{}, snapshotErr
+	}
+	provider, err := r.adapter(profile)
+	if err == nil {
+		provider, err = r.proxyProvider(provider, snap)
+	}
+	if err != nil {
+		return ModelCompletion{}, problem(modelCodeProviderUnavailable)
+	}
+	structured, ok := provider.(StructuredModelProvider)
+	if !ok {
+		return ModelCompletion{}, problem(modelCodeProviderUnavailable)
+	}
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(profile.TimeoutSeconds)*time.Second)
+	defer cancel()
+	return structured.CompleteStructured(ctx, call)
+}
 func (r *ModelRegistry) Handler(auth func(*http.Request) (Actor, error), store *Store) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

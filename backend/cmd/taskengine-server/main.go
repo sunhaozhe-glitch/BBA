@@ -29,6 +29,7 @@ func main() {
 	workerRecover := flag.Bool("worker-recover", false, "run the one-shot crash recovery pass on the first worker tick")
 	workerID := flag.String("worker-id", "", "stable worker id (default worker-<pid>)")
 	goalFixture := flag.Bool("offline-goal-fixture", false, "isolated deterministic goal-loop fixture; never calls QQ or a real model")
+	goalModel := flag.Bool("goal-model", false, "enable the bounded model goal planner with explicit development operations")
 	proposalExecution := flag.Bool("proposal-execution", false, "enable explicit proposal-mode materialization and worker consumption")
 	loginProviderFile := flag.String("login-provider-file", "", "protected NapCat login provider configuration")
 	loginFixture := flag.Bool("login-fixture", false, "use the explicit isolated login boundary fixture")
@@ -98,10 +99,28 @@ func main() {
 		defer registry.Close()
 		model.Provider = registry
 	}
+	if *goalFixture && *goalModel {
+		log.Fatal("offline-goal-fixture and goal-model are mutually exclusive")
+	}
 	if err := taskengine.ValidateGoalFixtureDeployment(ctx, store, *goalFixture, *developmentOperations); err != nil {
 		log.Fatal(err)
 	}
-	goals := taskengine.NewGoalService(store, registry, *goalFixture)
+	var goals *taskengine.GoalService
+	if *goalModel {
+		if !*developmentOperations {
+			log.Fatal("goal-model requires explicit development operations")
+		}
+		if registry == nil {
+			log.Fatal("goal-model requires -model-registry-file for versioned agent/model bindings")
+		}
+		structured, ok := model.Provider.(taskengine.StructuredModelProvider)
+		if !ok {
+			log.Fatal("goal-model requires a configured structured model provider")
+		}
+		goals = taskengine.NewGoalServiceWithReasoner(store, registry, taskengine.NewGoalReasoner(structured))
+	} else {
+		goals = taskengine.NewGoalService(store, registry, *goalFixture)
+	}
 	var graphProvider taskengine.GraphSyncProvider
 	var graphWorker *taskengine.GraphSyncWorker
 	if *artexFile != "" {
@@ -214,7 +233,7 @@ func main() {
 		}
 		baseProductAPI.ServeHTTP(w, r)
 	})
-	if *goalFixture {
+	if *goalFixture || *goalModel {
 		go func() {
 			if err := goals.Run(ctx); err != nil {
 				log.Printf("offline goal loop stopped: %s", taskengine.Code(err))

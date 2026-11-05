@@ -67,13 +67,13 @@ func (g *GoalService) Handler(auth func(*http.Request) (Actor, error)) http.Hand
 				goalHTTPError(w, r, e)
 				return
 			}
-			if !g.fixture {
+			if !g.enabled() {
 				goalHTTPError(w, r, problem("GOAL_FIXTURE_DISABLED"))
 				return
 			}
 		}
 		reply := func(data any) {
-			thWriteJSON(w, http.StatusOK, map[string]any{"data": data, "meta": map[string]any{"fixture_enabled": g.fixture, "implementation": "deterministic_fixture"}})
+			thWriteJSON(w, http.StatusOK, map[string]any{"data": data, "meta": map[string]any{"fixture_enabled": g.fixture, "implementation": g.implementation}})
 		}
 		if path == base {
 			if r.Method == http.MethodGet {
